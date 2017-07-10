@@ -2,11 +2,9 @@ package com.javahelps.wisdom.core.query;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.processor.FilterProcessor;
 import com.javahelps.wisdom.core.processor.MapProcessor;
-import com.javahelps.wisdom.core.processor.PatternProcessor;
 import com.javahelps.wisdom.core.processor.SelectProcessor;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
 import com.javahelps.wisdom.core.processor.WindowProcessor;
@@ -43,30 +41,8 @@ public class Query {
 
     public Query from(Pattern pattern) {
 
-        // Find the last pattern
-        Pattern last = pattern;
-        if (last.getNextPattern() != null) {
-            last = last.getNextPattern();
-        }
-        last.setLast(true);
-
-        // Find the first pattern
-        Pattern first = pattern;
-        while (!first.isFirst()) {
-            first = first.getPreviousPattern();
-        }
-
-        PatternProcessor patternProcessor = new PatternProcessor(generateId(), this.wisdomApp, first);
-        if (this.lastStreamProcessor != null) {
-            throw new WisdomAppValidationException("Pattern must be the first operator in the query");
-        }
-
-        Pattern tempPattern = first;
-        while (tempPattern != null) {
-            this.wisdomApp.getStream(tempPattern.getStreamId()).addProcessor(patternProcessor);
-            tempPattern = tempPattern.getNextPattern();
-        }
-        this.lastStreamProcessor = patternProcessor;
+        this.lastStreamProcessor = pattern;
+        this.wisdomApp.addStreamProcessor(pattern);
         return this;
     }
 
@@ -104,6 +80,8 @@ public class Query {
             this.lastStreamProcessor.setNextProcessor(selectProcessor);
         }
         this.lastStreamProcessor = selectProcessor;
+
+        selectProcessor.init();
 
         return this;
     }

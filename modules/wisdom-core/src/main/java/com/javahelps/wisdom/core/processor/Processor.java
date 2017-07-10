@@ -9,6 +9,8 @@ import java.util.Collection;
  */
 public interface Processor {
 
+    void start();
+
     void process(Event event);
 
     void process(Collection<Event> events);

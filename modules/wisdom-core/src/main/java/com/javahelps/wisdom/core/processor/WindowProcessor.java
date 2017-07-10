@@ -18,9 +18,14 @@ public class WindowProcessor extends StreamProcessor {
     private Window window;
 
     public WindowProcessor(String id, Stream inputStream, Window window) {
-        super(id, inputStream);
+        super(id);
         this.events = new ArrayList<>();
         this.window = window;
+    }
+
+    @Override
+    public void start() {
+
     }
 
     @Override

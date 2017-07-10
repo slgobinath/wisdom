@@ -1,5 +1,6 @@
 package com.javahelps.wisdom.core.processor;
 
+import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.stream.Stream;
 
 /**
@@ -8,22 +9,16 @@ import com.javahelps.wisdom.core.stream.Stream;
  */
 public abstract class StreamProcessor implements Processor {
 
-    private String id;
-    private Stream inputStream;
+    protected String id;
     private Processor previousProcessor;
     private Processor nextProcessor;
 
-    public StreamProcessor(String id, Stream inputStream) {
+    public StreamProcessor(String id) {
         this.id = id;
-        this.inputStream = inputStream;
     }
 
     public String getId() {
         return id;
-    }
-
-    public Stream getInputStream() {
-        return inputStream;
     }
 
     public void setNextProcessor(Processor nextProcessor) {
@@ -32,5 +27,9 @@ public abstract class StreamProcessor implements Processor {
 
     public Processor getNextProcessor() {
         return nextProcessor;
+    }
+
+    public void init(WisdomApp wisdomApp) {
+
     }
 }

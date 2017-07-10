@@ -14,8 +14,13 @@ public class FilterProcessor extends StreamProcessor {
     private Predicate<Event> predicate;
 
     public FilterProcessor(String id, Stream inputStream, Predicate<Event> predicate) {
-        super(id, inputStream);
+        super(id);
         this.predicate = predicate;
+    }
+
+    @Override
+    public void start() {
+
     }
 
     @Override

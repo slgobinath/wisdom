@@ -19,39 +19,52 @@ import java.util.Set;
 public class Stream implements Processor {
 
     protected String id;
-    protected String[] attributes;
-    private List<String> attributesList;
     private WisdomApp wisdomApp;
-    private Set<Processor> processors = new HashSet<>();
+    private Set<Processor> processorSet = new HashSet<>();
+    private Processor[] processors;
+    private int noOfProcessors;
 
     public Stream(String id) {
         this.id = id;
     }
 
-    public Stream(WisdomApp wisdomApp, String id, String... attributes) {
+    public Stream(WisdomApp wisdomApp, String id) {
         this.wisdomApp = wisdomApp;
         this.id = id;
-        this.attributes = attributes;
-        this.attributesList = Arrays.asList(attributes);
+    }
+
+    @Override
+    public void start() {
+        this.noOfProcessors = this.processorSet.size();
+        this.processors = this.processorSet.toArray(new Processor[0]);
     }
 
     @Override
     public void process(Event event) {
-        for (Processor processor : this.processors) {
-            Event newEvent = this.convertEvent(event);
-            try {
-                processor.process(newEvent);
-            } catch (WisdomAppRuntimeException ex) {
-                this.wisdomApp.handleException(ex);
+        if (this.noOfProcessors == 1) {
+            event.setStream(this);
+            this.processors[0].process(event);
+        } else {
+            for (Processor processor : this.processors) {
+                Event newEvent = this.convertEvent(event);
+                try {
+                    processor.process(newEvent);
+                } catch (WisdomAppRuntimeException ex) {
+                    this.wisdomApp.handleException(ex);
+                }
             }
         }
     }
 
     @Override
     public void process(Collection<Event> events) {
-        for (Processor processor : this.processors) {
-            Collection<Event> newEvents = this.convertEvent(events);
-            processor.process(newEvents);
+        if (this.noOfProcessors == 1) {
+            this.processors[0].process(events);
+        } else {
+            for (Processor processor : this.processors) {
+                Collection<Event> newEvents = this.convertEvent(events);
+                processor.process(newEvents);
+            }
         }
     }
 
@@ -59,16 +72,10 @@ public class Stream implements Processor {
         return id;
     }
 
-    public String[] getAttributes() {
-        return attributes;
-    }
-
     private Event convertEvent(Event from) {
 
-        Event newEvent = new Event(this, from.getTimestamp());
-        for (String attribute : this.attributes) {
-            newEvent.set(attribute, from.get(attribute));
-        }
+        Event newEvent = from.copyEvent();
+        newEvent.setStream(this);
         return newEvent;
     }
 
@@ -82,10 +89,6 @@ public class Stream implements Processor {
     }
 
     public void addProcessor(Processor processor) {
-        this.processors.add(processor);
-    }
-
-    public boolean contains(String attribute) {
-        return this.attributesList.contains(attribute);
+        this.processorSet.add(processor);
     }
 }

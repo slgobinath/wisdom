@@ -26,19 +26,4 @@ public class EventGenerator {
             return event;
         }
     }
-
-    public static Event generate(Stream stream, Comparable... entries) {
-        int count = stream.getAttributes().length;
-        if (count != entries.length) {
-            throw new EventValidationException(String.format("Stream %s requires %d parameters but received %d " +
-                    "parameters", stream.getId(), count, entries.length));
-        } else {
-            String[] attributes = stream.getAttributes();
-            Event event = new Event(System.currentTimeMillis());
-            for (int i = 0; i < count; i++) {
-                event.set(attributes[i], entries[i]);
-            }
-            return event;
-        }
-    }
 }

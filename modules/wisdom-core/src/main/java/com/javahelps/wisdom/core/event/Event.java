@@ -18,13 +18,9 @@ public class Event {
     private boolean isExpired = false;
 
     public Event(Stream stream, long timestamp) {
+
+        this(timestamp);
         this.stream = stream;
-        this.timestamp = timestamp;
-        if (stream != null) {
-            this.data = new HashMap<>(stream.getAttributes().length);
-        } else {
-            this.data = new HashMap<>();
-        }
     }
 
     public Event(long timestamp) {
@@ -67,6 +63,10 @@ public class Event {
 
     public void setStream(Stream stream) {
         this.stream = stream;
+    }
+
+    public void setExpired(boolean expired) {
+        isExpired = expired;
     }
 
     public Stream getStream() {

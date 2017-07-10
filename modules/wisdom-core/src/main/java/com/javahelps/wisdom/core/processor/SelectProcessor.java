@@ -1,45 +1,43 @@
 package com.javahelps.wisdom.core.processor;
 
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.stream.Stream;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * {@link StreamProcessor} to create a new {@link Event} with a subset of the attributes of previous {@link Event}.
  */
 public class SelectProcessor extends StreamProcessor {
 
-    private String[] attributes;
+    private List<String> attributes;
     private final boolean selectAll;
 
     public SelectProcessor(String id, Stream inputStream, String... attributes) {
-        super(id, inputStream);
+        super(id);
         this.selectAll = attributes.length == 0;
-        this.attributes = attributes;
+        this.attributes = Arrays.asList(attributes);
+    }
+
+    public void init() {
+
+    }
+
+    @Override
+    public void start() {
+
     }
 
 
     @Override
     public void process(Event event) {
-        Event output;
-        if (selectAll) {
-            output = event;
-        } else {
-            output = new Event(event.getStream(), event.getTimestamp());
-            for (String attribute : this.attributes) {
-                Comparable value = event.get(attribute);
-                if (value != null) {
-                    output.set(attribute, value);
-                } else {
-                    throw new WisdomAppRuntimeException(String.format("Attribute %s does not exist in stream %s",
-                            attribute, event.getStream().getId()));
-                }
-            }
+        if (!selectAll) {
+            event.getData().keySet().retainAll(attributes);
         }
-        this.getNextProcessor().process(output);
+        this.getNextProcessor().process(event);
     }
 
     @Override

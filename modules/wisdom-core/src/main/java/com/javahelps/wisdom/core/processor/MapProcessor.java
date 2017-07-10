@@ -15,8 +15,13 @@ public class MapProcessor extends StreamProcessor {
     private Function<Event, Event> function;
 
     public MapProcessor(String id, Stream inputStream, Function<Event, Event> function) {
-        super(id, inputStream);
+        super(id);
         this.function = function;
+    }
+
+    @Override
+    public void start() {
+
     }
 
     @Override

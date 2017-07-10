@@ -3,7 +3,9 @@ package com.javahelps.wisdom.core;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.ExceptionListener;
 import com.javahelps.wisdom.core.processor.Processor;
+import com.javahelps.wisdom.core.processor.StreamProcessor;
 import com.javahelps.wisdom.core.query.Query;
+import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.stream.StreamCallback;
 
@@ -19,6 +21,7 @@ public class WisdomApp {
 
     private WisdomContext wisdomContext;
     private final Map<String, Stream> streamMap = new HashMap<>();
+    private final Map<String, StreamProcessor> streamProcessorMap = new HashMap<>();
     private final Map<String, Query> queryMap = new HashMap<>();
     private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
 
@@ -30,8 +33,13 @@ public class WisdomApp {
         return wisdomContext;
     }
 
-    public Stream defineStream(String id, String... attributes) {
-        Stream stream = new Stream(this, id, attributes);
+    public void start() {
+        this.streamProcessorMap.values().forEach(processor -> processor.init(this));
+        this.streamMap.values().forEach(Processor::start);
+    }
+
+    public Stream defineStream(String id) {
+        Stream stream = new Stream(this, id);
         this.streamMap.put(id, stream);
         return stream;
     }
@@ -46,6 +54,12 @@ public class WisdomApp {
         Stream stream = this.streamMap.get(streamId);
         if (stream != null) {
             stream.addProcessor(new Processor() {
+
+                @Override
+                public void start() {
+
+                }
+
                 @Override
                 public void process(Event event) {
                     callback.receive(event);
@@ -57,6 +71,10 @@ public class WisdomApp {
                 }
             });
         }
+    }
+
+    public InputHandler getInputHandler(String streamId) {
+        return new InputHandler(this.getStream(streamId));
     }
 
     public void addExceptionListener(Class<? extends Exception> exception, ExceptionListener exceptionListener) {
@@ -83,5 +101,9 @@ public class WisdomApp {
             // For debugging purposes only, throw the exception
             throw new RuntimeException(exception);
         }
+    }
+
+    public void addStreamProcessor(StreamProcessor processor) {
+        this.streamProcessorMap.put(processor.getId(), processor);
     }
 }
