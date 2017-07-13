@@ -4,6 +4,7 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -12,15 +13,14 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * Created by gobinath on 6/29/17.
+ * The most basic component of a Wisdom pattern. A pattern must have a name and optionally a filter.
  */
 public class Pattern extends StreamProcessor {
 
     protected String name;
     protected List<String> streamIds = new ArrayList<>();
     protected Predicate<Event> predicate = event -> true;
-    protected int minCount;
-    protected int maxCount;
+    protected Duration duration;
     private Predicate<Event> emitConditionMet = event -> false;
     private Predicate<Event> processConditionMet = event -> false;
     private boolean waiting = true;
@@ -75,9 +75,9 @@ public class Pattern extends StreamProcessor {
     }
 
     public Pattern times(int minCount, int maxCount) {
-        this.minCount = minCount;
-        this.maxCount = maxCount;
-        return this;
+
+        CountPattern countPattern = new CountPattern(this.id, this, minCount, maxCount);
+        return countPattern;
     }
 
     public static Pattern followedBy(String id, Pattern first, Pattern following) {
@@ -95,6 +95,12 @@ public class Pattern extends StreamProcessor {
 
         LogicalPattern logicalPattern = new LogicalPattern(id, LogicalPattern.Type.OR, first, second);
         return logicalPattern;
+    }
+
+    public static Pattern not(String id, Pattern pattern) {
+
+        NotPattern notPattern = new NotPattern(id, pattern);
+        return notPattern;
     }
 
     public boolean isWaiting() {
@@ -161,5 +167,15 @@ public class Pattern extends StreamProcessor {
     @Override
     public void process(Collection<Event> events) {
 
+    }
+
+    public void previousEventProcessed(Event event) {
+
+    }
+
+    public Pattern within(Duration duration) {
+
+        this.duration = duration;
+        return this;
     }
 }

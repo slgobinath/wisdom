@@ -38,6 +38,10 @@ public class WisdomApp {
         this.streamMap.values().forEach(Processor::start);
     }
 
+    public void shutdown() {
+        this.wisdomContext.shutdown();
+    }
+
     public Stream defineStream(String id) {
         Stream stream = new Stream(this, id);
         this.streamMap.put(id, stream);

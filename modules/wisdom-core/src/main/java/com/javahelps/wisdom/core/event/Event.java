@@ -34,6 +34,9 @@ public class Event {
     }
 
     public Comparable get(String attribute) {
+        if (this.name != null) {
+            attribute = this.name + "." + attribute;
+        }
         return this.data.get(attribute);
     }
 

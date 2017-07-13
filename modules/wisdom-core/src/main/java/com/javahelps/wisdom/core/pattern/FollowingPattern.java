@@ -5,6 +5,7 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.processor.Processor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -12,13 +13,13 @@ import java.util.function.Predicate;
 /**
  * Created by gobinath on 6/29/17.
  */
-public class FollowingPattern extends Pattern {
+class FollowingPattern extends CustomPattern {
 
 
     private Pattern first;
     private Pattern next;
 
-    public FollowingPattern(String patternId, Pattern first, Pattern next) {
+    FollowingPattern(String patternId, Pattern first, Pattern next) {
         super(patternId);
         this.first = first;
         this.next = next;
@@ -36,6 +37,8 @@ public class FollowingPattern extends Pattern {
                 event.getData().putAll(e.getData());
             }
         });
+
+        this.first.setAfterProcess(event -> this.next.previousEventProcessed(event));
     }
 
 
@@ -75,12 +78,6 @@ public class FollowingPattern extends Pattern {
     }
 
     @Override
-    public Pattern filter(Predicate<Event> predicate) {
-
-        throw new WisdomAppValidationException("FollowingPattern cannot have filter");
-    }
-
-    @Override
     public boolean isWaiting() {
         return this.next.isWaiting();
     }
@@ -92,6 +89,15 @@ public class FollowingPattern extends Pattern {
 
     @Override
     public List<Event> getEvents() {
-        return this.next.getEvents();
+
+        List<Event> events = new ArrayList<>();
+        events.addAll(this.first.getEvents());
+        events.addAll(this.next.getEvents());
+        return events;
+    }
+
+    @Override
+    public void setAfterProcess(Consumer<Event> afterProcess) {
+        this.next.setAfterProcess(afterProcess);
     }
 }

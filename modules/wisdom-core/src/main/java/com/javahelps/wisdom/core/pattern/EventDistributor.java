@@ -10,11 +10,14 @@ import java.util.Map;
 /**
  * Created by gobinath on 7/4/17.
  */
-public class EventDistributor {
+class EventDistributor {
 
     private Map<String, List<Pattern>> patternsMap = new HashMap<>();
 
     public void add(Pattern pattern) {
+        if (pattern == null) {
+            return;
+        }
         pattern.streamIds.forEach(id -> {
             List<Pattern> patterns = patternsMap.get(id);
             if (patterns == null) {
