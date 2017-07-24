@@ -5,27 +5,38 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.util.Scheduler;
 
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
  * Created by gobinath on 6/29/17.
  */
-class NotPattern extends CustomPattern {
+class CountPattern extends CustomPattern {
 
     private Pattern pattern;
     private Scheduler scheduler;
     private Event previousEvent;
+    private int minCount;
+    private int maxCount;
 
-    NotPattern(String patternId, Pattern pattern) {
+    CountPattern(String patternId, Pattern pattern, int minCount, int maxCount) {
 
         super(patternId);
 
         this.pattern = pattern;
+        this.minCount = minCount;
+        this.maxCount = maxCount;
 
-        this.pattern.setProcessConditionMet(event -> true);
-
-        this.pattern.setEvents(this.getEvents());
+        this.pattern.setProcessConditionMet(event -> pattern.getEvents().size() < this.maxCount);
+        this.pattern.setEmitConditionMet(event -> pattern.getEvents().size() >= this.minCount);
+        this.pattern.setCopyEventAttributes((pattern1, src, destination) -> {
+            for (Map.Entry<String, Comparable> entry : src.getData().entrySet()) {
+                destination.set(pattern.name + "[" + pattern.getEvents().size() + "]." + entry.getKey(),
+                        entry.getValue());
+            }
+        });
 
         Predicate<Event> predicate = event -> this.pattern.isWaiting();
         this.predicate = predicate;
@@ -69,6 +80,11 @@ class NotPattern extends CustomPattern {
 
 
     @Override
+    public List<Event> getEvents() {
+        return this.pattern.getEvents();
+    }
+
+    @Override
     public void setProcessConditionMet(Predicate<Event> processConditionMet) {
 
         this.pattern.setProcessConditionMet(processConditionMet);
@@ -84,7 +100,12 @@ class NotPattern extends CustomPattern {
     @Override
     public boolean isWaiting() {
 
-        return !this.pattern.isWaiting();
+        return pattern.getEvents().size() < this.minCount;
+    }
+
+    @Override
+    public void reset() {
+        this.pattern.reset();
     }
 
     @Override

@@ -212,7 +212,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
+        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e3.symbol", "ORACLE"));
 
         wisdomApp.start();
 
@@ -373,8 +373,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol", "e4.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE", "e4.symbol",
-                "MICROSOFT"));
+        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e4.symbol", "MICROSOFT"));
 
         wisdomApp.start();
 

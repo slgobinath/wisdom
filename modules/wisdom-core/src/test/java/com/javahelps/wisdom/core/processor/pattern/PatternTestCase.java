@@ -142,7 +142,7 @@ public class PatternTestCase {
 
     @Test
     public void testPattern4() throws InterruptedException {
-        LOGGER.info("Test pattern 1 - OUT 0");
+        LOGGER.info("Test pattern 4 - OUT 0");
 
         WisdomApp wisdomApp = new WisdomApp();
         wisdomApp.defineStream("StockStream1");
@@ -176,6 +176,72 @@ public class PatternTestCase {
         Thread.sleep(100);
 
         Assert.assertEquals("Incorrect number of events", 0, eventCount.get());
+    }
+
+    @Test
+    public void testPattern5() throws InterruptedException {
+        LOGGER.info("Test pattern 5 - OUT 0");
+
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream1");
+        wisdomApp.defineStream("OutputStream");
+
+        // e1 -> e2
+        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+                .filter(event -> event.get("symbol").equals("IBM"));
+        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+                .filter(event -> event.get("symbol").equals("IBM"));
+
+        Pattern finalPattern = Pattern.followedBy("Pattern4", e1, e2);
+
+
+        wisdomApp.defineQuery("query1")
+                .from(finalPattern)
+                .insertInto("OutputStream");
+
+        this.addCallback(wisdomApp);
+
+        wisdomApp.start();
+
+        wisdomApp.send("StockStream1", EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 0, eventCount.get());
+    }
+
+    @Test
+    public void testPattern6() throws InterruptedException {
+        LOGGER.info("Test pattern 6 - OUT 1");
+
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream1");
+        wisdomApp.defineStream("OutputStream");
+
+        // e1 -> e2
+        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+                .filter(event -> event.get("symbol").equals("IBM"));
+        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+                .filter(event -> event.get("symbol").equals("IBM"));
+
+        Pattern finalPattern = Pattern.followedBy("Pattern4", e1, e2);
+
+
+        wisdomApp.defineQuery("query1")
+                .from(finalPattern)
+                .insertInto("OutputStream");
+
+        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "IBM", "e1.price", 50.0, "e2.price", 55.0,
+                "e1.volume", 10, "e2.volume", 15));
+
+        wisdomApp.start();
+
+        wisdomApp.send("StockStream1", EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        wisdomApp.send("StockStream1", EventGenerator.generate("symbol", "IBM", "price", 55.0, "volume", 15));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
     }
 
     private void addCallback(WisdomApp wisdomApp, Map<String, Comparable>... expectedEvents) {

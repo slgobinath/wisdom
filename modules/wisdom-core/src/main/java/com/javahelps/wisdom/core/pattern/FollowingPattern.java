@@ -2,7 +2,6 @@ package com.javahelps.wisdom.core.pattern;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.processor.Processor;
 
 import java.util.ArrayList;
@@ -39,14 +38,32 @@ class FollowingPattern extends CustomPattern {
         });
 
         this.first.setAfterProcess(event -> this.next.previousEventProcessed(event));
+        this.next.setAfterProcess(event -> this.first.reset());
+
+        // Add th streams to this pattern
+        this.streamIds.addAll(this.first.streamIds);
+        this.streamIds.addAll(this.next.streamIds);
     }
 
+    @Override
+    public void reset() {
+        this.first.reset();
+        this.next.reset();
+    }
 
     @Override
     public void init(WisdomApp wisdomApp) {
 
         this.first.init(wisdomApp);
         this.next.init(wisdomApp);
+        this.first.streamIds.forEach(streamId -> {
+            wisdomApp.getStream(streamId).removeProcessor(this.first);
+            wisdomApp.getStream(streamId).addProcessor(this);
+        });
+        this.next.streamIds.forEach(streamId -> {
+            wisdomApp.getStream(streamId).removeProcessor(this.next);
+            wisdomApp.getStream(streamId).addProcessor(this);
+        });
     }
 
     @Override
@@ -79,7 +96,7 @@ class FollowingPattern extends CustomPattern {
 
     @Override
     public boolean isWaiting() {
-        return this.next.isWaiting();
+        return this.first.isWaiting() || this.next.isWaiting();
     }
 
     @Override

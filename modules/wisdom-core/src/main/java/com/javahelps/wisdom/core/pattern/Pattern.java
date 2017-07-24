@@ -28,6 +28,11 @@ public class Pattern extends StreamProcessor {
     protected EventDistributor eventDistributor = new EventDistributor();
     private Consumer<Event> mergePreviousEvents = event -> {
     };
+    private CopyEventAttributes copyEventAttributes = (pattern, src, destination) -> {
+        for (Map.Entry<String, Comparable> entry : src.getData().entrySet()) {
+            destination.set(this.name + "." + entry.getKey(), entry.getValue());
+        }
+    };
 
     private Consumer<Event> afterProcess = event -> {
     };
@@ -63,6 +68,10 @@ public class Pattern extends StreamProcessor {
 
     public void setProcessConditionMet(Predicate<Event> processConditionMet) {
         this.processConditionMet = processConditionMet;
+    }
+
+    public void setCopyEventAttributes(CopyEventAttributes copyEventAttributes) {
+        this.copyEventAttributes = copyEventAttributes;
     }
 
     public Pattern filter(Predicate<Event> predicate) {
@@ -147,9 +156,7 @@ public class Pattern extends StreamProcessor {
 
             Event newEvent = new Event(event.getStream(), event.getTimestamp());
             newEvent.setName(this.name);
-            for (Map.Entry<String, Comparable> entry : event.getData().entrySet()) {
-                newEvent.set(this.name + "." + entry.getKey(), entry.getValue());
-            }
+            this.copyEventAttributes.copy(this, event, newEvent);
             this.mergePreviousEvents.accept(newEvent);
 //            this.events.clear();
             this.events.add(newEvent);
@@ -158,6 +165,11 @@ public class Pattern extends StreamProcessor {
             this.afterProcess.accept(newEvent);
 
             if (this.emitConditionMet.test(newEvent)) {
+                for (Event e : this.events) {
+                    if (e != newEvent) {
+                        newEvent.getData().putAll(e.getData());
+                    }
+                }
                 this.reset();
                 this.getNextProcessor().process(newEvent);
             }
@@ -177,5 +189,10 @@ public class Pattern extends StreamProcessor {
 
         this.duration = duration;
         return this;
+    }
+
+    @FunctionalInterface
+    protected interface CopyEventAttributes {
+        void copy(Pattern pattern, Event src, Event destination);
     }
 }

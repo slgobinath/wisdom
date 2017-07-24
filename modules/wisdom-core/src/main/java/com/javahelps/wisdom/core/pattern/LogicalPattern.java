@@ -59,6 +59,10 @@ class LogicalPattern extends CustomPattern {
 
         this.patternX.setAfterProcess(this::afterProcess);
         this.patternY.setAfterProcess(this::afterProcess);
+
+        // Add th streams to this pattern
+        this.streamIds.addAll(this.patternX.streamIds);
+        this.streamIds.addAll(this.patternY.streamIds);
     }
 
 
@@ -73,8 +77,18 @@ class LogicalPattern extends CustomPattern {
     @Override
     public void init(WisdomApp wisdomApp) {
 
+//        this.patternX.init(wisdomApp);
+//        this.patternY.init(wisdomApp);
         this.patternX.init(wisdomApp);
         this.patternY.init(wisdomApp);
+        this.patternX.streamIds.forEach(streamId -> {
+            wisdomApp.getStream(streamId).removeProcessor(this.patternX);
+            wisdomApp.getStream(streamId).addProcessor(this);
+        });
+        this.patternY.streamIds.forEach(streamId -> {
+            wisdomApp.getStream(streamId).removeProcessor(this.patternY);
+            wisdomApp.getStream(streamId).addProcessor(this);
+        });
     }
 
     @Override

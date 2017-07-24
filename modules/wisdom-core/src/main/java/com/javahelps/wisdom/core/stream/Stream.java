@@ -6,11 +6,8 @@ import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.processor.Processor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@link Stream} is the fundamental data-structure of the event processor. At the runtime, it acts as the entry point
@@ -20,7 +17,7 @@ public class Stream implements Processor {
 
     protected String id;
     private WisdomApp wisdomApp;
-    private Set<Processor> processorSet = new HashSet<>();
+    private List<Processor> processorList = new ArrayList<>();
     private Processor[] processors;
     private int noOfProcessors;
 
@@ -35,8 +32,8 @@ public class Stream implements Processor {
 
     @Override
     public void start() {
-        this.noOfProcessors = this.processorSet.size();
-        this.processors = this.processorSet.toArray(new Processor[0]);
+        this.noOfProcessors = this.processorList.size();
+        this.processors = this.processorList.toArray(new Processor[0]);
     }
 
     @Override
@@ -89,6 +86,12 @@ public class Stream implements Processor {
     }
 
     public void addProcessor(Processor processor) {
-        this.processorSet.add(processor);
+        if (!this.processorList.contains(processor)) {
+            this.processorList.add(processor);
+        }
+    }
+
+    public void removeProcessor(Processor processor) {
+        this.processorList.remove(processor);
     }
 }
