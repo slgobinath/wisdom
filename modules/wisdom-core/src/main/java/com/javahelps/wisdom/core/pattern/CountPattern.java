@@ -29,7 +29,10 @@ class CountPattern extends CustomPattern {
         this.minCount = minCount;
         this.maxCount = maxCount;
 
-        this.pattern.setProcessConditionMet(event -> pattern.getEvents().size() < this.maxCount);
+        this.pattern.setProcessConditionMet(event -> {
+            boolean re = pattern.getEvents().size() < this.maxCount;
+            return re;
+        });
         this.pattern.setEmitConditionMet(event -> pattern.getEvents().size() >= this.minCount);
         this.pattern.setCopyEventAttributes((pattern1, src, destination) -> {
             for (Map.Entry<String, Comparable> entry : src.getData().entrySet()) {
@@ -87,7 +90,7 @@ class CountPattern extends CustomPattern {
     @Override
     public void setProcessConditionMet(Predicate<Event> processConditionMet) {
 
-        this.pattern.setProcessConditionMet(processConditionMet);
+        this.pattern.setProcessConditionMet(this.pattern.getProcessConditionMet().and(processConditionMet));
     }
 
     @Override

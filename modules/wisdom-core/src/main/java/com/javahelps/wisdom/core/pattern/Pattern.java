@@ -70,6 +70,10 @@ public class Pattern extends StreamProcessor {
         this.processConditionMet = processConditionMet;
     }
 
+    public Predicate<Event> getProcessConditionMet() {
+        return processConditionMet;
+    }
+
     public void setCopyEventAttributes(CopyEventAttributes copyEventAttributes) {
         this.copyEventAttributes = copyEventAttributes;
     }
@@ -158,7 +162,6 @@ public class Pattern extends StreamProcessor {
             newEvent.setName(this.name);
             this.copyEventAttributes.copy(this, event, newEvent);
             this.mergePreviousEvents.accept(newEvent);
-//            this.events.clear();
             this.events.add(newEvent);
             this.waiting = false;
 
