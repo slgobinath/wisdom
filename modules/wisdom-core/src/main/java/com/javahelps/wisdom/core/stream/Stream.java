@@ -38,12 +38,11 @@ public class Stream implements Processor {
 
     @Override
     public void process(Event event) {
+        Event newEvent = this.convertEvent(event);
         if (this.noOfProcessors == 1) {
-            event.setStream(this);
-            this.processors[0].process(event);
+            this.processors[0].process(newEvent);
         } else {
             for (Processor processor : this.processors) {
-                Event newEvent = this.convertEvent(event);
                 try {
                     processor.process(newEvent);
                 } catch (WisdomAppRuntimeException ex) {

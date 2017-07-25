@@ -3,7 +3,6 @@ package com.javahelps.wisdom.core.pattern;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
-import com.javahelps.wisdom.core.util.Scheduler;
 
 import java.util.List;
 import java.util.Map;
@@ -16,8 +15,6 @@ import java.util.function.Predicate;
 class CountPattern extends CustomPattern {
 
     private Pattern pattern;
-    private Scheduler scheduler;
-    private Event previousEvent;
     private int minCount;
     private int maxCount;
 
@@ -46,26 +43,13 @@ class CountPattern extends CustomPattern {
     }
 
     @Override
-    public void previousEventProcessed(Event event) {
-
-        if (duration != null) {
-            this.previousEvent = event;
-            scheduler.schedule(duration, this::timeoutHappend);
-        }
-    }
-
-    public void timeoutHappend(long timestamp) {
-
-        if (!this.isWaiting()) {
-            this.getNextProcessor().process(this.previousEvent);
-        }
-    }
-
-    @Override
     public void init(WisdomApp wisdomApp) {
 
         this.pattern.init(wisdomApp);
-        this.scheduler = wisdomApp.getWisdomContext().getScheduler();
+        this.pattern.streamIds.forEach(streamId -> {
+            wisdomApp.getStream(streamId).removeProcessor(this.pattern);
+            wisdomApp.getStream(streamId).addProcessor(this);
+        });
     }
 
     @Override
@@ -81,6 +65,15 @@ class CountPattern extends CustomPattern {
         this.pattern.process(event);
     }
 
+    @Override
+    public void onNextPreProcess(Event event) {
+        if (this.minCount == 0) {
+            Event eventRemoved = this.pattern.getEventMap().remove(event.getOriginal());
+            if (eventRemoved != null) {
+                this.pattern.getEvents().remove(eventRemoved);
+            }
+        }
+    }
 
     @Override
     public List<Event> getEvents() {
@@ -90,6 +83,7 @@ class CountPattern extends CustomPattern {
     @Override
     public void setProcessConditionMet(Predicate<Event> processConditionMet) {
 
+        processConditionMet = processConditionMet.or(event -> !this.getEvents().isEmpty());
         this.pattern.setProcessConditionMet(this.pattern.getProcessConditionMet().and(processConditionMet));
     }
 

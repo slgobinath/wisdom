@@ -1,5 +1,6 @@
 package com.javahelps.wisdom.core.processor.pattern;
 
+import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.util.EventGenerator;
@@ -18,16 +19,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.javahelps.wisdom.core.TestUtil.map;
 
 /**
- * Created by gobinath on 6/28/17.
+ * Test logical patterns of Wisdom which includes AND, OR & NOT.
  */
 public class LogicalPatternTestCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LogicalPatternTestCase.class);
-    private AtomicInteger eventCount;
+    private AtomicInteger eventCount = new AtomicInteger(0);
+    private TestUtil.CallbackUtil callbackUtil = new TestUtil.CallbackUtil(LOGGER, eventCount);
 
     @Before
     public void init() {
-        this.eventCount = new AtomicInteger(0);
+        this.eventCount.set(0);
     }
 
     @Test
@@ -55,7 +57,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
 
         wisdomApp.start();
 
@@ -95,7 +97,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp);
+        callbackUtil.addCallback(wisdomApp);
 
         wisdomApp.start();
 
@@ -134,7 +136,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp);
+        callbackUtil.addCallback(wisdomApp);
 
         wisdomApp.start();
 
@@ -173,7 +175,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp);
+        callbackUtil.addCallback(wisdomApp);
 
         wisdomApp.start();
 
@@ -212,7 +214,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e3.symbol", "ORACLE"));
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e3.symbol", "ORACLE"));
 
         wisdomApp.start();
 
@@ -252,7 +254,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e3.symbol", "ORACLE"));
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e3.symbol", "ORACLE"));
 
         wisdomApp.start();
 
@@ -291,7 +293,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
+        callbackUtil.addCallback(wisdomApp, map("e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
 
         wisdomApp.start();
 
@@ -330,7 +332,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp);
+        callbackUtil.addCallback(wisdomApp);
 
         wisdomApp.start();
 
@@ -373,7 +375,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol", "e4.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e4.symbol", "MICROSOFT"));
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e4.symbol", "MICROSOFT"));
 
         wisdomApp.start();
 
@@ -409,7 +411,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e2.symbol", "WSO2"));
+        callbackUtil.addCallback(wisdomApp, map("e2.symbol", "WSO2"));
 
         wisdomApp.start();
 
@@ -442,7 +444,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp);
+        callbackUtil.addCallback(wisdomApp);
 
         wisdomApp.start();
 
@@ -477,7 +479,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM"));
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM"));
 
         wisdomApp.start();
 
@@ -518,7 +520,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e3.symbol", "WSO2"));
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e3.symbol", "WSO2"));
 
         wisdomApp.start();
 
@@ -560,7 +562,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp);
+        callbackUtil.addCallback(wisdomApp);
 
         wisdomApp.start();
 

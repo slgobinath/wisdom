@@ -57,8 +57,8 @@ class LogicalPattern extends CustomPattern {
             }
         });
 
-        this.patternX.setAfterProcess(this::afterProcess);
-        this.patternY.setAfterProcess(this::afterProcess);
+        this.patternX.setPostProcess(this::afterProcess);
+        this.patternY.setPostProcess(this::afterProcess);
 
         // Add th streams to this pattern
         this.streamIds.addAll(this.patternX.streamIds);

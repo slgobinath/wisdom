@@ -6,7 +6,6 @@ import com.javahelps.wisdom.core.processor.Processor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -38,12 +37,36 @@ class FollowingPattern extends CustomPattern {
             }
         });
 
-        this.first.setAfterProcess(event -> this.next.previousEventProcessed(event));
-        this.next.setAfterProcess(event -> this.first.reset());
+        this.first.setPreProcess(event -> this.next.onPreviousPreProcess(event));
+        this.first.setPostProcess(event -> this.next.onPreviousPostProcess(event));
+
+        this.next.setPreProcess(event -> this.first.onNextPreProcess(event));
+        this.next.setPostProcess(event -> this.first.onNextPostProcess(event));
+
 
         // Add th streams to this pattern
         this.streamIds.addAll(this.first.streamIds);
         this.streamIds.addAll(this.next.streamIds);
+    }
+
+    @Override
+    public void onNextPreProcess(Event event) {
+        this.next.onNextPreProcess(event);
+    }
+
+    @Override
+    public void onNextPostProcess(Event event) {
+        this.reset();
+    }
+
+    @Override
+    public void onPreviousPreProcess(Event event) {
+        this.first.onPreviousPreProcess(event);
+    }
+
+    @Override
+    public void onPreviousPostProcess(Event event) {
+        this.first.onPreviousPostProcess(event);
     }
 
     @Override
@@ -115,7 +138,7 @@ class FollowingPattern extends CustomPattern {
     }
 
     @Override
-    public void setAfterProcess(Consumer<Event> afterProcess) {
-        this.next.setAfterProcess(afterProcess);
+    public void setPostProcess(Consumer<Event> postProcess) {
+        this.next.setPostProcess(postProcess);
     }
 }

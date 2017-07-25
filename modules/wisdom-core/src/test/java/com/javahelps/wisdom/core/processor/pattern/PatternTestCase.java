@@ -1,5 +1,6 @@
 package com.javahelps.wisdom.core.processor.pattern;
 
+import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.util.EventGenerator;
@@ -9,23 +10,22 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.javahelps.wisdom.core.TestUtil.map;
 
 /**
- * Created by gobinath on 6/28/17.
+ * Test general patterns of Wisdom.
  */
 public class PatternTestCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatternTestCase.class);
-    private AtomicInteger eventCount;
+    private AtomicInteger eventCount = new AtomicInteger(0);
+    private TestUtil.CallbackUtil callbackUtil = new TestUtil.CallbackUtil(LOGGER, eventCount);
 
     @Before
     public void init() {
-        this.eventCount = new AtomicInteger(0);
+        this.eventCount.set(0);
     }
 
     @Test
@@ -53,7 +53,7 @@ public class PatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
 
         wisdomApp.start();
 
@@ -91,7 +91,7 @@ public class PatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp);
+        callbackUtil.addCallback(wisdomApp);
 
         wisdomApp.start();
 
@@ -128,7 +128,7 @@ public class PatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp);
+        callbackUtil.addCallback(wisdomApp);
 
         wisdomApp.start();
 
@@ -166,7 +166,7 @@ public class PatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp);
+        callbackUtil.addCallback(wisdomApp);
 
         wisdomApp.start();
 
@@ -199,7 +199,7 @@ public class PatternTestCase {
                 .from(finalPattern)
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp);
+        callbackUtil.addCallback(wisdomApp);
 
         wisdomApp.start();
 
@@ -231,7 +231,7 @@ public class PatternTestCase {
                 .from(finalPattern)
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "IBM", "e1.price", 50.0, "e2.price", 55.0,
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "IBM", "e1.price", 50.0, "e2.price", 55.0,
                 "e1.volume", 10, "e2.volume", 15));
 
         wisdomApp.start();
@@ -242,20 +242,5 @@ public class PatternTestCase {
         Thread.sleep(100);
 
         Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
-    }
-
-    private void addCallback(WisdomApp wisdomApp, Map<String, Comparable>... expectedEvents) {
-
-        wisdomApp.addCallback("OutputStream", arrivedEvents -> {
-
-            LOGGER.info(Arrays.toString(arrivedEvents));
-            int count = this.eventCount.addAndGet(arrivedEvents.length);
-            if (expectedEvents.length > 0) {
-                switch (count) {
-                    case 1:
-                        Assert.assertEquals("Incorrect event at 1", expectedEvents[0], arrivedEvents[0].getData());
-                }
-            }
-        });
     }
 }

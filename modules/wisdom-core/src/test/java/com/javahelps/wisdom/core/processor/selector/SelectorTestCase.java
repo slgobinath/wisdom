@@ -1,5 +1,6 @@
 package com.javahelps.wisdom.core.processor.selector;
 
+import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.stream.InputHandler;
@@ -10,23 +11,22 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.javahelps.wisdom.core.TestUtil.map;
 
 /**
- * Created by gobinath on 6/28/17.
+ * Test the selector of Wisdom.
  */
 public class SelectorTestCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SelectorTestCase.class);
-    private AtomicInteger eventCount;
+    private AtomicInteger eventCount = new AtomicInteger(0);
+    private TestUtil.CallbackUtil callbackUtil = new TestUtil.CallbackUtil(LOGGER, eventCount);
 
     @Before
     public void init() {
-        this.eventCount = new AtomicInteger(0);
+        this.eventCount.set(0);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class SelectorTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp,
+        callbackUtil.addCallback(wisdomApp,
                 map("symbol", "IBM", "price", 50.0),
                 map("symbol", "WSO2", "price", 60.0));
 
@@ -70,7 +70,7 @@ public class SelectorTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp,
+        callbackUtil.addCallback(wisdomApp,
                 map("symbol", "IBM", "price", 50.0),
                 map("symbol", "WSO2", "price", 60.0));
 
@@ -101,7 +101,7 @@ public class SelectorTestCase {
             throw (WisdomAppRuntimeException) ex;
         });
 
-        this.addCallback(wisdomApp,
+        callbackUtil.addCallback(wisdomApp,
                 map("symbol", "IBM"),
                 map("symbol", "WSO2"));
 
@@ -113,21 +113,5 @@ public class SelectorTestCase {
         Thread.sleep(100);
 
         Assert.assertEquals("Incorrect number of events", 2, eventCount.get());
-    }
-
-
-    private void addCallback(WisdomApp wisdomApp, Map<String, Comparable>... expectedEvents) {
-
-        wisdomApp.addCallback("OutputStream", arrivedEvents -> {
-
-            LOGGER.info(Arrays.toString(arrivedEvents));
-            int count = this.eventCount.addAndGet(arrivedEvents.length);
-            if (expectedEvents.length > 0) {
-                switch (count) {
-                    case 1:
-                        Assert.assertEquals("Incorrect event at 1", expectedEvents[0], arrivedEvents[0].getData());
-                }
-            }
-        });
     }
 }

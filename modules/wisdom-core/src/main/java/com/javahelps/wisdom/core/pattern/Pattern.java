@@ -7,6 +7,7 @@ import com.javahelps.wisdom.core.processor.StreamProcessor;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -34,8 +35,11 @@ public class Pattern extends StreamProcessor {
         }
     };
 
-    private Consumer<Event> afterProcess = event -> {
+    private Consumer<Event> postProcess = event -> {
     };
+    private Consumer<Event> preProcess = event -> {
+    };
+    private Map<Event, Event> eventMap = new HashMap<>();
 
 
     public Pattern(String patternId) {
@@ -58,8 +62,16 @@ public class Pattern extends StreamProcessor {
         return pattern;
     }
 
-    public void setAfterProcess(Consumer<Event> afterProcess) {
-        this.afterProcess = afterProcess;
+    public void setPostProcess(Consumer<Event> postProcess) {
+        this.postProcess = postProcess;
+    }
+
+    public void setPreProcess(Consumer<Event> preProcess) {
+        this.preProcess = preProcess;
+    }
+
+    public Map<Event, Event> getEventMap() {
+        return eventMap;
     }
 
     public void setEmitConditionMet(Predicate<Event> emitConditionMet) {
@@ -151,6 +163,10 @@ public class Pattern extends StreamProcessor {
         return this.event(0);
     }
 
+    public Event last() {
+        return this.events.get(this.events.size() - 1);
+    }
+
     public Event event(int index) {
         Event event = null;
         if (index < this.events.size()) {
@@ -161,6 +177,7 @@ public class Pattern extends StreamProcessor {
 
     public void reset() {
         this.events.clear();
+        this.eventMap.clear();
         this.waiting = true;
     }
 
@@ -173,15 +190,18 @@ public class Pattern extends StreamProcessor {
     public void process(Event event) {
         if (this.processConditionMet.test(event) && this.predicate.test(event)) {
 
+            this.preProcess.accept(event);
+
             Event newEvent = new Event(event.getStream(), event.getTimestamp());
             newEvent.setOriginal(event);
             newEvent.setName(this.name);
             this.copyEventAttributes.copy(this, event, newEvent);
             this.mergePreviousEvents.accept(newEvent);
             this.events.add(newEvent);
+            this.eventMap.put(event.getOriginal(), newEvent);
             this.waiting = false;
 
-            this.afterProcess.accept(newEvent);
+            this.postProcess.accept(newEvent);
 
             if (this.emitConditionMet.test(newEvent)) {
                 for (Event e : this.events) {
@@ -200,7 +220,19 @@ public class Pattern extends StreamProcessor {
 
     }
 
-    public void previousEventProcessed(Event event) {
+    public void onPreviousPostProcess(Event event) {
+
+    }
+
+    public void onPreviousPreProcess(Event event) {
+
+    }
+
+    public void onNextPostProcess(Event event) {
+        this.reset();
+    }
+
+    public void onNextPreProcess(Event event) {
 
     }
 

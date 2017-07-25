@@ -1,5 +1,6 @@
 package com.javahelps.wisdom.core.processor.pattern;
 
+import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.pattern.Pattern;
@@ -10,8 +11,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.javahelps.wisdom.core.TestUtil.map;
@@ -22,11 +21,12 @@ import static com.javahelps.wisdom.core.TestUtil.map;
 public class CountPatternTestCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CountPatternTestCase.class);
-    private AtomicInteger eventCount;
+    private AtomicInteger eventCount = new AtomicInteger(0);
+    private TestUtil.CallbackUtil callbackUtil = new TestUtil.CallbackUtil(LOGGER, eventCount);
 
     @Before
     public void init() {
-        this.eventCount = new AtomicInteger(0);
+        this.eventCount.set(0);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class CountPatternTestCase {
                 .select("e1[0].price", "e1[1].price")
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp,
+        callbackUtil.addCallback(wisdomApp,
                 map("e1[0].price", 10.0, "e1[1].price", 20.0),
                 map("e1[0].price", 30.0, "e1[1].price", 40.0));
 
@@ -84,7 +84,7 @@ public class CountPatternTestCase {
                 .from(pattern)
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp,
+        callbackUtil.addCallback(wisdomApp,
                 map("e1[0].symbol", "IBM", "e1[0].price", 10.0, "e1[0].volume", 10,
                         "e1[1].symbol", "IBM", "e1[1].price", 20.0, "e1[1].volume", 15,
                         "e2.symbol", "WSO2", "e2.price", 30.0, "e2.volume", 20),
@@ -126,7 +126,7 @@ public class CountPatternTestCase {
                 .from(pattern)
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp,
+        callbackUtil.addCallback(wisdomApp,
                 map("e1[0].symbol", "IBM",
                         "e1[0].price", 10.0,
                         "e1[0].volume", 10,
@@ -183,7 +183,7 @@ public class CountPatternTestCase {
                 .from(pattern)
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp,
+        callbackUtil.addCallback(wisdomApp,
                 map("e1[0].symbol", "IBM",
                         "e1[0].price", 10.0,
                         "e1[0].volume", 10,
@@ -228,7 +228,7 @@ public class CountPatternTestCase {
                 .from(pattern)
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp,
+        callbackUtil.addCallback(wisdomApp,
                 map("e1[0].symbol", "IBM",
                         "e1[0].price", 10.0,
                         "e1[0].volume", 10,
@@ -271,7 +271,7 @@ public class CountPatternTestCase {
                 .from(pattern)
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp);
+        callbackUtil.addCallback(wisdomApp);
 
         wisdomApp.start();
 
@@ -303,7 +303,7 @@ public class CountPatternTestCase {
                 .from(pattern)
                 .insertInto("OutputStream");
 
-        this.addCallback(wisdomApp, map("e2.symbol", "WSO2", "e2.price", 10.0, "e2.volume", 10));
+        callbackUtil.addCallback(wisdomApp, map("e2.symbol", "WSO2", "e2.price", 10.0, "e2.volume", 10));
 
         wisdomApp.start();
 
@@ -338,7 +338,7 @@ public class CountPatternTestCase {
                 .from(pattern)
                 .select("e1.symbol", "e2[0].symbol", "e3.symbol")
                 .insertInto("OutputStream");
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2[0].symbol", "GOOGLE", "e3.symbol", "WSO2"));
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2[0].symbol", "GOOGLE", "e3.symbol", "WSO2"));
 
         wisdomApp.start();
 
@@ -359,7 +359,7 @@ public class CountPatternTestCase {
         wisdomApp.defineStream("StockStream1");
         wisdomApp.defineStream("OutputStream");
 
-        // e1 -> e2<0:5> -> e3
+        // e1 -> e2<:5> -> e3
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
                 .filter(Event.attribute("price").GREATER_THAN_OR_EQUAL(50.0)
                         .and(Event.attribute("volume").GREATER_THAN(100)));
@@ -375,7 +375,7 @@ public class CountPatternTestCase {
                 .from(pattern)
                 .select("e1.symbol", "e2[0].symbol", "e3.symbol")
                 .insertInto("OutputStream");
-        this.addCallback(wisdomApp, map("e1.symbol", "IBM", "e3.symbol", "GOOGLE"));
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e3.symbol", "GOOGLE"));
 
         wisdomApp.start();
 
@@ -388,19 +388,246 @@ public class CountPatternTestCase {
         Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
     }
 
+    @Test
+    public void testPattern10() throws InterruptedException {
+        LOGGER.info("Test pattern 10 - OUT 1");
 
-    private void addCallback(WisdomApp wisdomApp, Map<String, Comparable>... expectedEvents) {
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream1");
+        wisdomApp.defineStream("OutputStream");
 
-        wisdomApp.addCallback("OutputStream", arrivedEvents -> {
+        // e1 -> e2<:5> -> e3
+        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+                .filter(Event.attribute("price").GREATER_THAN_OR_EQUAL(50.0)
+                        .and(Event.attribute("volume").GREATER_THAN(100)));
+        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+                .filter(Event.attribute("price").LESS_THAN_OR_EQUAL(40.0))
+                .maxTimes(5);
+        Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")
+                .filter(Event.attribute("volume").LESS_THAN_OR_EQUAL(70));
 
-            LOGGER.info(Arrays.toString(arrivedEvents));
-            int count = this.eventCount.addAndGet(arrivedEvents.length);
-            if (expectedEvents.length > 0) {
-                switch (count) {
-                    case 1:
-                        Assert.assertEquals("Incorrect event at 1", expectedEvents[0], arrivedEvents[0].getData());
-                }
-            }
-        });
+        Pattern pattern = Pattern.followedBy("Pattern5", Pattern.followedBy("Pattern4", e1, e2), e3);
+
+        wisdomApp.defineQuery("query1")
+                .from(pattern)
+                .select("e1.symbol", "e2[0].symbol", "e2[1].symbol", "e3.symbol")
+                .insertInto("OutputStream");
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2[0].symbol", "GOOGLE", "e2[1].symbol", "FB",
+                "e3.symbol", "WSO2"));
+
+        wisdomApp.start();
+
+        wisdomApp.send("StockStream1", EventGenerator.generate("symbol", "IBM", "price", 75.6, "volume", 105));
+        wisdomApp.send("StockStream1", EventGenerator.generate("symbol", "GOOGLE", "price", 21.0, "volume", 91));
+        wisdomApp.send("StockStream1", EventGenerator.generate("symbol", "FB", "price", 21.0, "volume", 81));
+        wisdomApp.send("StockStream1", EventGenerator.generate("symbol", "WSO2", "price", 21.0, "volume", 61));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
     }
+
+
+//    @Test
+//    public void testQuery12() throws InterruptedException {
+//        log.info("testPatternCount12 - OUT 1");
+//
+//        SiddhiManager siddhiManager = new SiddhiManager();
+//
+//        String streams = "" +
+//                "define stream EventStream (symbol string, price float, volume int); ";
+//        String query = "" +
+//                "@info(name = 'query1') " +
+//                "from e1 = EventStream [price >= 50 and volume > 100] -> e2 = EventStream [price <= 40] <:5> " +
+//                "   -> e3 = EventStream [volume <= 70] " +
+//                "select e1.symbol as symbol1, e2[last].symbol as symbol2, e3.symbol as symbol3 " +
+//                "insert into StockQuote;";
+//
+//        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+//
+//        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+//            @Override
+//            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+//                EventPrinter.print(timestamp, inEvents, removeEvents);
+//                if (inEvents != null) {
+//                    for (Event event : inEvents) {
+//                        inEventCount++;
+//                        switch (inEventCount) {
+//                            case 1:
+//                                Assert.assertArrayEquals(new Object[]{"IBM", "FB", "WSO2"}, event.getData());
+//                                break;
+//                            default:
+//                                Assert.assertSame(1, inEventCount);
+//                        }
+//                    }
+//                }
+//                if (removeEvents != null) {
+//                    removeEventCount = removeEventCount + removeEvents.length;
+//                }
+//                eventArrived = true;
+//            }
+//
+//        });
+//
+//        InputHandler eventStream = siddhiAppRuntime.getInputHandler("EventStream");
+//
+//        siddhiAppRuntime.start();
+//
+//        eventStream.send(new Object[]{"IBM", 75.6f, 105});
+//        Thread.sleep(100);
+//        eventStream.send(new Object[]{"GOOG", 21f, 91});
+//        eventStream.send(new Object[]{"FB", 21f, 81});
+//        eventStream.send(new Object[]{"WSO2", 21f, 61});
+//        Thread.sleep(100);
+//
+//        Assert.assertEquals("Number of success events", 1, inEventCount);
+//        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+//        Assert.assertEquals("Event arrived", true, eventArrived);
+//
+//        siddhiAppRuntime.shutdown();
+//    }
+//
+//    @Test
+//    public void testQuery13() throws InterruptedException {
+//        log.info("testPatternCount13 - OUT 1");
+//
+//        SiddhiManager siddhiManager = new SiddhiManager();
+//
+//        String streams = "" +
+//                "define stream EventStream (symbol string, price float, volume int); ";
+//        String query = "" +
+//                "@info(name = 'query1') " +
+//                "from every e1 = EventStream -> " +
+//                "     e2 = EventStream [e1.symbol==e2.symbol]<4:6> " +
+//                "select e1.volume as volume1, e2[0].volume as volume2, e2[1].volume as volume3, e2[2].volume as " +
+//                "volume4, e2[3].volume as volume5, e2[4].volume as volume6, e2[5].volume as volume7 " +
+//                "insert into StockQuote;";
+//
+//        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+//
+//        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+//            @Override
+//            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+//                EventPrinter.print(timestamp, inEvents, removeEvents);
+//                if (inEvents != null) {
+//                    for (Event event : inEvents) {
+//                        inEventCount++;
+//                        switch (inEventCount) {
+//                            case 1:
+//                                Assert.assertArrayEquals(new Object[]{100, 200, 300, 400, 500, null, null}, event
+//                                        .getData());
+//                                break;
+//                            case 2:
+//                                Assert.assertArrayEquals(new Object[]{200, 300, 400, 500, 600, null, null}, event
+//                                        .getData());
+//                                break;
+//                            case 3:
+//                                Assert.assertArrayEquals(new Object[]{300, 400, 500, 600, 700, null, null}, event
+//                                        .getData());
+//                                break;
+//                            case 4:
+//                                Assert.assertArrayEquals(new Object[]{400, 500, 600, 700, 800, null, null}, event
+//                                        .getData());
+//                                break;
+//                            case 5:
+//                                Assert.assertArrayEquals(new Object[]{500, 600, 700, 800, 900, null, null}, event
+//                                        .getData());
+//                                break;
+//                            default:
+//                                Assert.assertSame(5, inEventCount);
+//                        }
+//                    }
+//                }
+//                if (removeEvents != null) {
+//                    removeEventCount = removeEventCount + removeEvents.length;
+//                }
+//                eventArrived = true;
+//            }
+//
+//        });
+//
+//        InputHandler eventStream = siddhiAppRuntime.getInputHandler("EventStream");
+//
+//        siddhiAppRuntime.start();
+//
+//        eventStream.send(new Object[]{"IBM", 75.6f, 100});
+//        eventStream.send(new Object[]{"IBM", 75.6f, 200});
+//        eventStream.send(new Object[]{"IBM", 75.6f, 300});
+//        eventStream.send(new Object[]{"GOOG", 21f, 91});
+//        eventStream.send(new Object[]{"IBM", 75.6f, 400});
+//        eventStream.send(new Object[]{"IBM", 75.6f, 500});
+//
+//        eventStream.send(new Object[]{"GOOG", 21f, 91});
+//
+//        eventStream.send(new Object[]{"IBM", 75.6f, 600});
+//        eventStream.send(new Object[]{"IBM", 75.6f, 700});
+//        eventStream.send(new Object[]{"IBM", 75.6f, 800});
+//        eventStream.send(new Object[]{"GOOG", 21f, 91});
+//        eventStream.send(new Object[]{"IBM", 75.6f, 900});
+//        Thread.sleep(100);
+//
+//        Assert.assertEquals("Number of success events", 5, inEventCount);
+//        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+//        Assert.assertEquals("Event arrived", true, eventArrived);
+//
+//        siddhiAppRuntime.shutdown();
+//    }
+//
+//
+//    @Test
+//    public void testQuery14() throws InterruptedException {
+//        log.info("testPatternCount14 - OUT 1");
+//
+//        SiddhiManager siddhiManager = new SiddhiManager();
+//
+//        String streams = "" +
+//                "define stream Stream1 (symbol string, price float, volume int); " +
+//                "define stream Stream2 (symbol string, price float, volume int); ";
+//        String query = "" +
+//                "@info(name = 'query1') " +
+//                "from e1=Stream1[price>20] <0:5> -> e2=Stream2[price>e1[0].price] " +
+//                "select e1[0].price as price1_0, e1[1].price as price1_1, e1[2].price as price1_2, e2.price as price2" +
+//                " " +
+//                "having instanceOfFloat(e1[1].price) and not instanceOfFloat(e1[2].price) and instanceOfFloat" +
+//                "(price1_1) and not instanceOfFloat(price1_2) " +
+//                "insert into OutputStream ;";
+//
+//        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+//
+//        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+//            @Override
+//            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+//                EventPrinter.print(timestamp, inEvents, removeEvents);
+//                if (inEvents != null) {
+//                    inEventCount = inEventCount + inEvents.length;
+//                    Assert.assertArrayEquals(new Object[]{25.6f, 23.6f, null, 45.7f}, inEvents[0].getData());
+//                }
+//                if (removeEvents != null) {
+//                    removeEventCount = removeEventCount + removeEvents.length;
+//                }
+//                eventArrived = true;
+//            }
+//
+//        });
+//
+//        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+//        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
+//
+//        siddhiAppRuntime.start();
+//
+//        stream1.send(new Object[]{"WSO2", 25.6f, 100});
+//        Thread.sleep(100);
+//        stream1.send(new Object[]{"WSO2", 23.6f, 100});
+//        Thread.sleep(100);
+//        stream1.send(new Object[]{"GOOG", 7.6f, 100});
+//        Thread.sleep(100);
+//        stream2.send(new Object[]{"IBM", 45.7f, 100});
+//        Thread.sleep(100);
+//
+//        Assert.assertEquals("Number of success events", 1, inEventCount);
+//        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+//        Assert.assertEquals("Event arrived", true, eventArrived);
+//
+//        siddhiAppRuntime.shutdown();
+//    }
 }

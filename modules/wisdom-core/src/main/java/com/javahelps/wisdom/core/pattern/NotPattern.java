@@ -32,7 +32,7 @@ class NotPattern extends CustomPattern {
     }
 
     @Override
-    public void previousEventProcessed(Event event) {
+    public void onPreviousPostProcess(Event event) {
 
         if (duration != null) {
             this.previousEvent = event;

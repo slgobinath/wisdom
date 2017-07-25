@@ -18,7 +18,7 @@ public class AttributePredicate extends Attribute implements Predicate<Event> {
 
     @Override
     public boolean test(Event event) {
-        return (boolean) this.apply(event.copyEvent()).get(this.name);
+        return (boolean) this.apply(event).get(this.name);
     }
 
 }

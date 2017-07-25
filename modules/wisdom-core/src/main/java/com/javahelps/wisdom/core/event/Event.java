@@ -15,7 +15,9 @@ public class Event {
     private Stream stream;
     private String name;
     private Map<String, Comparable> data;
+    private Map<String, String> alias;
     private boolean isExpired = false;
+    private Event original;
 
     public Event(Stream stream, long timestamp) {
 
@@ -26,6 +28,8 @@ public class Event {
     public Event(long timestamp) {
         this.timestamp = timestamp;
         this.data = new HashMap<>();
+        this.alias = new HashMap<>();
+        this.original = this;
     }
 
     public Event set(String attribute, Comparable value) {
@@ -37,7 +41,11 @@ public class Event {
         if (this.name != null) {
             attribute = this.name + "." + attribute;
         }
-        return this.data.get(attribute);
+        Comparable data = this.data.get(attribute);
+        if (data == null) {
+            data = this.data.get(this.alias.get(attribute));
+        }
+        return data;
     }
 
     public Event remove(String attribute) {
@@ -76,6 +84,14 @@ public class Event {
         return stream;
     }
 
+    public void setOriginal(Event original) {
+        this.original = original;
+    }
+
+    public Event getOriginal() {
+        return original;
+    }
+
     public Map<String, Comparable> getData() {
         return data;
     }
@@ -88,7 +104,12 @@ public class Event {
         Event event = new Event(this.stream, this.timestamp);
         event.data = new HashMap<>(this.data);
         event.isExpired = this.isExpired;
+        event.original = this;
         return event;
+    }
+
+    public void setAlias(String key, String as) {
+        this.alias.put(as, key);
     }
 
     @Override
