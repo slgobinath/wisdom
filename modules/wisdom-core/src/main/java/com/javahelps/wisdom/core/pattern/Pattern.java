@@ -93,6 +93,21 @@ public class Pattern extends StreamProcessor {
         return countPattern;
     }
 
+    public Pattern times(int count) {
+
+        return this.times(count, count);
+    }
+
+    public Pattern maxTimes(int maxCount) {
+
+        return this.times(0, maxCount);
+    }
+
+    public Pattern minTimes(int minCount) {
+
+        return this.times(minCount, Integer.MAX_VALUE);
+    }
+
     public static Pattern followedBy(String id, Pattern first, Pattern following) {
 
         return new FollowingPattern(id, first, following);
@@ -159,6 +174,7 @@ public class Pattern extends StreamProcessor {
         if (this.processConditionMet.test(event) && this.predicate.test(event)) {
 
             Event newEvent = new Event(event.getStream(), event.getTimestamp());
+            newEvent.setOriginal(event);
             newEvent.setName(this.name);
             this.copyEventAttributes.copy(this, event, newEvent);
             this.mergePreviousEvents.accept(newEvent);
