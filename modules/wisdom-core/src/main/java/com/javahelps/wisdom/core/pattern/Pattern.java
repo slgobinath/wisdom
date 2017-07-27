@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * The most basic component of a Wisdom pattern. A pattern must have a name and optionally a filter.
@@ -23,12 +24,17 @@ public class Pattern extends StreamProcessor {
     protected List<String> streamIds = new ArrayList<>();
     protected Predicate<Event> predicate = event -> true;
     protected Duration duration;
-    private boolean waiting = true;
-    private Predicate<Event> emitConditionMet = event -> !waiting;
-    private Predicate<Event> processConditionMet = event -> waiting;
+    private boolean consumed = true;
+    private boolean accepting = true;
+    private Predicate<Event> emitConditionMet = event -> !consumed;
+    private Predicate<Event> processConditionMet = event -> consumed;
     private List<Event> events = new ArrayList<>();
+    private boolean batchPattern = false;
     protected EventDistributor eventDistributor = new EventDistributor();
-    private Consumer<Event> mergePreviousEvents = event -> {
+    private Supplier<Collection<Event>> previousEvents = () -> {
+        ArrayList<Event> arrayList = new ArrayList<>();
+        arrayList.add(new Event(0));
+        return arrayList;
     };
     private CopyEventAttributes copyEventAttributes = (pattern, src, destination) -> {
         for (Map.Entry<String, Comparable> entry : src.getData().entrySet()) {
@@ -71,8 +77,24 @@ public class Pattern extends StreamProcessor {
         this.preProcess = preProcess;
     }
 
+    public void setBatchPattern(boolean batchPattern) {
+        this.batchPattern = batchPattern;
+    }
+
+    public boolean isBatchPattern() {
+        return batchPattern;
+    }
+
     public Map<Event, Event> getEventMap() {
         return eventMap;
+    }
+
+    public boolean isAccepting() {
+        return accepting;
+    }
+
+    public void setAccepting(boolean accepting) {
+        this.accepting = accepting;
     }
 
     public void setEmitConditionMet(Predicate<Event> emitConditionMet) {
@@ -152,16 +174,16 @@ public class Pattern extends StreamProcessor {
         return everyPattern;
     }
 
-    public boolean isWaiting() {
-        return waiting;
+    public boolean isConsumed() {
+        return consumed;
     }
 
-    public Consumer<Event> getMergePreviousEvents() {
-        return mergePreviousEvents;
+    public Supplier<Collection<Event>> getPreviousEvents() {
+        return previousEvents;
     }
 
-    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
-        this.mergePreviousEvents = mergePreviousEvents;
+    public void setPreviousEvents(Supplier<Collection<Event>> previousEvents) {
+        this.previousEvents = previousEvents;
     }
 
     public void setEvents(List<Event> events) {
@@ -187,7 +209,7 @@ public class Pattern extends StreamProcessor {
     public void reset() {
         this.events.clear();
         this.eventMap.clear();
-        this.waiting = true;
+        this.consumed = true;
     }
 
     @Override
@@ -202,25 +224,42 @@ public class Pattern extends StreamProcessor {
 
             this.preProcess.accept(event);
 
-            Event newEvent = new Event(event.getStream(), event.getTimestamp());
-            newEvent.setOriginal(event);
-            newEvent.setName(this.name);
-            this.copyEventAttributes.copy(this, event, newEvent);
-            this.mergePreviousEvents.accept(newEvent);
-            this.events.add(newEvent);
-            this.eventMap.put(event.getOriginal(), newEvent);
-            this.waiting = false;
+            Iterable<Event> events = this.previousEvents.get();
+            Event newEvent = null;
+            for (Event preEvent : events) {
 
-            this.postProcess.accept(newEvent);
+                newEvent = new Event(event.getStream(), event.getTimestamp());
+                newEvent.setOriginal(event);
+                newEvent.setName(this.name);
+                this.copyEventAttributes.copy(this, event, newEvent);
 
-            if (this.emitConditionMet.test(newEvent)) {
-                for (Event e : this.events) {
-                    if (e != newEvent) {
-                        newEvent.getData().putAll(e.getData());
+                newEvent.getData().putAll(preEvent.getData());
+
+                this.events.add(newEvent);
+                this.eventMap.put(event.getOriginal(), newEvent);
+                this.consumed = false;
+            }
+
+            if (newEvent != null) {
+                this.postProcess.accept(newEvent);
+
+                if (this.emitConditionMet.test(newEvent)) {
+
+                    if(batchPattern) {
+                        List<Event> eventsToEmit = new ArrayList<>();
+                        eventsToEmit.addAll(this.events);
+                        this.reset();
+                        this.getNextProcessor().process(eventsToEmit);
+                    } else {
+                        for (Event e : this.events) {
+                            if (e != newEvent) {
+                                newEvent.getData().putAll(e.getData());
+                            }
+                        }
+                        this.reset();
+                        this.getNextProcessor().process(newEvent);
                     }
                 }
-                this.reset();
-                this.getNextProcessor().process(newEvent);
             }
         }
     }

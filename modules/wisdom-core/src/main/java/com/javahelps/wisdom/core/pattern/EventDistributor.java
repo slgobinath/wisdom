@@ -13,6 +13,7 @@ import java.util.Map;
 class EventDistributor {
 
     private Map<String, List<Pattern>> patternsMap = new HashMap<>();
+    private List<Pattern> patternList = new ArrayList<>();
 
     public void add(Pattern pattern) {
         if (pattern == null) {
@@ -26,13 +27,14 @@ class EventDistributor {
             }
             patterns.add(pattern);
         });
+        this.patternList.add(pattern);
     }
 
     public void process(Event event) {
         for (Pattern pattern : this.patternsMap.get(event.getStream().getId())) {
-            if (pattern.isWaiting()) {
+            if (pattern.isAccepting()) {
                 pattern.process(event);
-                if (!pattern.isWaiting()) {
+                if (!pattern.isConsumed()) {
                     // Consumed the event
                     break;
                 }

@@ -5,9 +5,11 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Created by gobinath on 6/29/17.
@@ -26,16 +28,17 @@ class FollowingPattern extends CustomPattern {
         this.eventDistributor.add(next);
 
         this.first.setProcessConditionMet(event -> true);
-        this.next.setProcessConditionMet(event -> !this.first.isWaiting());
+        this.next.setProcessConditionMet(event -> !this.first.isConsumed());
 
         this.first.setEmitConditionMet(event -> false);
         this.next.setEmitConditionMet(event -> true);
 
-        this.next.setMergePreviousEvents(event -> {
-            for(Event e : this.first.getEvents()) {
-                event.getData().putAll(e.getData());
-            }
-        });
+//        this.next.setMergePreviousEvents(event -> {
+//            for (Event e : this.first.getEvents()) {
+//                event.getData().putAll(e.getData());
+//            }
+//        });
+        this.next.setPreviousEvents(this.first::getEvents);
 
         this.first.setPreProcess(event -> this.next.onPreviousPreProcess(event));
         this.first.setPostProcess(event -> this.next.onPreviousPostProcess(event));
@@ -43,6 +46,12 @@ class FollowingPattern extends CustomPattern {
         this.next.setPreProcess(event -> this.first.onNextPreProcess(event));
         this.next.setPostProcess(event -> this.first.onNextPostProcess(event));
 
+        if (this.first.isBatchPattern()) {
+            this.next.setBatchPattern(true);
+        }
+        if (this.next.isBatchPattern()) {
+            this.setBatchPattern(true);
+        }
 
         // Add th streams to this pattern
         this.streamIds.addAll(this.first.streamIds);
@@ -119,21 +128,32 @@ class FollowingPattern extends CustomPattern {
     }
 
     @Override
-    public boolean isWaiting() {
-        return this.first.isWaiting() || this.next.isWaiting();
+    public boolean isConsumed() {
+        return this.first.isConsumed() || this.next.isConsumed();
     }
 
     @Override
-    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
-        this.first.setMergePreviousEvents(mergePreviousEvents);
+    public void setPreviousEvents(Supplier<Collection<Event>> previousEvents) {
+        this.first.setPreviousEvents(previousEvents);
     }
 
     @Override
     public List<Event> getEvents() {
 
         List<Event> events = new ArrayList<>();
-        events.addAll(this.first.getEvents());
-        events.addAll(this.next.getEvents());
+        if (this.next instanceof EmptiablePattern) {
+            events.addAll(((EmptiablePattern) this.next).getEvents(false));
+        } else {
+            events.addAll(this.next.getEvents());
+        }
+
+        if (events.isEmpty()) {
+            if (this.first instanceof EmptiablePattern) {
+                events.addAll(((EmptiablePattern) this.first).getEvents(true));
+            } else {
+                events.addAll(this.first.getEvents());
+            }
+        }
         return events;
     }
 

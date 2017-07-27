@@ -9,16 +9,18 @@ import java.util.function.Predicate;
  *
  * @see com.javahelps.wisdom.core.processor.FilterProcessor
  */
-public class AttributePredicate extends Attribute implements Predicate<Event> {
+public class AttributePredicate implements Predicate<Event> {
 
-    public AttributePredicate(String name, Function<Event, Event> function) {
-        super(name);
-        this.function = function;
+    private final Attribute attribute;
+
+
+    public AttributePredicate(Attribute attribute, Function<Event, Event> function) {
+        this.attribute = attribute;
     }
 
     @Override
     public boolean test(Event event) {
-        return (boolean) this.apply(event).get(this.name);
+        return false;
     }
 
 }

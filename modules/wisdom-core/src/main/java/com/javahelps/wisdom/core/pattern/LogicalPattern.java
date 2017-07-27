@@ -4,7 +4,8 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -39,22 +40,35 @@ class LogicalPattern extends CustomPattern {
 
         Predicate<Event> predicate;
         if (type == Type.AND) {
-            predicate = event -> !this.patternX.isWaiting() && !this.patternY.isWaiting();
+            predicate = event -> !this.patternX.isConsumed() && !this.patternY.isConsumed();
         } else {
             // OR
-            predicate = event -> !this.patternX.isWaiting() || !this.patternY.isWaiting();
+            predicate = event -> !this.patternX.isConsumed() || !this.patternY.isConsumed();
         }
         this.predicate = predicate;
 
-        this.patternX.setMergePreviousEvents(event -> {
-            for (Event e : this.patternY.getEvents()) {
-                event.getData().putAll(e.getData());
-            }
+//        this.patternX.setMergePreviousEvents(event -> {
+//            for (Event e : this.patternY.getEvents()) {
+//                event.getData().putAll(e.getData());
+//            }
+//        });
+//        this.patternY.setMergePreviousEvents(event -> {
+//            for (Event e : this.patternX.getEvents()) {
+//                event.getData().putAll(e.getData());
+//            }
+//        });
+
+        this.patternX.setPreviousEvents(() -> {
+            List<Event> events = new ArrayList<>();
+            events.addAll(this.getPreviousEvents().get());
+            events.addAll(this.patternY.getEvents());
+            return events;
         });
-        this.patternY.setMergePreviousEvents(event -> {
-            for (Event e : this.patternX.getEvents()) {
-                event.getData().putAll(e.getData());
-            }
+        this.patternY.setPreviousEvents(() -> {
+            List<Event> events = new ArrayList<>();
+            events.addAll(this.getPreviousEvents().get());
+            events.addAll(this.patternX.getEvents());
+            return events;
         });
 
         this.patternX.setPostProcess(this::afterProcess);
@@ -65,10 +79,9 @@ class LogicalPattern extends CustomPattern {
         this.streamIds.addAll(this.patternY.streamIds);
     }
 
-
     private void afterProcess(Event event) {
 
-        if (!this.isWaiting()) {
+        if (!this.isConsumed()) {
             this.getEvents().clear();
             this.getEvents().add(event);
         }
@@ -122,20 +135,20 @@ class LogicalPattern extends CustomPattern {
     }
 
     @Override
-    public boolean isWaiting() {
+    public boolean isConsumed() {
 
         if (type == Type.AND) {
-            return this.patternX.isWaiting() || this.patternY.isWaiting();
+            return this.patternX.isConsumed() || this.patternY.isConsumed();
         } else {
-            return this.patternX.isWaiting() && this.patternY.isWaiting();
+            return this.patternX.isConsumed() && this.patternY.isConsumed();
         }
     }
 
-    @Override
-    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
-
-        super.setMergePreviousEvents(mergePreviousEvents);
-        this.patternX.setMergePreviousEvents(this.patternX.getMergePreviousEvents().andThen(mergePreviousEvents));
-        this.patternY.setMergePreviousEvents(this.patternY.getMergePreviousEvents().andThen(mergePreviousEvents));
-    }
+//    @Override
+//    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
+//
+//        super.setMergePreviousEvents(mergePreviousEvents);
+//        this.patternX.setMergePreviousEvents(this.patternX.getMergePreviousEvents().andThen(mergePreviousEvents));
+//        this.patternY.setMergePreviousEvents(this.patternY.getMergePreviousEvents().andThen(mergePreviousEvents));
+//    }
 }

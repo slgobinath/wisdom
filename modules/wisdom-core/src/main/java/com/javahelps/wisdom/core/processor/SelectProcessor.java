@@ -44,16 +44,9 @@ public class SelectProcessor extends StreamProcessor {
     public void process(Collection<Event> events) {
         if (!selectAll) {
             // Do nothing
-            Collection<Event> eventsAfterSelection = new ArrayList<>(events.size());
-            for (Event event : events) {
-                Event output = new Event(event.getStream(), event.getTimestamp());
-                output.setOriginal(event);
-                for (String attribute : this.attributes) {
-                    output.set(attribute, event.get(attribute));
-                }
-                eventsAfterSelection.add(output);
+            for(Event event : events) {
+                event.getData().keySet().retainAll(attributes);
             }
-            events = eventsAfterSelection;
         }
         this.getNextProcessor().process(events);
     }

@@ -4,15 +4,17 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Created by gobinath on 6/29/17.
  */
-class CountPattern extends CustomPattern {
+class CountPattern extends CustomPattern implements EmptiablePattern {
 
     private Pattern pattern;
     private int minCount;
@@ -38,8 +40,9 @@ class CountPattern extends CustomPattern {
             }
         });
 
-        Predicate<Event> predicate = event -> this.pattern.isWaiting();
+        Predicate<Event> predicate = event -> this.pattern.isConsumed();
         this.predicate = predicate;
+        this.streamIds.addAll(this.pattern.streamIds);
     }
 
     @Override
@@ -77,7 +80,8 @@ class CountPattern extends CustomPattern {
 
     @Override
     public List<Event> getEvents() {
-        return this.pattern.getEvents();
+
+        return this.getEvents(true);
     }
 
     @Override
@@ -95,7 +99,7 @@ class CountPattern extends CustomPattern {
     }
 
     @Override
-    public boolean isWaiting() {
+    public boolean isConsumed() {
 
         return pattern.getEvents().size() < this.minCount;
     }
@@ -105,10 +109,32 @@ class CountPattern extends CustomPattern {
         this.pattern.reset();
     }
 
-    @Override
-    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
+//    @Override
+//    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
+//
+//        super.setMergePreviousEvents(mergePreviousEvents);
+//        this.pattern.setMergePreviousEvents(this.pattern.getMergePreviousEvents().andThen(mergePreviousEvents));
+//    }
 
-        super.setMergePreviousEvents(mergePreviousEvents);
-        this.pattern.setMergePreviousEvents(this.pattern.getMergePreviousEvents().andThen(mergePreviousEvents));
+    @Override
+    public void setPreviousEvents(Supplier<Collection<Event>> previousEvents) {
+        this.pattern.setPreviousEvents(previousEvents);
+    }
+
+    @Override
+    public List<Event> getEvents(boolean isFirst) {
+
+        List<Event> list = new ArrayList<>();
+        List<Event> actualEvents = this.pattern.getEvents();
+        if (!actualEvents.isEmpty()) {
+            Event event = actualEvents.get(0);
+            for (int i = 1; i < actualEvents.size(); i++) {
+                event.getData().putAll(actualEvents.get(i).getData());
+            }
+            list.add(event);
+        } else if (isFirst) {
+            list.add(EmptiablePattern.EMPTY_EVENT);
+        }
+        return list;
     }
 }
