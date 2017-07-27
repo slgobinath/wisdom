@@ -50,7 +50,7 @@ public class LogicalPatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream3")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern3", Pattern.and("Pattern4", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.and(e1, e2), e3);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -90,7 +90,7 @@ public class LogicalPatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream3")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern3", Pattern.and("Pattern4", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.and(e1, e2), e3);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -129,7 +129,7 @@ public class LogicalPatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream3")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern3", Pattern.and("Pattern4", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.and(e1, e2), e3);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -168,7 +168,7 @@ public class LogicalPatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream3")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern3", Pattern.and("Pattern4", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.and(e1, e2), e3);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -207,7 +207,7 @@ public class LogicalPatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream3")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern3", Pattern.or("Pattern4", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.or(e1, e2), e3);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -247,7 +247,7 @@ public class LogicalPatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream3")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern3", Pattern.or("Pattern4", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.or(e1, e2), e3);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -286,7 +286,7 @@ public class LogicalPatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream3")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern3", Pattern.or("Pattern4", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.or(e1, e2), e3);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -325,7 +325,7 @@ public class LogicalPatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream3")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern3", Pattern.or("Pattern4", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.or(e1, e2), e3);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -367,8 +367,7 @@ public class LogicalPatternTestCase {
         Pattern e4 = Pattern.pattern("Pattern4", "e4", "StockStream4")
                 .filter(event -> event.get("symbol").equals("MICROSOFT"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern7", Pattern.or("Pattern6", Pattern.and("Pattern5", e1,
-                e2), e3), e4);
+        Pattern finalPattern = Pattern.followedBy(Pattern.or(Pattern.and(e1, e2), e3), e4);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -404,7 +403,7 @@ public class LogicalPatternTestCase {
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream2")
                 .filter(event -> event.get("symbol").equals("WSO2"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern4", Pattern.not("Pattern3", e1), e2);
+        Pattern finalPattern = Pattern.followedBy(Pattern.not(e1), e2);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -437,7 +436,7 @@ public class LogicalPatternTestCase {
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream2")
                 .filter(event -> event.get("symbol").equals("WSO2"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern4", Pattern.not("Pattern3", e1), e2);
+        Pattern finalPattern = Pattern.followedBy(Pattern.not(e1), e2);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -471,8 +470,7 @@ public class LogicalPatternTestCase {
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream2")
                 .filter(event -> event.get("symbol").equals("WSO2"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern4", e1,
-                Pattern.not("Pattern3", e2).within(Duration.of(1, ChronoUnit.SECONDS)));
+        Pattern finalPattern = Pattern.followedBy(e1, Pattern.not(e2).within(Duration.of(1, ChronoUnit.SECONDS)));
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -512,8 +510,7 @@ public class LogicalPatternTestCase {
                 .filter(event -> ((Double) event.get("price")).doubleValue() >= ((Double) e1.event().get("price"))
                         .doubleValue());
 
-        Pattern finalPattern = Pattern.followedBy("Pattern6", Pattern.followedBy("Pattern5", e1,
-                Pattern.not("Pattern4", e2)), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.followedBy(e1, Pattern.not(e2)), e3);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)
@@ -554,8 +551,7 @@ public class LogicalPatternTestCase {
                 .filter(event -> ((Double) event.get("price")).doubleValue() >= ((Double) e1.event().get("price"))
                         .doubleValue());
 
-        Pattern finalPattern = Pattern.followedBy("Pattern6", Pattern.followedBy("Pattern5", e1,
-                Pattern.not("Pattern4", e2)), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.followedBy(e1, Pattern.not(e2)), e3);
 
         wisdomApp.defineQuery("query1")
                 .from(finalPattern)

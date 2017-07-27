@@ -45,7 +45,7 @@ public class PatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream2")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern4", Pattern.followedBy("Pattern5", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
 
         wisdomApp.defineQuery("query1")
@@ -83,7 +83,7 @@ public class PatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream2")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern4", Pattern.followedBy("Pattern5", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
 
         wisdomApp.defineQuery("query1")
@@ -120,7 +120,7 @@ public class PatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream2")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern4", Pattern.followedBy("Pattern5", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
 
         wisdomApp.defineQuery("query1")
@@ -158,7 +158,7 @@ public class PatternTestCase {
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream2")
                 .filter(event -> event.get("symbol").equals("ORACLE"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern4", Pattern.followedBy("Pattern5", e1, e2), e3);
+        Pattern finalPattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
 
         wisdomApp.defineQuery("query1")
@@ -192,7 +192,7 @@ public class PatternTestCase {
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
                 .filter(event -> event.get("symbol").equals("IBM"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern4", e1, e2);
+        Pattern finalPattern = Pattern.followedBy(e1, e2);
 
 
         wisdomApp.defineQuery("query1")
@@ -224,7 +224,7 @@ public class PatternTestCase {
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
                 .filter(event -> event.get("symbol").equals("IBM"));
 
-        Pattern finalPattern = Pattern.followedBy("Pattern4", e1, e2);
+        Pattern finalPattern = Pattern.followedBy(e1, e2);
 
 
         wisdomApp.defineQuery("query1")
@@ -242,5 +242,34 @@ public class PatternTestCase {
         Thread.sleep(100);
 
         Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+    }
+
+    @Test
+    public void testPattern7() throws InterruptedException {
+        LOGGER.info("Test pattern 7 - OUT 1");
+
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream1");
+        wisdomApp.defineStream("OutputStream");
+
+        // e1
+        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+                .filter(event -> event.get("symbol").equals("IBM"));
+
+        wisdomApp.defineQuery("query1")
+                .from(e1)
+                .insertInto("OutputStream");
+
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e1.price", 50.0, "e1.volume", 10)
+                , map("e1.symbol", "IBM", "e1.price", 55.0, "e1.volume", 15));
+
+        wisdomApp.start();
+
+        wisdomApp.send("StockStream1", EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        wisdomApp.send("StockStream1", EventGenerator.generate("symbol", "IBM", "price", 55.0, "volume", 15));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 2, eventCount.get());
     }
 }

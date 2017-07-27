@@ -39,7 +39,11 @@ public class TestUtil {
                 logger.info(Arrays.toString(arrivedEvents));
                 int count = eventCount.addAndGet(arrivedEvents.length);
                 if (expectedEvents.length > 0) {
-                    Assert.assertEquals("Incorrect event", expectedEvents[count - 1], arrivedEvents[0].getData());
+                    if (count <= expectedEvents.length) {
+                        Assert.assertEquals("Incorrect event", expectedEvents[count - 1], arrivedEvents[0].getData());
+                    } else {
+                        Assert.assertEquals("Incorrect number of events", expectedEvents.length, count);
+                    }
                 }
 
             });

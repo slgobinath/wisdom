@@ -3,6 +3,7 @@ package com.javahelps.wisdom.core.pattern;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
+import com.javahelps.wisdom.core.util.WisdomConstants;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -22,9 +23,9 @@ public class Pattern extends StreamProcessor {
     protected List<String> streamIds = new ArrayList<>();
     protected Predicate<Event> predicate = event -> true;
     protected Duration duration;
-    private Predicate<Event> emitConditionMet = event -> false;
-    private Predicate<Event> processConditionMet = event -> false;
     private boolean waiting = true;
+    private Predicate<Event> emitConditionMet = event -> !waiting;
+    private Predicate<Event> processConditionMet = event -> waiting;
     private List<Event> events = new ArrayList<>();
     protected EventDistributor eventDistributor = new EventDistributor();
     private Consumer<Event> mergePreviousEvents = event -> {
@@ -57,8 +58,8 @@ public class Pattern extends StreamProcessor {
         this.streamIds.forEach(streamId -> wisdomApp.getStream(streamId).addProcessor(this));
     }
 
-    public static Pattern pattern(String patternId, String id, String streamId) {
-        Pattern pattern = new Pattern(patternId, id, streamId);
+    public static Pattern pattern(String patternId, String name, String streamId) {
+        Pattern pattern = new Pattern(patternId, name, streamId);
         return pattern;
     }
 
@@ -120,27 +121,35 @@ public class Pattern extends StreamProcessor {
         return this.times(minCount, Integer.MAX_VALUE);
     }
 
-    public static Pattern followedBy(String id, Pattern first, Pattern following) {
+    public static Pattern followedBy(Pattern first, Pattern following) {
 
-        return new FollowingPattern(id, first, following);
+        return new FollowingPattern(first.id + WisdomConstants.PATTERN_FOLLOWED_BY_INFIX + following.id, first, following);
     }
 
-    public static Pattern and(String id, Pattern first, Pattern second) {
+    public static Pattern and(Pattern first, Pattern second) {
 
-        LogicalPattern logicalPattern = new LogicalPattern(id, LogicalPattern.Type.AND, first, second);
+        LogicalPattern logicalPattern = new LogicalPattern(first.id + WisdomConstants.PATTERN_AND_INFIX + second.id,
+                LogicalPattern.Type.AND, first, second);
         return logicalPattern;
     }
 
-    public static Pattern or(String id, Pattern first, Pattern second) {
+    public static Pattern or(Pattern first, Pattern second) {
 
-        LogicalPattern logicalPattern = new LogicalPattern(id, LogicalPattern.Type.OR, first, second);
+        LogicalPattern logicalPattern = new LogicalPattern(first.id + WisdomConstants.PATTERN_OR_INFIX + second.id,
+                LogicalPattern.Type.OR, first, second);
         return logicalPattern;
     }
 
-    public static Pattern not(String id, Pattern pattern) {
+    public static Pattern not(Pattern pattern) {
 
-        NotPattern notPattern = new NotPattern(id, pattern);
+        NotPattern notPattern = new NotPattern(WisdomConstants.PATTERN_NOT_PREFIX + pattern.id, pattern);
         return notPattern;
+    }
+
+    public static Pattern every(Pattern pattern) {
+
+        EveryPattern everyPattern = new EveryPattern(WisdomConstants.PATTERN_EVERY_PREFIX + pattern.id, pattern);
+        return everyPattern;
     }
 
     public boolean isWaiting() {
@@ -188,6 +197,7 @@ public class Pattern extends StreamProcessor {
 
     @Override
     public void process(Event event) {
+
         if (this.processConditionMet.test(event) && this.predicate.test(event)) {
 
             this.preProcess.accept(event);
