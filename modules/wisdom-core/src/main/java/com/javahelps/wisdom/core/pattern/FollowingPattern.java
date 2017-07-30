@@ -5,7 +5,6 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -28,7 +27,7 @@ class FollowingPattern extends CustomPattern {
         this.eventDistributor.add(next);
 
         this.first.setProcessConditionMet(event -> true);
-        this.next.setProcessConditionMet(event -> !this.first.isConsumed());
+        this.next.setProcessConditionMet(event -> this.first.isComplete());
 
         this.first.setEmitConditionMet(event -> false);
         this.next.setEmitConditionMet(event -> true);
@@ -106,6 +105,11 @@ class FollowingPattern extends CustomPattern {
     }
 
     @Override
+    public boolean isAccepting() {
+        return first.isAccepting() || next.isAccepting();
+    }
+
+    @Override
     public void setProcessConditionMet(Predicate<Event> processConditionMet) {
         this.first.setProcessConditionMet(processConditionMet);
     }
@@ -124,6 +128,8 @@ class FollowingPattern extends CustomPattern {
 
     @Override
     public void process(Event event) {
+        this.first.setConsumed(false);
+        this.next.setConsumed(false);
         this.eventDistributor.process(event);
     }
 
@@ -133,7 +139,18 @@ class FollowingPattern extends CustomPattern {
     }
 
     @Override
-    public void setPreviousEvents(Supplier<Collection<Event>> previousEvents) {
+    public void setConsumed(boolean consumed) {
+        this.first.setConsumed(false);
+        this.next.setConsumed(false);
+    }
+
+    @Override
+    public boolean isComplete() {
+        return this.first.isComplete() && this.next.isComplete();
+    }
+
+    @Override
+    public void setPreviousEvents(Supplier<List<Event>> previousEvents) {
         this.first.setPreviousEvents(previousEvents);
     }
 
@@ -147,13 +164,13 @@ class FollowingPattern extends CustomPattern {
             events.addAll(this.next.getEvents());
         }
 
-        if (events.isEmpty()) {
-            if (this.first instanceof EmptiablePattern) {
-                events.addAll(((EmptiablePattern) this.first).getEvents(true));
-            } else {
-                events.addAll(this.first.getEvents());
-            }
-        }
+//        if (events.isEmpty()) {
+//            if (this.first instanceof EmptiablePattern) {
+//                events.addAll(((EmptiablePattern) this.first).getEvents(true));
+//            } else {
+//                events.addAll(this.first.getEvents());
+//            }
+//        }
         return events;
     }
 

@@ -4,15 +4,17 @@ import com.javahelps.wisdom.core.event.Event;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by gobinath on 7/4/17.
  */
 class EventDistributor {
 
-    private Map<String, List<Pattern>> patternsMap = new HashMap<>();
+    private Map<String, Set<Pattern>> patternsMap = new HashMap<>();
     private List<Pattern> patternList = new ArrayList<>();
 
     public void add(Pattern pattern) {
@@ -20,9 +22,9 @@ class EventDistributor {
             return;
         }
         pattern.streamIds.forEach(id -> {
-            List<Pattern> patterns = patternsMap.get(id);
+            Set<Pattern> patterns = patternsMap.get(id);
             if (patterns == null) {
-                patterns = new ArrayList<>();
+                patterns = new LinkedHashSet<>();
                 patternsMap.put(id, patterns);
             }
             patterns.add(pattern);
@@ -34,7 +36,7 @@ class EventDistributor {
         for (Pattern pattern : this.patternsMap.get(event.getStream().getId())) {
             if (pattern.isAccepting()) {
                 pattern.process(event);
-                if (!pattern.isConsumed()) {
+                if (pattern.isConsumed()) {
                     // Consumed the event
                     break;
                 }

@@ -1,7 +1,6 @@
 package com.javahelps.wisdom.core.processor;
 
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.processor.StreamProcessor;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.window.Window;
 

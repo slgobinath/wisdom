@@ -24,14 +24,14 @@ public class Pattern extends StreamProcessor {
     protected List<String> streamIds = new ArrayList<>();
     protected Predicate<Event> predicate = event -> true;
     protected Duration duration;
-    private boolean consumed = true;
+    protected EventDistributor eventDistributor = new EventDistributor();
+    private boolean consumed = false;
     private boolean accepting = true;
-    private Predicate<Event> emitConditionMet = event -> !consumed;
-    private Predicate<Event> processConditionMet = event -> consumed;
+    private Predicate<Event> emitConditionMet = event -> consumed;
+    private Predicate<Event> processConditionMet = event -> accepting;
     private List<Event> events = new ArrayList<>();
     private boolean batchPattern = false;
-    protected EventDistributor eventDistributor = new EventDistributor();
-    private Supplier<Collection<Event>> previousEvents = () -> {
+    private Supplier<List<Event>> previousEvents = () -> {
         ArrayList<Event> arrayList = new ArrayList<>();
         arrayList.add(new Event(0));
         return arrayList;
@@ -59,93 +59,15 @@ public class Pattern extends StreamProcessor {
         this.streamIds.add(streamId);
     }
 
-    public void init(WisdomApp wisdomApp) {
-
-        this.streamIds.forEach(streamId -> wisdomApp.getStream(streamId).addProcessor(this));
-    }
-
     public static Pattern pattern(String patternId, String name, String streamId) {
         Pattern pattern = new Pattern(patternId, name, streamId);
         return pattern;
     }
 
-    public void setPostProcess(Consumer<Event> postProcess) {
-        this.postProcess = postProcess;
-    }
-
-    public void setPreProcess(Consumer<Event> preProcess) {
-        this.preProcess = preProcess;
-    }
-
-    public void setBatchPattern(boolean batchPattern) {
-        this.batchPattern = batchPattern;
-    }
-
-    public boolean isBatchPattern() {
-        return batchPattern;
-    }
-
-    public Map<Event, Event> getEventMap() {
-        return eventMap;
-    }
-
-    public boolean isAccepting() {
-        return accepting;
-    }
-
-    public void setAccepting(boolean accepting) {
-        this.accepting = accepting;
-    }
-
-    public void setEmitConditionMet(Predicate<Event> emitConditionMet) {
-        this.emitConditionMet = emitConditionMet;
-    }
-
-    public void setProcessConditionMet(Predicate<Event> processConditionMet) {
-        this.processConditionMet = processConditionMet;
-    }
-
-    public Predicate<Event> getProcessConditionMet() {
-        return processConditionMet;
-    }
-
-    public void setCopyEventAttributes(CopyEventAttributes copyEventAttributes) {
-        this.copyEventAttributes = copyEventAttributes;
-    }
-
-    public Pattern filter(Predicate<Event> predicate) {
-        this.predicate = predicate;
-        return this;
-    }
-
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    public Pattern times(int minCount, int maxCount) {
-
-        CountPattern countPattern = new CountPattern(this.id, this, minCount, maxCount);
-        return countPattern;
-    }
-
-    public Pattern times(int count) {
-
-        return this.times(count, count);
-    }
-
-    public Pattern maxTimes(int maxCount) {
-
-        return this.times(0, maxCount);
-    }
-
-    public Pattern minTimes(int minCount) {
-
-        return this.times(minCount, Integer.MAX_VALUE);
-    }
-
     public static Pattern followedBy(Pattern first, Pattern following) {
 
-        return new FollowingPattern(first.id + WisdomConstants.PATTERN_FOLLOWED_BY_INFIX + following.id, first, following);
+        return new FollowingPattern(first.id + WisdomConstants.PATTERN_FOLLOWED_BY_INFIX + following.id, first,
+                following);
     }
 
     public static Pattern and(Pattern first, Pattern second) {
@@ -174,20 +96,107 @@ public class Pattern extends StreamProcessor {
         return everyPattern;
     }
 
-    public boolean isConsumed() {
-        return consumed;
+    public void init(WisdomApp wisdomApp) {
+
+        this.streamIds.forEach(streamId -> wisdomApp.getStream(streamId).addProcessor(this));
     }
 
-    public Supplier<Collection<Event>> getPreviousEvents() {
-        return previousEvents;
+    public void setPostProcess(Consumer<Event> postProcess) {
+        this.postProcess = postProcess;
     }
 
-    public void setPreviousEvents(Supplier<Collection<Event>> previousEvents) {
-        this.previousEvents = previousEvents;
+    public void setPreProcess(Consumer<Event> preProcess) {
+        this.preProcess = preProcess;
+    }
+
+    public boolean isBatchPattern() {
+        return batchPattern;
+    }
+
+    public void setBatchPattern(boolean batchPattern) {
+        this.batchPattern = batchPattern;
+    }
+
+    public boolean isComplete() {
+        return !this.isAccepting();
+    }
+
+    public Map<Event, Event> getEventMap() {
+        return eventMap;
+    }
+
+    public boolean isAccepting() {
+        return accepting;
+    }
+
+    public void setAccepting(boolean accepting) {
+        this.accepting = accepting;
+    }
+
+    public void setEmitConditionMet(Predicate<Event> emitConditionMet) {
+        this.emitConditionMet = emitConditionMet;
+    }
+
+    public Predicate<Event> getProcessConditionMet() {
+        return processConditionMet;
+    }
+
+    public void setProcessConditionMet(Predicate<Event> processConditionMet) {
+        this.processConditionMet = processConditionMet;
+    }
+
+    public void setCopyEventAttributes(CopyEventAttributes copyEventAttributes) {
+        this.copyEventAttributes = copyEventAttributes;
+    }
+
+    public Pattern filter(Predicate<Event> predicate) {
+        this.predicate = predicate;
+        return this;
+    }
+
+    public List<Event> getEvents() {
+        return events;
     }
 
     public void setEvents(List<Event> events) {
         this.events = events;
+    }
+
+    public Pattern times(int minCount, int maxCount) {
+
+        CountPattern countPattern = new CountPattern(this.id, this, minCount, maxCount);
+        return countPattern;
+    }
+
+    public Pattern times(int count) {
+
+        return this.times(count, count);
+    }
+
+    public Pattern maxTimes(int maxCount) {
+
+        return this.times(0, maxCount);
+    }
+
+    public Pattern minTimes(int minCount) {
+
+        return this.times(minCount, Integer.MAX_VALUE);
+    }
+
+    public boolean isConsumed() {
+        return consumed;
+    }
+
+    public void setConsumed(boolean consumed) {
+        this.consumed = consumed;
+    }
+
+    public Supplier<List<Event>> getPreviousEvents() {
+        return previousEvents;
+    }
+
+    public void setPreviousEvents(Supplier<List<Event>> previousEvents) {
+        this.previousEvents = previousEvents;
     }
 
     public Event event() {
@@ -209,7 +218,8 @@ public class Pattern extends StreamProcessor {
     public void reset() {
         this.events.clear();
         this.eventMap.clear();
-        this.consumed = true;
+        this.accepting = true;
+        this.consumed = false;
     }
 
     @Override
@@ -220,6 +230,7 @@ public class Pattern extends StreamProcessor {
     @Override
     public void process(Event event) {
 
+        consumed = false;
         if (this.processConditionMet.test(event) && this.predicate.test(event)) {
 
             this.preProcess.accept(event);
@@ -237,15 +248,17 @@ public class Pattern extends StreamProcessor {
 
                 this.events.add(newEvent);
                 this.eventMap.put(event.getOriginal(), newEvent);
-                this.consumed = false;
             }
 
             if (newEvent != null) {
+
+                this.accepting = false;
+                this.consumed = true;
                 this.postProcess.accept(newEvent);
 
                 if (this.emitConditionMet.test(newEvent)) {
 
-                    if(batchPattern) {
+                    if (batchPattern) {
                         List<Event> eventsToEmit = new ArrayList<>();
                         eventsToEmit.addAll(this.events);
                         this.reset();

@@ -32,6 +32,10 @@ public class Event {
         this.original = this;
     }
 
+    public static Attribute attribute(String attribute) {
+        return new Attribute(attribute);
+    }
+
     public Event set(String attribute, Comparable value) {
         this.data.put(attribute, value);
         return this;
@@ -60,20 +64,16 @@ public class Event {
         return this;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getName() {
         return name;
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setStream(Stream stream) {
-        this.stream = stream;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public void setExpired(boolean expired) {
@@ -84,20 +84,20 @@ public class Event {
         return stream;
     }
 
-    public void setOriginal(Event original) {
-        this.original = original;
+    public void setStream(Stream stream) {
+        this.stream = stream;
     }
 
     public Event getOriginal() {
         return original;
     }
 
-    public Map<String, Comparable> getData() {
-        return data;
+    public void setOriginal(Event original) {
+        this.original = original;
     }
 
-    public static Attribute attribute(String attribute) {
-        return new Attribute(attribute);
+    public Map<String, Comparable> getData() {
+        return data;
     }
 
     public Event copyEvent() {

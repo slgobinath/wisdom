@@ -4,7 +4,6 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -53,6 +52,21 @@ class EveryPattern extends CustomPattern {
 
     @Override
     public boolean isConsumed() {
+        return this.pattern.isConsumed();
+    }
+
+    @Override
+    public void setConsumed(boolean consumed) {
+        this.pattern.setConsumed(false);
+    }
+
+    @Override
+    public boolean isComplete() {
+        return this.pattern.isComplete();
+    }
+
+    @Override
+    public boolean isAccepting() {
         return true;
     }
 
@@ -88,7 +102,7 @@ class EveryPattern extends CustomPattern {
 //    }
 
     @Override
-    public void setPreviousEvents(Supplier<Collection<Event>> previousEvents) {
+    public void setPreviousEvents(Supplier<List<Event>> previousEvents) {
         this.pattern.setPreviousEvents(previousEvents);
     }
 

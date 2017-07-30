@@ -1,13 +1,5 @@
 package com.javahelps.wisdom.core.event;
 
-import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.pattern.Pattern;
-import com.javahelps.wisdom.core.stream.Stream;
-import com.javahelps.wisdom.core.util.EventGenerator;
-import com.javahelps.wisdom.core.util.EventPrinter;
-import com.javahelps.wisdom.core.window.Window;
-import org.junit.Test;
-
 /**
  * Created by gobinath on 6/28/17.
  */

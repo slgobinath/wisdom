@@ -570,7 +570,8 @@ public class CountPatternTestCase {
 //        String query = "" +
 //                "@info(name = 'query1') " +
 //                "from e1=Stream1[price>20] <0:5> -> e2=Stream2[price>e1[0].price] " +
-//                "select e1[0].price as price1_0, e1[1].price as price1_1, e1[2].price as price1_2, e2.price as price2" +
+//                "select e1[0].price as price1_0, e1[1].price as price1_1, e1[2].price as price1_2, e2.price as
+// price2" +
 //                " " +
 //                "having instanceOfFloat(e1[1].price) and not instanceOfFloat(e1[2].price) and instanceOfFloat" +
 //                "(price1_1) and not instanceOfFloat(price1_2) " +

@@ -5,7 +5,8 @@ import java.util.function.Predicate;
 
 /**
  * {@link AttributePredicate} is expected to be used with {@link com.javahelps.wisdom.core.processor.FilterProcessor}.
- * Compared to {@link Attribute}, {@link AttributePredicate} does not modify the {@link Event} if used as a {@link Predicate}.
+ * Compared to {@link Attribute}, {@link AttributePredicate} does not modify the {@link Event} if used as a
+ * {@link Predicate}.
  *
  * @see com.javahelps.wisdom.core.processor.FilterProcessor
  */

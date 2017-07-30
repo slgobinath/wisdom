@@ -3,7 +3,6 @@ package com.javahelps.wisdom.core.processor;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.stream.Stream;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -13,8 +12,8 @@ import java.util.List;
  */
 public class SelectProcessor extends StreamProcessor {
 
-    private List<String> attributes;
     private final boolean selectAll;
+    private List<String> attributes;
 
     public SelectProcessor(String id, Stream inputStream, String... attributes) {
         super(id);
@@ -44,7 +43,7 @@ public class SelectProcessor extends StreamProcessor {
     public void process(Collection<Event> events) {
         if (!selectAll) {
             // Do nothing
-            for(Event event : events) {
+            for (Event event : events) {
                 event.getData().keySet().retainAll(attributes);
             }
         }

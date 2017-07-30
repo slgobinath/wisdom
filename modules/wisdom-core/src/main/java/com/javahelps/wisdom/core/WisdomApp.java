@@ -19,11 +19,11 @@ import java.util.Map;
  */
 public class WisdomApp {
 
-    private WisdomContext wisdomContext;
     private final Map<String, Stream> streamMap = new HashMap<>();
     private final Map<String, StreamProcessor> streamProcessorMap = new HashMap<>();
     private final Map<String, Query> queryMap = new HashMap<>();
     private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
+    private WisdomContext wisdomContext;
 
     public WisdomApp() {
         this.wisdomContext = new WisdomContext();

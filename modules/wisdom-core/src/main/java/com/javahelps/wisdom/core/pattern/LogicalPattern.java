@@ -13,15 +13,9 @@ import java.util.function.Predicate;
  */
 class LogicalPattern extends CustomPattern {
 
-    public enum Type {
-        OR, AND
-    }
-
-
     private Type type;
     private Pattern patternX;
     private Pattern patternY;
-
     LogicalPattern(String patternId, Type type, Pattern patternX, Pattern patternY) {
 
         super(patternId);
@@ -40,10 +34,10 @@ class LogicalPattern extends CustomPattern {
 
         Predicate<Event> predicate;
         if (type == Type.AND) {
-            predicate = event -> !this.patternX.isConsumed() && !this.patternY.isConsumed();
+            predicate = event -> this.patternX.isComplete() && this.patternY.isComplete();
         } else {
             // OR
-            predicate = event -> !this.patternX.isConsumed() || !this.patternY.isConsumed();
+            predicate = event -> this.patternX.isComplete() || this.patternY.isComplete();
         }
         this.predicate = predicate;
 
@@ -81,7 +75,7 @@ class LogicalPattern extends CustomPattern {
 
     private void afterProcess(Event event) {
 
-        if (!this.isConsumed()) {
+        if (this.isComplete()) {
             this.getEvents().clear();
             this.getEvents().add(event);
         }
@@ -115,9 +109,10 @@ class LogicalPattern extends CustomPattern {
     @Override
     public void process(Event event) {
 
+        this.patternX.setConsumed(false);
+        this.patternY.setConsumed(false);
         this.eventDistributor.process(event);
     }
-
 
     @Override
     public void setProcessConditionMet(Predicate<Event> processConditionMet) {
@@ -135,16 +130,31 @@ class LogicalPattern extends CustomPattern {
     }
 
     @Override
-    public boolean isConsumed() {
+    public boolean isComplete() {
 
         if (type == Type.AND) {
-            return this.patternX.isConsumed() || this.patternY.isConsumed();
+            return this.patternX.isComplete() && this.patternY.isComplete();
         } else {
-            return this.patternX.isConsumed() && this.patternY.isConsumed();
+            return this.patternX.isComplete() || this.patternY.isComplete();
         }
     }
 
-//    @Override
+    @Override
+    public boolean isConsumed() {
+        return this.patternX.isConsumed() || this.patternY.isConsumed();
+    }
+
+    @Override
+    public void setConsumed(boolean consumed) {
+        this.patternX.setConsumed(false);
+        this.patternY.setConsumed(false);
+    }
+
+    public enum Type {
+        OR, AND
+    }
+
+    //    @Override
 //    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
 //
 //        super.setMergePreviousEvents(mergePreviousEvents);

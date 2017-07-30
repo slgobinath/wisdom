@@ -5,7 +5,6 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -40,7 +39,7 @@ class CountPattern extends CustomPattern implements EmptiablePattern {
             }
         });
 
-        Predicate<Event> predicate = event -> this.pattern.isConsumed();
+        Predicate<Event> predicate = event -> this.pattern.isAccepting();
         this.predicate = predicate;
         this.streamIds.addAll(this.pattern.streamIds);
     }
@@ -99,9 +98,24 @@ class CountPattern extends CustomPattern implements EmptiablePattern {
     }
 
     @Override
+    public boolean isAccepting() {
+        return pattern.getEvents().size() < this.maxCount;
+    }
+
+    @Override
     public boolean isConsumed() {
 
-        return pattern.getEvents().size() < this.minCount;
+        return pattern.isConsumed() && this.minCount > 0 && pattern.getEvents().size() > this.minCount;
+    }
+
+    @Override
+    public void setConsumed(boolean consumed) {
+        this.pattern.setConsumed(false);
+    }
+
+    @Override
+    public boolean isComplete() {
+        return pattern.getEvents().size() >= this.minCount;
     }
 
     @Override
@@ -117,7 +131,8 @@ class CountPattern extends CustomPattern implements EmptiablePattern {
 //    }
 
     @Override
-    public void setPreviousEvents(Supplier<Collection<Event>> previousEvents) {
+    public void setPreviousEvents(Supplier<List<Event>> previousEvents) {
+        super.setPreviousEvents(previousEvents);
         this.pattern.setPreviousEvents(previousEvents);
     }
 
@@ -132,8 +147,12 @@ class CountPattern extends CustomPattern implements EmptiablePattern {
                 event.getData().putAll(actualEvents.get(i).getData());
             }
             list.add(event);
-        } else if (isFirst) {
-            list.add(EmptiablePattern.EMPTY_EVENT);
+        } else {
+            if (isFirst) {
+                list.add(EmptiablePattern.EMPTY_EVENT);
+            } else {
+                list = this.getPreviousEvents().get();
+            }
         }
         return list;
     }
