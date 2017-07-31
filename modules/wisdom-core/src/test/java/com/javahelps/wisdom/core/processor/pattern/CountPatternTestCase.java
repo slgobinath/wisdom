@@ -2,7 +2,7 @@ package com.javahelps.wisdom.core.processor.pattern;
 
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.event.AttributeOperator;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import org.junit.Assert;
@@ -324,13 +324,13 @@ public class CountPatternTestCase {
 
         // e1 -> e2<0:5> -> e3
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Event.attribute("price").GREATER_THAN_OR_EQUAL(50.0)
-                        .and(Event.attribute("volume").GREATER_THAN(100)));
+                .filter(AttributeOperator.attribute("price").GREATER_THAN_OR_EQUAL(50.0)
+                        .and(AttributeOperator.attribute("volume").GREATER_THAN(100)));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
-                .filter(Event.attribute("price").LESS_THAN_OR_EQUAL(40.0))
+                .filter(AttributeOperator.attribute("price").LESS_THAN_OR_EQUAL(40.0))
                 .times(0, 5);
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")
-                .filter(Event.attribute("volume").LESS_THAN_OR_EQUAL(70));
+                .filter(AttributeOperator.attribute("volume").LESS_THAN_OR_EQUAL(70));
 
         Pattern pattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
@@ -361,13 +361,13 @@ public class CountPatternTestCase {
 
         // e1 -> e2<:5> -> e3
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Event.attribute("price").GREATER_THAN_OR_EQUAL(50.0)
-                        .and(Event.attribute("volume").GREATER_THAN(100)));
+                .filter(AttributeOperator.attribute("price").GREATER_THAN_OR_EQUAL(50.0)
+                        .and(AttributeOperator.attribute("volume").GREATER_THAN(100)));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
-                .filter(Event.attribute("price").LESS_THAN_OR_EQUAL(40.0))
+                .filter(AttributeOperator.attribute("price").LESS_THAN_OR_EQUAL(40.0))
                 .maxTimes(5);
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")
-                .filter(Event.attribute("volume").LESS_THAN_OR_EQUAL(70));
+                .filter(AttributeOperator.attribute("volume").LESS_THAN_OR_EQUAL(70));
 
         Pattern pattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
@@ -398,13 +398,13 @@ public class CountPatternTestCase {
 
         // e1 -> e2<:5> -> e3
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Event.attribute("price").GREATER_THAN_OR_EQUAL(50.0)
-                        .and(Event.attribute("volume").GREATER_THAN(100)));
+                .filter(AttributeOperator.attribute("price").GREATER_THAN_OR_EQUAL(50.0)
+                        .and(AttributeOperator.attribute("volume").GREATER_THAN(100)));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
-                .filter(Event.attribute("price").LESS_THAN_OR_EQUAL(40.0))
+                .filter(AttributeOperator.attribute("price").LESS_THAN_OR_EQUAL(40.0))
                 .maxTimes(5);
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")
-                .filter(Event.attribute("volume").LESS_THAN_OR_EQUAL(70));
+                .filter(AttributeOperator.attribute("volume").LESS_THAN_OR_EQUAL(70));
 
         Pattern pattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
@@ -570,7 +570,8 @@ public class CountPatternTestCase {
 //        String query = "" +
 //                "@info(name = 'query1') " +
 //                "from e1=Stream1[price>20] <0:5> -> e2=Stream2[price>e1[0].price] " +
-//                "select e1[0].price as price1_0, e1[1].price as price1_1, e1[2].price as price1_2, e2.price as price2" +
+//                "select e1[0].price as price1_0, e1[1].price as price1_1, e1[2].price as price1_2, e2.price as
+// price2" +
 //                " " +
 //                "having instanceOfFloat(e1[1].price) and not instanceOfFloat(e1[2].price) and instanceOfFloat" +
 //                "(price1_1) and not instanceOfFloat(price1_2) " +

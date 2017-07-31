@@ -231,7 +231,8 @@ public class PatternTestCase {
                 .from(finalPattern)
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "IBM", "e1.price", 50.0, "e2.price", 55.0,
+        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "IBM", "e1.price", 50.0, "e2.price",
+                55.0,
                 "e1.volume", 10, "e2.volume", 15));
 
         wisdomApp.start();

@@ -2,7 +2,6 @@ package com.javahelps.wisdom.core.util;
 
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.EventValidationException;
-import com.javahelps.wisdom.core.stream.Stream;
 
 /**
  * A utility class to create {@link Event}s from different type of inputs.

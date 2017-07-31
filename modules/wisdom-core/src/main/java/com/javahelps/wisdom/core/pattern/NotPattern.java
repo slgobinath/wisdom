@@ -5,14 +5,19 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.util.Scheduler;
 
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Created by gobinath on 6/29/17.
  */
-class NotPattern extends CustomPattern {
+class NotPattern extends CustomPattern implements EmptiablePattern {
 
+    private static final List<Event> EVENT_LIST = Arrays.asList(new Event(0));
     private Pattern pattern;
     private Scheduler scheduler;
     private Event previousEvent;
@@ -25,10 +30,11 @@ class NotPattern extends CustomPattern {
 
         this.pattern.setProcessConditionMet(event -> true);
 
-        this.pattern.setEvents(this.getEvents());
+//        this.pattern.setEvents(this.getEvents());
 
-        Predicate<Event> predicate = event -> this.pattern.isWaiting();
-        this.predicate = predicate;
+//        Predicate<Event> predicate = event -> this.pattern.isConsumed();
+//        this.predicate = predicate;
+        this.streamIds.addAll(this.pattern.streamIds);
     }
 
     @Override
@@ -42,7 +48,7 @@ class NotPattern extends CustomPattern {
 
     public void timeoutHappend(long timestamp) {
 
-        if (!this.isWaiting()) {
+        if (this.pattern.isAccepting()) {
             this.getNextProcessor().process(this.previousEvent);
         }
     }
@@ -82,15 +88,59 @@ class NotPattern extends CustomPattern {
     }
 
     @Override
-    public boolean isWaiting() {
-
-        return !this.pattern.isWaiting();
+    public boolean isAccepting() {
+        return this.pattern.isAccepting();
     }
 
     @Override
-    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
+    public boolean isConsumed() {
 
-        super.setMergePreviousEvents(mergePreviousEvents);
-        this.pattern.setMergePreviousEvents(this.pattern.getMergePreviousEvents().andThen(mergePreviousEvents));
+        return this.pattern.isConsumed();
+    }
+
+    @Override
+    public void setConsumed(boolean consumed) {
+        this.pattern.setConsumed(consumed);
+    }
+
+    @Override
+    public boolean isComplete() {
+
+        return !this.pattern.isComplete();
+    }
+
+//    @Override
+//    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
+//
+//        super.setMergePreviousEvents(mergePreviousEvents);
+//        this.pattern.setMergePreviousEvents(this.pattern.getMergePreviousEvents().andThen(mergePreviousEvents));
+//    }
+
+
+    @Override
+    public void setPreviousEvents(Supplier<List<Event>> previousEvents) {
+        super.setPreviousEvents(previousEvents);
+        this.pattern.setPreviousEvents(previousEvents);
+    }
+
+    @Override
+    public List<Event> getEvents() {
+        return this.getEvents(true);
+    }
+
+    @Override
+    public List<Event> getEvents(boolean isFirst) {
+
+        List<Event> events = new ArrayList<>();
+        if (this.pattern.getEvents().isEmpty()) {
+            if (isFirst) {
+                events.add(EmptiablePattern.EMPTY_EVENT);
+            } else {
+                events = this.getPreviousEvents().get();
+            }
+        } else {
+            return Collections.EMPTY_LIST;
+        }
+        return events;
     }
 }

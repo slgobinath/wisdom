@@ -21,12 +21,12 @@ public abstract class StreamProcessor implements Processor {
         return id;
     }
 
-    public void setNextProcessor(Processor nextProcessor) {
-        this.nextProcessor = nextProcessor;
-    }
-
     public Processor getNextProcessor() {
         return nextProcessor;
+    }
+
+    public void setNextProcessor(Processor nextProcessor) {
+        this.nextProcessor = nextProcessor;
     }
 
     public void init(WisdomApp wisdomApp) {
