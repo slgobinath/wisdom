@@ -110,6 +110,28 @@ class FollowingPattern extends CustomPattern {
     }
 
     @Override
+    public void setAccepting(boolean accepting) {
+        if(accepting) {
+            if (first.isAccepting()) {
+                next.setAccepting(true);
+                return;
+            } else {
+                // First already accepted
+                if (next.isAccepting()) {
+                    return;
+                } else {
+                    // Second also already accepted
+//                    first.setAccepting(true);
+                    next.setAccepting(true);
+                }
+            }
+        } else {
+            first.setAccepting(false);
+            next.setAccepting(false);
+        }
+    }
+
+    @Override
     public void setProcessConditionMet(Predicate<Event> processConditionMet) {
         this.first.setProcessConditionMet(processConditionMet);
     }
@@ -146,12 +168,19 @@ class FollowingPattern extends CustomPattern {
 
     @Override
     public boolean isComplete() {
-        return this.first.isComplete() && this.next.isComplete();
+        return this.next.isComplete();
     }
 
     @Override
     public void setPreviousEvents(Supplier<List<Event>> previousEvents) {
         this.first.setPreviousEvents(previousEvents);
+    }
+
+    @Override
+    public void setBatchPattern(boolean batchPattern) {
+        super.setBatchPattern(batchPattern);
+        this.first.setBatchPattern(batchPattern);
+        this.next.setBatchPattern(batchPattern);
     }
 
     @Override

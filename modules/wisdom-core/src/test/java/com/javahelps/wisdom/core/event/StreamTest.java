@@ -14,12 +14,12 @@ public class StreamTest {
 //
 //        wisdomApp.defineQuery("query1")
 //                .from("StockStream")
-//                .filter(Event.attribute("symbol").EQUAL_TO("WSO2")
-//                        .and(Event.attribute("price").ADD(100).GREATER_THAN_OR_EQUAL(160.0)))
+//                .filter(AttributeOperator("symbol").EQUAL_TO("WSO2")
+//                        .and(AttributeOperator("price").ADD(100).GREATER_THAN_OR_EQUAL(160.0)))
 //                .window(Window.length(3))
-//                .map(Event.attribute("price").ADD(50).AS("new_price"))
+//                .map(AttributeOperator("price").ADD(50).AS("new_price"))
 //                .select("symbol", "new_price")
-//                .having(Event.attribute("new_price").GREATER_THAN(100.0))
+//                .having(AttributeOperator("new_price").GREATER_THAN(100.0))
 //                .insertInto("OutputStream");
 //
 //        wisdomApp.addCallback("OutputStream", EventPrinter::print);

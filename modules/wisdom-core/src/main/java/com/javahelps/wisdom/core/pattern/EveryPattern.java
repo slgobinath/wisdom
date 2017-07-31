@@ -48,6 +48,7 @@ class EveryPattern extends CustomPattern {
     public void process(Event event) {
 
         this.pattern.process(event);
+        this.pattern.setAccepting(true);
     }
 
     @Override
@@ -78,15 +79,16 @@ class EveryPattern extends CustomPattern {
     @Override
     public void setProcessConditionMet(Predicate<Event> processConditionMet) {
 
-        processConditionMet = processConditionMet.or(event -> !this.getEvents().isEmpty());
-        this.pattern.setProcessConditionMet(this.pattern.getProcessConditionMet().and(processConditionMet));
+//        processConditionMet = processConditionMet.or(event -> !this.getEvents().isEmpty());
+//        this.pattern.setProcessConditionMet(this.pattern.getProcessConditionMet().and(processConditionMet));
+        this.pattern.setProcessConditionMet(processConditionMet);
     }
 
     @Override
     public void setEmitConditionMet(Predicate<Event> emitConditionMet) {
 
-        Predicate<Event> predicate = this.predicate.and(emitConditionMet);
-        this.pattern.setEmitConditionMet(predicate);
+//        Predicate<Event> predicate = this.predicate.and(emitConditionMet);
+        this.pattern.setEmitConditionMet(emitConditionMet);
     }
 
     @Override

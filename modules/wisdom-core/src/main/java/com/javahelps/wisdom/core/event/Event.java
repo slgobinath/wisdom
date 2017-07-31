@@ -32,8 +32,8 @@ public class Event {
         this.original = this;
     }
 
-    public static Attribute attribute(String attribute) {
-        return new Attribute(attribute);
+    public Attribute attribute(String attribute) {
+        return new Attribute(this, attribute);
     }
 
     public Event set(String attribute, Comparable value) {
@@ -43,7 +43,9 @@ public class Event {
 
     public Comparable get(String attribute) {
         if (this.name != null) {
-            attribute = this.name + "." + attribute;
+            if (!attribute.contains(".")) {
+                attribute = this.name + "." + attribute;
+            }
         }
         Comparable data = this.data.get(attribute);
         if (data == null) {

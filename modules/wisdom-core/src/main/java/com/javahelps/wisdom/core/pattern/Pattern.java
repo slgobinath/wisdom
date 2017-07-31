@@ -1,6 +1,7 @@
 package com.javahelps.wisdom.core.pattern;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.event.Attribute;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
 import com.javahelps.wisdom.core.util.WisdomConstants;
@@ -118,7 +119,7 @@ public class Pattern extends StreamProcessor {
     }
 
     public boolean isComplete() {
-        return !this.isAccepting();
+        return !this.events.isEmpty();
     }
 
     public Map<Event, Event> getEventMap() {
@@ -201,6 +202,10 @@ public class Pattern extends StreamProcessor {
 
     public Event event() {
         return this.event(0);
+    }
+
+    public Attribute attribute(String attribute) {
+        return new Attribute(this::event, attribute);
     }
 
     public Event last() {
