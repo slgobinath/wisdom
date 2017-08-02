@@ -6,7 +6,6 @@ import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.processor.Processor;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -96,10 +95,7 @@ public class Stream implements Processor {
 
     @Override
     public Object clone() {
-        Stream stream = new Stream(this.wisdomApp, this.id);
-        for (Processor processor : this.processorList) {
-            stream.addProcessor(processor);
-        }
-        return stream;
+
+        return this;
     }
 }

@@ -99,7 +99,7 @@ public class AttributeOperator {
             double avg = events.stream().mapToDouble(e -> ((Number) e.get(this.name)).doubleValue()).average().orElse
                     (Double.NaN);
             if (avg != Double.NaN) {
-                avg = Math.round(avg * WisdomConfig.DOUBLE_PRECISION) / WisdomConfig.DOUBLE_PRECISION;
+                avg = Math.round(avg * 10_000.0) / WisdomConfig.DOUBLE_PRECISION;
             }
             Event lastEvent = events.get(events.size() - 1);
             lastEvent.set(newName, avg);

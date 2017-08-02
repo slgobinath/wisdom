@@ -6,13 +6,13 @@ import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.processor.AggregateProcessor;
 import com.javahelps.wisdom.core.processor.FilterProcessor;
 import com.javahelps.wisdom.core.processor.MapProcessor;
+import com.javahelps.wisdom.core.processor.PartitionProcessor;
 import com.javahelps.wisdom.core.processor.SelectProcessor;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
 import com.javahelps.wisdom.core.processor.WindowProcessor;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.window.Window;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -138,6 +138,19 @@ public class Query {
         } else {
             this.lastStreamProcessor.setNextProcessor(this.outputStream);
         }
+
+        return this;
+    }
+
+    public Query partitionBy(String... attributes) {
+
+        PartitionProcessor partitionProcessor = new PartitionProcessor(generateId(), attributes);
+        if (this.lastStreamProcessor == null) {
+            this.inputStream.addProcessor(partitionProcessor);
+        } else {
+            this.lastStreamProcessor.setNextProcessor(partitionProcessor);
+        }
+        this.lastStreamProcessor = partitionProcessor;
 
         return this;
     }
