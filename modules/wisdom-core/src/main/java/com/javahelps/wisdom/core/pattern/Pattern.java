@@ -283,7 +283,7 @@ public class Pattern extends StreamProcessor {
     }
 
     @Override
-    public void process(Collection<Event> events) {
+    public void process(List<Event> events) {
 
     }
 
@@ -312,5 +312,10 @@ public class Pattern extends StreamProcessor {
     @FunctionalInterface
     protected interface CopyEventAttributes {
         void copy(Pattern pattern, Event src, Event destination);
+    }
+
+    @Override
+    public Object clone() {
+        return null;
     }
 }

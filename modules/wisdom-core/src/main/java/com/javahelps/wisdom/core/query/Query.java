@@ -3,6 +3,7 @@ package com.javahelps.wisdom.core.query;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.pattern.Pattern;
+import com.javahelps.wisdom.core.processor.AggregateProcessor;
 import com.javahelps.wisdom.core.processor.FilterProcessor;
 import com.javahelps.wisdom.core.processor.MapProcessor;
 import com.javahelps.wisdom.core.processor.SelectProcessor;
@@ -11,6 +12,8 @@ import com.javahelps.wisdom.core.processor.WindowProcessor;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.window.Window;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -48,7 +51,7 @@ public class Query {
 
     public Query filter(Predicate<Event> predicate) {
 
-        FilterProcessor filterProcessor = new FilterProcessor(generateId(), this.inputStream, predicate);
+        FilterProcessor filterProcessor = new FilterProcessor(generateId(), predicate);
         if (this.lastStreamProcessor == null) {
             this.inputStream.addProcessor(filterProcessor);
         } else {
@@ -61,7 +64,7 @@ public class Query {
 
     public Query window(Window window) {
 
-        WindowProcessor windowProcessor = new WindowProcessor(generateId(), this.inputStream, window);
+        WindowProcessor windowProcessor = new WindowProcessor(generateId(), window);
         if (this.lastStreamProcessor == null) {
             this.inputStream.addProcessor(windowProcessor);
         } else {
@@ -73,7 +76,7 @@ public class Query {
 
     public Query select(String... attributes) {
 
-        SelectProcessor selectProcessor = new SelectProcessor(generateId(), this.inputStream, attributes);
+        SelectProcessor selectProcessor = new SelectProcessor(generateId(), attributes);
         if (this.lastStreamProcessor == null) {
             this.inputStream.addProcessor(selectProcessor);
         } else {
@@ -88,7 +91,7 @@ public class Query {
 
     public Query map(Function<Event, Event> function) {
 
-        MapProcessor mapProcessor = new MapProcessor(generateId(), this.inputStream, function);
+        MapProcessor mapProcessor = new MapProcessor(generateId(), function);
         if (this.lastStreamProcessor == null) {
             this.inputStream.addProcessor(mapProcessor);
         } else {
@@ -99,9 +102,22 @@ public class Query {
         return this;
     }
 
+    public Query aggregate(Function<List<Event>, Event> function) {
+
+        AggregateProcessor aggregateProcessor = new AggregateProcessor(generateId(), function);
+        if (this.lastStreamProcessor == null) {
+            this.inputStream.addProcessor(aggregateProcessor);
+        } else {
+            this.lastStreamProcessor.setNextProcessor(aggregateProcessor);
+        }
+        this.lastStreamProcessor = aggregateProcessor;
+
+        return this;
+    }
+
     public Query having(Predicate<Event> predicate) {
 
-        FilterProcessor filterProcessor = new FilterProcessor(generateId(), this.inputStream, predicate);
+        FilterProcessor filterProcessor = new FilterProcessor(generateId(), predicate);
         if (this.lastStreamProcessor == null) {
             this.inputStream.addProcessor(filterProcessor);
         } else {

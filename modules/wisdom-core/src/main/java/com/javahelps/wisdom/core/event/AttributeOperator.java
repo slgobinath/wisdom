@@ -1,5 +1,9 @@
 package com.javahelps.wisdom.core.event;
 
+import com.javahelps.wisdom.core.util.WisdomConfig;
+
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -55,6 +59,55 @@ public class AttributeOperator {
 //    }
 //
 //
+
+    public Function<List<Event>, Event> SUM_AS(String newName) {
+
+        Function<List<Event>, Event> function = events -> {
+            double sum = events.stream().mapToDouble(e -> ((Number) e.get(this.name)).doubleValue()).sum();
+            Event lastEvent = events.get(events.size() - 1);
+            lastEvent.set(newName, sum);
+            return lastEvent;
+        };
+        return function;
+    }
+
+    public Function<List<Event>, Event> MIN_AS(String newName) {
+
+        Function<List<Event>, Event> function = events -> {
+            Object min = events.stream().map(event -> event.get(this.name)).min(Comparator.naturalOrder()).get();
+            Event lastEvent = events.get(events.size() - 1);
+            lastEvent.set(newName, (Comparable) min);
+            return lastEvent;
+        };
+        return function;
+    }
+
+    public Function<List<Event>, Event> MAX_AS(String newName) {
+
+        Function<List<Event>, Event> function = events -> {
+            Object min = events.stream().map(event -> event.get(this.name)).max(Comparator.naturalOrder()).get();
+            Event lastEvent = events.get(events.size() - 1);
+            lastEvent.set(newName, (Comparable) min);
+            return lastEvent;
+        };
+        return function;
+    }
+
+    public Function<List<Event>, Event> AVG_AS(String newName) {
+
+        Function<List<Event>, Event> function = events -> {
+            double avg = events.stream().mapToDouble(e -> ((Number) e.get(this.name)).doubleValue()).average().orElse
+                    (Double.NaN);
+            if (avg != Double.NaN) {
+                avg = Math.round(avg * WisdomConfig.DOUBLE_PRECISION) / WisdomConfig.DOUBLE_PRECISION;
+            }
+            Event lastEvent = events.get(events.size() - 1);
+            lastEvent.set(newName, avg);
+            return lastEvent;
+        };
+        return function;
+    }
+
     public Predicate<Event> EQUALS(Object value) {
 
         return event -> event.get(name).equals(value);
