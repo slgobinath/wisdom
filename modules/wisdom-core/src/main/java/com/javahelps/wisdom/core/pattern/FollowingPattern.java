@@ -6,6 +6,7 @@ import com.javahelps.wisdom.core.processor.Processor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -32,11 +33,6 @@ class FollowingPattern extends CustomPattern {
         this.first.setEmitConditionMet(event -> false);
         this.next.setEmitConditionMet(event -> true);
 
-//        this.next.setMergePreviousEvents(event -> {
-//            for (Event e : this.first.getEvents()) {
-//                event.getData().putAll(e.getData());
-//            }
-//        });
         this.next.setPreviousEvents(this.first::getEvents);
 
         this.first.setPreProcess(event -> this.next.onPreviousPreProcess(event));
@@ -111,7 +107,7 @@ class FollowingPattern extends CustomPattern {
 
     @Override
     public void setAccepting(boolean accepting) {
-        if(accepting) {
+        if (accepting) {
             if (first.isAccepting()) {
                 next.setAccepting(true);
                 return;
@@ -121,7 +117,6 @@ class FollowingPattern extends CustomPattern {
                     return;
                 } else {
                     // Second also already accepted
-//                    first.setAccepting(true);
                     next.setAccepting(true);
                 }
             }
@@ -193,18 +188,21 @@ class FollowingPattern extends CustomPattern {
             events.addAll(this.next.getEvents());
         }
 
-//        if (events.isEmpty()) {
-//            if (this.first instanceof EmptiablePattern) {
-//                events.addAll(((EmptiablePattern) this.first).getEvents(true));
-//            } else {
-//                events.addAll(this.first.getEvents());
-//            }
-//        }
         return events;
     }
 
     @Override
     public void setPostProcess(Consumer<Event> postProcess) {
         this.next.setPostProcess(postProcess);
+    }
+
+    public void setWithin(long timestamp) {
+        this.next.setExpiredCondition((currentEvent, preEvent) -> currentEvent.getTimestamp() - preEvent.getTimestamp
+                () > timestamp);
+    }
+
+    @Override
+    public void setExpiredCondition(BiFunction<Event, Event, Boolean> expiredCondition) {
+        this.next.setExpiredCondition(expiredCondition);
     }
 }

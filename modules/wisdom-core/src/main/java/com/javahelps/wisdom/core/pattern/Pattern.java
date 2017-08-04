@@ -4,14 +4,16 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Attribute;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
+import com.javahelps.wisdom.core.util.TimestampGenerator;
 import com.javahelps.wisdom.core.util.WisdomConstants;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -32,9 +34,10 @@ public class Pattern extends StreamProcessor {
     private Predicate<Event> processConditionMet = event -> accepting;
     private List<Event> events = new ArrayList<>();
     private boolean batchPattern = false;
+    private TimestampGenerator timestampGenerator;
     private Supplier<List<Event>> previousEvents = () -> {
         ArrayList<Event> arrayList = new ArrayList<>();
-        arrayList.add(new Event(0));
+        arrayList.add(new Event(timestampGenerator.currentTimestamp()));
         return arrayList;
     };
     private CopyEventAttributes copyEventAttributes = (pattern, src, destination) -> {
@@ -48,6 +51,7 @@ public class Pattern extends StreamProcessor {
     private Consumer<Event> preProcess = event -> {
     };
     private Map<Event, Event> eventMap = new HashMap<>();
+    private BiFunction<Event, Event, Boolean> expiredCondition = (currentEvent, oldEvent) -> false;
 
 
     public Pattern(String patternId) {
@@ -69,6 +73,14 @@ public class Pattern extends StreamProcessor {
 
         return new FollowingPattern(first.id + WisdomConstants.PATTERN_FOLLOWED_BY_INFIX + following.id, first,
                 following);
+    }
+
+    public static Pattern followedBy(Pattern first, Pattern following, long withinTimestamp) {
+
+        FollowingPattern followingPattern = new FollowingPattern(first.id + WisdomConstants.PATTERN_FOLLOWED_BY_INFIX + following.id, first,
+                following);
+        followingPattern.setWithin(withinTimestamp);
+        return followingPattern;
     }
 
     public static Pattern and(Pattern first, Pattern second) {
@@ -99,6 +111,7 @@ public class Pattern extends StreamProcessor {
 
     public void init(WisdomApp wisdomApp) {
 
+        this.timestampGenerator = wisdomApp.getWisdomContext().getTimestampGenerator();
         this.streamIds.forEach(streamId -> wisdomApp.getStream(streamId).addProcessor(this));
     }
 
@@ -212,6 +225,10 @@ public class Pattern extends StreamProcessor {
         return this.events.get(this.events.size() - 1);
     }
 
+    public void setExpiredCondition(BiFunction<Event, Event, Boolean> expiredCondition) {
+        this.expiredCondition = expiredCondition;
+    }
+
     public Event event(int index) {
         Event event = null;
         if (index < this.events.size()) {
@@ -240,9 +257,17 @@ public class Pattern extends StreamProcessor {
 
             this.preProcess.accept(event);
 
-            Iterable<Event> events = this.previousEvents.get();
+            Iterator<Event> events = this.previousEvents.get().iterator();
             Event newEvent = null;
-            for (Event preEvent : events) {
+            while (events.hasNext()) {
+
+                Event preEvent = events.next();
+
+                // Remove the expired events
+                if (this.expiredCondition.apply(event, preEvent)) {
+                    events.remove();
+                    continue;
+                }
 
                 newEvent = new Event(event.getStream(), event.getTimestamp());
                 newEvent.setOriginal(event);
