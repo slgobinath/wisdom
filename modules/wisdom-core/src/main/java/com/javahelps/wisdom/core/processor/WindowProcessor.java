@@ -1,7 +1,6 @@
 package com.javahelps.wisdom.core.processor;
 
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.window.Window;
 
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ public class WindowProcessor extends StreamProcessor {
     private List<Event> events;
     private Window window;
 
-    public WindowProcessor(String id, Stream inputStream, Window window) {
+    public WindowProcessor(String id, Window window) {
         super(id);
         this.events = new ArrayList<>();
         this.window = window;
@@ -34,7 +33,15 @@ public class WindowProcessor extends StreamProcessor {
     }
 
     @Override
-    public void process(Collection<Event> events) {
+    public void process(List<Event> events) {
 
+    }
+
+    @Override
+    public Object clone() {
+
+        WindowProcessor windowProcessor = new WindowProcessor(this.id, this.window);
+        windowProcessor.setNextProcessor((Processor) this.getNextProcessor().clone());
+        return windowProcessor;
     }
 }

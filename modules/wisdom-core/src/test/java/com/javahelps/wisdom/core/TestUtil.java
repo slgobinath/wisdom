@@ -47,7 +47,9 @@ public class TestUtil {
                     eventCount.addAndGet(arrivedEvents.length);
                     if (expectedEvents.length > 0 && currentIndex < expectedEvents.length) {
                         for (Event event : arrivedEvents) {
-                            Assert.assertEquals("Incorrect event", expectedEvents[currentIndex++], event.getData());
+                            if (expectedEvents.length > currentIndex) {
+                                Assert.assertEquals("Incorrect event", expectedEvents[currentIndex++], event.getData());
+                            }
                         }
                     }
                 }

@@ -9,8 +9,8 @@ import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.stream.StreamCallback;
 
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,8 +70,13 @@ public class WisdomApp {
                 }
 
                 @Override
-                public void process(Collection<Event> events) {
+                public void process(List<Event> events) {
                     callback.receive(events.toArray(new Event[0]));
+                }
+
+                @Override
+                public Object clone() {
+                    return this;
                 }
             });
         }

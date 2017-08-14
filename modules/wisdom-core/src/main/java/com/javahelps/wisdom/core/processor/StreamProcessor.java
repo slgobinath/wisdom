@@ -32,4 +32,6 @@ public abstract class StreamProcessor implements Processor {
     public void init(WisdomApp wisdomApp) {
 
     }
+
+    public abstract Object clone();
 }

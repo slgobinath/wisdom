@@ -6,7 +6,6 @@ import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.util.Scheduler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -17,7 +16,6 @@ import java.util.function.Supplier;
  */
 class NotPattern extends CustomPattern implements EmptiablePattern {
 
-    private static final List<Event> EVENT_LIST = Arrays.asList(new Event(0));
     private Pattern pattern;
     private Scheduler scheduler;
     private Event previousEvent;
@@ -27,13 +25,7 @@ class NotPattern extends CustomPattern implements EmptiablePattern {
         super(patternId);
 
         this.pattern = pattern;
-
         this.pattern.setProcessConditionMet(event -> true);
-
-//        this.pattern.setEvents(this.getEvents());
-
-//        Predicate<Event> predicate = event -> this.pattern.isConsumed();
-//        this.predicate = predicate;
         this.streamIds.addAll(this.pattern.streamIds);
     }
 
@@ -108,14 +100,6 @@ class NotPattern extends CustomPattern implements EmptiablePattern {
 
         return !this.pattern.isComplete();
     }
-
-//    @Override
-//    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
-//
-//        super.setMergePreviousEvents(mergePreviousEvents);
-//        this.pattern.setMergePreviousEvents(this.pattern.getMergePreviousEvents().andThen(mergePreviousEvents));
-//    }
-
 
     @Override
     public void setPreviousEvents(Supplier<List<Event>> previousEvents) {

@@ -1,7 +1,6 @@
 package com.javahelps.wisdom.core.processor;
 
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.stream.Stream;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,7 +14,7 @@ public class SelectProcessor extends StreamProcessor {
     private final boolean selectAll;
     private List<String> attributes;
 
-    public SelectProcessor(String id, Stream inputStream, String... attributes) {
+    public SelectProcessor(String id, String... attributes) {
         super(id);
         this.selectAll = attributes.length == 0;
         this.attributes = Arrays.asList(attributes);
@@ -40,7 +39,7 @@ public class SelectProcessor extends StreamProcessor {
     }
 
     @Override
-    public void process(Collection<Event> events) {
+    public void process(List<Event> events) {
         if (!selectAll) {
             // Do nothing
             for (Event event : events) {
@@ -48,5 +47,13 @@ public class SelectProcessor extends StreamProcessor {
             }
         }
         this.getNextProcessor().process(events);
+    }
+
+    @Override
+    public Object clone() {
+
+        SelectProcessor selectProcessor = new SelectProcessor(this.id, this.attributes.toArray(new String[0]));
+        selectProcessor.setNextProcessor((Processor) this.getNextProcessor().clone());
+        return selectProcessor;
     }
 }

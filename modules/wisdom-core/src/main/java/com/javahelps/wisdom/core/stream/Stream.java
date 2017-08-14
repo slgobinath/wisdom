@@ -6,7 +6,6 @@ import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.processor.Processor;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -53,12 +52,12 @@ public class Stream implements Processor {
     }
 
     @Override
-    public void process(Collection<Event> events) {
+    public void process(List<Event> events) {
         if (this.noOfProcessors == 1) {
             this.processors[0].process(events);
         } else {
             for (Processor processor : this.processors) {
-                Collection<Event> newEvents = this.convertEvent(events);
+                List<Event> newEvents = this.convertEvent(events);
                 processor.process(newEvents);
             }
         }
@@ -75,9 +74,9 @@ public class Stream implements Processor {
         return newEvent;
     }
 
-    private Collection<Event> convertEvent(Collection<Event> from) {
+    private List<Event> convertEvent(List<Event> from) {
 
-        Collection<Event> newEvents = new ArrayList<>(from.size());
+        List<Event> newEvents = new ArrayList<>(from.size());
         for (Event event : from) {
             newEvents.add(convertEvent(event));
         }
@@ -92,5 +91,11 @@ public class Stream implements Processor {
 
     public void removeProcessor(Processor processor) {
         this.processorList.remove(processor);
+    }
+
+    @Override
+    public Object clone() {
+
+        return this;
     }
 }
