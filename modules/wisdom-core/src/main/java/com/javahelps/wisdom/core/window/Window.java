@@ -22,6 +22,6 @@ public abstract class Window {
         return new LengthBatchWindow(length);
     }
 
-    public abstract void process(List<Event> events, Event event, Processor nextProcessor);
+    public abstract void process(Event event, Processor nextProcessor);
 
 }

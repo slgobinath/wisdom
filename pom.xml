@@ -11,6 +11,7 @@
 
     <modules>
         <module>modules/wisdom-core</module>
+        <module>modules/wisdom-extensions</module>
     </modules>
 
     <properties>

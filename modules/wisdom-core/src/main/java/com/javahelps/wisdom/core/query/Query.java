@@ -2,6 +2,7 @@ package com.javahelps.wisdom.core.query;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.processor.AggregateProcessor;
 import com.javahelps.wisdom.core.processor.FilterProcessor;
@@ -39,6 +40,9 @@ public class Query {
     public Query from(String streamId) {
 
         this.inputStream = this.wisdomApp.getStream(streamId);
+        if (this.inputStream == null) {
+            throw new WisdomAppValidationException(String.format("The stream %s is not defined", streamId));
+        }
         return this;
     }
 

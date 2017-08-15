@@ -12,12 +12,11 @@ import java.util.List;
  */
 public class WindowProcessor extends StreamProcessor {
 
-    private List<Event> events;
+
     private Window window;
 
     public WindowProcessor(String id, Window window) {
         super(id);
-        this.events = new ArrayList<>();
         this.window = window;
     }
 
@@ -29,7 +28,7 @@ public class WindowProcessor extends StreamProcessor {
     @Override
     public void process(Event event) {
 
-        this.window.process(this.events, event, getNextProcessor());
+        this.window.process(event, getNextProcessor());
     }
 
     @Override

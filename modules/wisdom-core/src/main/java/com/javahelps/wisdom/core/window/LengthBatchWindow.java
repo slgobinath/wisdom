@@ -11,13 +11,15 @@ import java.util.List;
  */
 class LengthBatchWindow extends Window {
 
+    private List<Event> events;
     private int length;
 
     LengthBatchWindow(int length) {
         this.length = length;
+        this.events = new ArrayList<>(length);
     }
 
-    public void process(List<Event> events, Event event, Processor nextProcessor) {
+    public void process(Event event, Processor nextProcessor) {
         events.add(event);
         List<Event> eventsToSend = null;
         if (events.size() >= length) {
