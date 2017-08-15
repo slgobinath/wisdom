@@ -12,7 +12,7 @@ import java.util.List;
 class LengthBatchWindow extends Window {
 
     private List<Event> events;
-    private int length;
+    private final int length;
 
     LengthBatchWindow(int length) {
         this.length = length;
@@ -30,5 +30,12 @@ class LengthBatchWindow extends Window {
         if (eventsToSend != null) {
             nextProcessor.process(eventsToSend);
         }
+    }
+
+    @Override
+    public Window copy() {
+
+        Window window = new LengthBatchWindow(this.length);
+        return window;
     }
 }

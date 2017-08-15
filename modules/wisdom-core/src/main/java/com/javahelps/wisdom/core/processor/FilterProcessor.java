@@ -38,10 +38,10 @@ public class FilterProcessor extends StreamProcessor {
     }
 
     @Override
-    public Object clone() {
+    public Processor copy() {
 
         FilterProcessor filterProcessor = new FilterProcessor(this.id, this.predicate);
-        filterProcessor.setNextProcessor((Processor) this.getNextProcessor().clone());
+        filterProcessor.setNextProcessor(this.getNextProcessor().copy());
         return filterProcessor;
     }
 }

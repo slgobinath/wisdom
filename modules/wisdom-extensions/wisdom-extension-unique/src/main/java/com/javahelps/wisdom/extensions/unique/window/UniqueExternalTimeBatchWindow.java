@@ -2,6 +2,7 @@ package com.javahelps.wisdom.extensions.unique.window;
 
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
+import com.javahelps.wisdom.core.window.Window;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -14,14 +15,16 @@ public class UniqueExternalTimeBatchWindow extends UniqueWindow {
     private final Map<Comparable, Event> eventMap = new LinkedHashMap<>();
     private final String uniqueKey;
     private final String timestampKey;
-    private final long duration;
+    private final Duration duration;
+    private final long timeToKeep;
     private long endTime = -1;
 
     public UniqueExternalTimeBatchWindow(String uniqueKey, String timestampKey, Duration duration) {
 
         this.uniqueKey = uniqueKey;
         this.timestampKey = timestampKey;
-        this.duration = duration.toMillis();
+        this.duration = duration;
+        this.timeToKeep = duration.toMillis();
     }
 
     @Override
@@ -32,14 +35,14 @@ public class UniqueExternalTimeBatchWindow extends UniqueWindow {
         Long currentTimestamp = (Long) event.get(this.timestampKey);
 
         if (eventMap.isEmpty()) {
-            this.endTime = currentTimestamp + this.duration;
+            this.endTime = currentTimestamp + this.timeToKeep;
         }
 
         if (currentTimestamp >= this.endTime) {
             // Timeout happened
             eventsToSend = new ArrayList<>(this.eventMap.values());
             this.eventMap.clear();
-            this.endTime = this.findEndTime(currentTimestamp, this.endTime, this.duration);
+            this.endTime = this.findEndTime(currentTimestamp, this.endTime, this.timeToKeep);
         }
         this.eventMap.put(uniqueValue, event);
 
@@ -53,5 +56,12 @@ public class UniqueExternalTimeBatchWindow extends UniqueWindow {
         // returns the next emission time based on system clock round time values.
         long elapsedTimeSinceLastEmit = (currentTime - preEndTime) % timeToKeep;
         return (currentTime + (timeToKeep - elapsedTimeSinceLastEmit));
+    }
+
+    @Override
+    public Window copy() {
+
+        Window window = new UniqueExternalTimeBatchWindow(this.uniqueKey, this.timestampKey, this.duration);
+        return window;
     }
 }

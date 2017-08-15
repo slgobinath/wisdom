@@ -94,7 +94,7 @@ public class Stream implements Processor {
     }
 
     @Override
-    public Object clone() {
+    public Processor copy() {
 
         return this;
     }

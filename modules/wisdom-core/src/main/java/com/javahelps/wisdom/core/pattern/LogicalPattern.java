@@ -90,12 +90,11 @@ class LogicalPattern extends CustomPattern {
         this.patternY.init(wisdomApp);
         this.patternX.streamIds.forEach(streamId -> {
             wisdomApp.getStream(streamId).removeProcessor(this.patternX);
-            wisdomApp.getStream(streamId).addProcessor(this);
         });
         this.patternY.streamIds.forEach(streamId -> {
             wisdomApp.getStream(streamId).removeProcessor(this.patternY);
-            wisdomApp.getStream(streamId).addProcessor(this);
         });
+        super.init(wisdomApp);
     }
 
     @Override

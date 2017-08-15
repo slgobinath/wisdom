@@ -75,7 +75,7 @@ public class WisdomApp {
                 }
 
                 @Override
-                public Object clone() {
+                public Processor copy() {
                     return this;
                 }
             });

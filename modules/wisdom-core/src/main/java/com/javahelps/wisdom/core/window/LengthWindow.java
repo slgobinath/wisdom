@@ -12,7 +12,7 @@ import java.util.List;
 class LengthWindow extends Window {
 
     private List<Event> events;
-    private int length;
+    private final int length;
 
     LengthWindow(int length) {
         this.length = length;
@@ -30,5 +30,12 @@ class LengthWindow extends Window {
         if (eventsToSend != null) {
             nextProcessor.process(eventsToSend);
         }
+    }
+
+    @Override
+    public Window copy() {
+
+        Window window = new LengthWindow(this.length);
+        return window;
     }
 }

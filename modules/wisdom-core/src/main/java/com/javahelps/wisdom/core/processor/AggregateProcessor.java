@@ -3,7 +3,6 @@ package com.javahelps.wisdom.core.processor;
 import com.javahelps.wisdom.core.event.Event;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -35,10 +34,10 @@ public class AggregateProcessor extends StreamProcessor {
     }
 
     @Override
-    public Object clone() {
+    public Processor copy() {
 
         AggregateProcessor mapProcessor = new AggregateProcessor(this.id, this.function);
-        mapProcessor.setNextProcessor((Processor) this.getNextProcessor().clone());
+        mapProcessor.setNextProcessor(this.getNextProcessor().copy());
         return mapProcessor;
     }
 }

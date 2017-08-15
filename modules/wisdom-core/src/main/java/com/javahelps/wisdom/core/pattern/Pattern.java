@@ -340,7 +340,7 @@ public class Pattern extends StreamProcessor {
     }
 
     @Override
-    public Object clone() {
+    public Pattern copy() {
         return null;
     }
 }

@@ -3,7 +3,6 @@ package com.javahelps.wisdom.core.processor;
 import com.javahelps.wisdom.core.event.Event;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -50,10 +49,10 @@ public class SelectProcessor extends StreamProcessor {
     }
 
     @Override
-    public Object clone() {
+    public Processor copy() {
 
         SelectProcessor selectProcessor = new SelectProcessor(this.id, this.attributes.toArray(new String[0]));
-        selectProcessor.setNextProcessor((Processor) this.getNextProcessor().clone());
+        selectProcessor.setNextProcessor(this.getNextProcessor().copy());
         return selectProcessor;
     }
 }

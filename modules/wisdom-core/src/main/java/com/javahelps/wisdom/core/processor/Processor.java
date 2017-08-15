@@ -10,7 +10,7 @@ import java.util.Objects;
 /**
  * The abstract representation of all kind of {@link Event} processors.
  */
-public interface Processor extends Cloneable {
+public interface Processor extends Partitionable {
 
     void start();
 
@@ -18,5 +18,5 @@ public interface Processor extends Cloneable {
 
     void process(List<Event> events);
 
-    Object clone();
+    Processor copy();
 }

@@ -35,10 +35,10 @@ public class MapProcessor extends StreamProcessor {
     }
 
     @Override
-    public Object clone() {
+    public Processor copy() {
 
         MapProcessor mapProcessor = new MapProcessor(this.id, this.function);
-        mapProcessor.setNextProcessor((Processor) this.getNextProcessor().clone());
+        mapProcessor.setNextProcessor(this.getNextProcessor().copy());
         return mapProcessor;
     }
 }

@@ -3,8 +3,6 @@ package com.javahelps.wisdom.core.processor;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.window.Window;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -37,10 +35,10 @@ public class WindowProcessor extends StreamProcessor {
     }
 
     @Override
-    public Object clone() {
+    public Processor copy() {
 
-        WindowProcessor windowProcessor = new WindowProcessor(this.id, this.window);
-        windowProcessor.setNextProcessor((Processor) this.getNextProcessor().clone());
+        WindowProcessor windowProcessor = new WindowProcessor(this.id, this.window.copy());
+        windowProcessor.setNextProcessor(this.getNextProcessor().copy());
         return windowProcessor;
     }
 }
