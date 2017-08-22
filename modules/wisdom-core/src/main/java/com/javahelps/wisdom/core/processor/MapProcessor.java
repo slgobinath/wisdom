@@ -1,9 +1,8 @@
 package com.javahelps.wisdom.core.processor;
 
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.stream.Stream;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -14,7 +13,7 @@ public class MapProcessor extends StreamProcessor {
 
     private Function<Event, Event> function;
 
-    public MapProcessor(String id, Stream inputStream, Function<Event, Event> function) {
+    public MapProcessor(String id, Function<Event, Event> function) {
         super(id);
         this.function = function;
     }
@@ -30,8 +29,16 @@ public class MapProcessor extends StreamProcessor {
     }
 
     @Override
-    public void process(Collection<Event> events) {
-        Collection<Event> eventsAfterMapping = events.stream().map(this.function).collect(Collectors.toList());
+    public void process(List<Event> events) {
+        List<Event> eventsAfterMapping = events.stream().map(this.function).collect(Collectors.toList());
         this.getNextProcessor().process(eventsAfterMapping);
+    }
+
+    @Override
+    public Processor copy() {
+
+        MapProcessor mapProcessor = new MapProcessor(this.id, this.function);
+        mapProcessor.setNextProcessor(this.getNextProcessor().copy());
+        return mapProcessor;
     }
 }

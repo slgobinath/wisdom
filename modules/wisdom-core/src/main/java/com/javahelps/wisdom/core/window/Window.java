@@ -1,14 +1,13 @@
 package com.javahelps.wisdom.core.window;
 
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.partition.Partitionable;
 import com.javahelps.wisdom.core.processor.Processor;
-
-import java.util.Collection;
 
 /**
  * A utility to construct Windows.
  */
-public abstract class Window {
+public abstract class Window implements Partitionable {
 
     protected Window() {
 
@@ -22,6 +21,9 @@ public abstract class Window {
         return new LengthBatchWindow(length);
     }
 
-    public abstract void process(Collection<Event> events, Event event, Processor nextProcessor);
+    public abstract void process(Event event, Processor nextProcessor);
+
+    @Override
+    public abstract Window copy();
 
 }

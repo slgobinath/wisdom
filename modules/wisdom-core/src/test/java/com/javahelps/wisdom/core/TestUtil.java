@@ -1,5 +1,7 @@
 package com.javahelps.wisdom.core;
 
+import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.stream.StreamCallback;
 import org.junit.Assert;
 import org.slf4j.Logger;
 
@@ -35,17 +37,22 @@ public class TestUtil {
 
         public void addCallback(WisdomApp wisdomApp, Map<String, Comparable>... expectedEvents) {
 
-            wisdomApp.addCallback("OutputStream", arrivedEvents -> {
-                logger.info(Arrays.toString(arrivedEvents));
-                int count = eventCount.addAndGet(arrivedEvents.length);
-                if (expectedEvents.length > 0) {
-                    if (count <= expectedEvents.length) {
-                        Assert.assertEquals("Incorrect event", expectedEvents[count - 1], arrivedEvents[0].getData());
-                    } else {
-                        Assert.assertEquals("Incorrect number of events", expectedEvents.length, count);
+            wisdomApp.addCallback("OutputStream", new StreamCallback() {
+
+                private int currentIndex = 0;
+
+                @Override
+                public void receive(Event... arrivedEvents) {
+                    logger.info(Arrays.toString(arrivedEvents));
+                    eventCount.addAndGet(arrivedEvents.length);
+                    if (expectedEvents.length > 0 && currentIndex < expectedEvents.length) {
+                        for (Event event : arrivedEvents) {
+                            if (expectedEvents.length > currentIndex) {
+                                Assert.assertEquals("Incorrect event", expectedEvents[currentIndex++], event.getData());
+                            }
+                        }
                     }
                 }
-
             });
         }
     }

@@ -1,9 +1,8 @@
 package com.javahelps.wisdom.core.processor;
 
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.stream.Stream;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -13,7 +12,7 @@ public class FilterProcessor extends StreamProcessor {
 
     private Predicate<Event> predicate;
 
-    public FilterProcessor(String id, Stream inputStream, Predicate<Event> predicate) {
+    public FilterProcessor(String id, Predicate<Event> predicate) {
         super(id);
         this.predicate = predicate;
     }
@@ -31,10 +30,18 @@ public class FilterProcessor extends StreamProcessor {
     }
 
     @Override
-    public void process(Collection<Event> events) {
+    public void process(List<Event> events) {
         events.removeIf(this.predicate.negate());
         if (!events.isEmpty()) {
             this.getNextProcessor().process(events);
         }
+    }
+
+    @Override
+    public Processor copy() {
+
+        FilterProcessor filterProcessor = new FilterProcessor(this.id, this.predicate);
+        filterProcessor.setNextProcessor(this.getNextProcessor().copy());
+        return filterProcessor;
     }
 }

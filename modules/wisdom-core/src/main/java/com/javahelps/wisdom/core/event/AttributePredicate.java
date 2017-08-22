@@ -5,20 +5,23 @@ import java.util.function.Predicate;
 
 /**
  * {@link AttributePredicate} is expected to be used with {@link com.javahelps.wisdom.core.processor.FilterProcessor}.
- * Compared to {@link Attribute}, {@link AttributePredicate} does not modify the {@link Event} if used as a {@link Predicate}.
+ * Compared to {@link Attribute}, {@link AttributePredicate} does not modify the {@link Event} if used as a
+ * {@link Predicate}.
  *
  * @see com.javahelps.wisdom.core.processor.FilterProcessor
  */
-public class AttributePredicate extends Attribute implements Predicate<Event> {
+public class AttributePredicate implements Predicate<Event> {
 
-    public AttributePredicate(String name, Function<Event, Event> function) {
-        super(name);
-        this.function = function;
+    private final Attribute attribute;
+
+
+    public AttributePredicate(Attribute attribute, Function<Event, Event> function) {
+        this.attribute = attribute;
     }
 
     @Override
     public boolean test(Event event) {
-        return (boolean) this.apply(event).get(this.name);
+        return false;
     }
 
 }

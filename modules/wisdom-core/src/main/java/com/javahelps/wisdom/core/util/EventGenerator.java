@@ -2,7 +2,8 @@ package com.javahelps.wisdom.core.util;
 
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.EventValidationException;
-import com.javahelps.wisdom.core.stream.Stream;
+
+import java.util.Map;
 
 /**
  * A utility class to create {@link Event}s from different type of inputs.
@@ -25,5 +26,11 @@ public class EventGenerator {
             }
             return event;
         }
+    }
+
+    public static Event generate(Map<String, Comparable> map) {
+        Event event = new Event(System.currentTimeMillis());
+        event.getData().putAll(map);
+        return event;
     }
 }

@@ -4,22 +4,24 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by gobinath on 6/29/17.
  */
 class LengthBatchWindow extends Window {
 
-    private int length;
+    private List<Event> events;
+    private final int length;
 
     LengthBatchWindow(int length) {
         this.length = length;
+        this.events = new ArrayList<>(length);
     }
 
-    public void process(Collection<Event> events, Event event, Processor nextProcessor) {
+    public void process(Event event, Processor nextProcessor) {
         events.add(event);
-        Collection<Event> eventsToSend = null;
+        List<Event> eventsToSend = null;
         if (events.size() >= length) {
             eventsToSend = new ArrayList<>(events);
             events.clear();
@@ -28,5 +30,12 @@ class LengthBatchWindow extends Window {
         if (eventsToSend != null) {
             nextProcessor.process(eventsToSend);
         }
+    }
+
+    @Override
+    public Window copy() {
+
+        Window window = new LengthBatchWindow(this.length);
+        return window;
     }
 }

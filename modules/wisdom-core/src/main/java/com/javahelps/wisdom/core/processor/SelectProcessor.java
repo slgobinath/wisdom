@@ -1,11 +1,8 @@
 package com.javahelps.wisdom.core.processor;
 
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.stream.Stream;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -13,10 +10,10 @@ import java.util.List;
  */
 public class SelectProcessor extends StreamProcessor {
 
-    private List<String> attributes;
     private final boolean selectAll;
+    private List<String> attributes;
 
-    public SelectProcessor(String id, Stream inputStream, String... attributes) {
+    public SelectProcessor(String id, String... attributes) {
         super(id);
         this.selectAll = attributes.length == 0;
         this.attributes = Arrays.asList(attributes);
@@ -41,20 +38,21 @@ public class SelectProcessor extends StreamProcessor {
     }
 
     @Override
-    public void process(Collection<Event> events) {
+    public void process(List<Event> events) {
         if (!selectAll) {
             // Do nothing
-            Collection<Event> eventsAfterSelection = new ArrayList<>(events.size());
             for (Event event : events) {
-                Event output = new Event(event.getStream(), event.getTimestamp());
-                output.setOriginal(event);
-                for (String attribute : this.attributes) {
-                    output.set(attribute, event.get(attribute));
-                }
-                eventsAfterSelection.add(output);
+                event.getData().keySet().retainAll(attributes);
             }
-            events = eventsAfterSelection;
         }
         this.getNextProcessor().process(events);
+    }
+
+    @Override
+    public Processor copy() {
+
+        SelectProcessor selectProcessor = new SelectProcessor(this.id, this.attributes.toArray(new String[0]));
+        selectProcessor.setNextProcessor(this.getNextProcessor().copy());
+        return selectProcessor;
     }
 }
