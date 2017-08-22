@@ -63,7 +63,7 @@ public class AttributeOperator {
     public Function<List<Event>, Event> SUM_AS(String newName) {
 
         Function<List<Event>, Event> function = events -> {
-            double sum = events.stream().mapToDouble(e -> ((Number) e.get(this.name)).doubleValue()).sum();
+            double sum = events.stream().mapToDouble(e -> e.getAsDouble(this.name)).sum();
             Event lastEvent = events.get(events.size() - 1);
             lastEvent.set(newName, sum);
             return lastEvent;
@@ -96,8 +96,7 @@ public class AttributeOperator {
     public Function<List<Event>, Event> AVG_AS(String newName) {
 
         Function<List<Event>, Event> function = events -> {
-            double avg = events.stream().mapToDouble(e -> ((Number) e.get(this.name)).doubleValue()).average().orElse
-                    (Double.NaN);
+            double avg = events.stream().mapToDouble(e -> e.getAsDouble(this.name)).average().orElse(Double.NaN);
             if (avg != Double.NaN) {
                 avg = Math.round(avg * 10_000.0) / WisdomConfig.DOUBLE_PRECISION;
             }

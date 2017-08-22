@@ -1,5 +1,7 @@
 package com.javahelps.wisdom.core.event;
 
+import com.javahelps.wisdom.core.exception.AttributeNotFoundException;
+import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.stream.Stream;
 
 import java.util.HashMap;
@@ -52,6 +54,27 @@ public class Event {
             data = this.data.get(this.alias.get(attribute));
         }
         return data;
+    }
+
+    public Number getAsNumber(String attribute) {
+        Comparable value = this.get(attribute);
+        if (value == null) {
+            throw new AttributeNotFoundException(String.format("Attribute %s not found in event %s", attribute,
+                    this.toString()));
+        }
+        if (!(value instanceof Number)) {
+            throw new WisdomAppRuntimeException(String.format("Cannot convert attribute %s from %s to java.lang" +
+                    ".Number", attribute, value.getClass().getSimpleName()));
+        }
+        return ((Number) value);
+    }
+
+    public long getAsLong(String attribute) {
+        return this.getAsNumber(attribute).longValue();
+    }
+
+    public double getAsDouble(String attribute) {
+        return this.getAsNumber(attribute).doubleValue();
     }
 
     public Event remove(String attribute) {

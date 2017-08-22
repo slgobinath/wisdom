@@ -3,7 +3,6 @@ package com.javahelps.wisdom.service;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.service.client.WisdomClient;
 import com.javahelps.wisdom.service.util.TestUtil;
-import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,11 +49,14 @@ public class TestWisdomService {
 
         WisdomClient client = new WisdomClient("localhost", 8080);
 
-        HttpResponse response = client.send("StockStream", map("symbol", "IBM", "price", 50.0, "volume", 10));
-        Assert.assertEquals("Failed to send input", 202, response.getStatusLine().getStatusCode());
+        WisdomClient.Response response = client.send("StockStream", map("symbol", "IBM", "price", 50.0, "volume", 10));
+        Assert.assertEquals("Failed to send input", 202, response.getStatus());
 
         response = client.send("StockStream", map("symbol", "WSO2", "price", 60.0, "volume", 15));
-        Assert.assertEquals("Failed to send input", 202, response.getStatusLine().getStatusCode());
+        Assert.assertEquals("Failed to send input", 202, response.getStatus());
+
+        response = client.send("StockStream", map("symbol", "ORACLE", "price", 70.0, "volume", 20));
+        Assert.assertEquals("Failed to send input", 202, response.getStatus());
 
         Thread.sleep(testServerWaitingTime);
 
@@ -63,8 +65,10 @@ public class TestWisdomService {
 
         Assert.assertTrue(lines.get(0).contains("IBM"));
         Assert.assertTrue(lines.get(1).contains("WSO2"));
+        Assert.assertTrue(lines.get(2).contains("ORACLE"));
 
         wisdomService.shutdown();
+        client.close();
     }
 
 }

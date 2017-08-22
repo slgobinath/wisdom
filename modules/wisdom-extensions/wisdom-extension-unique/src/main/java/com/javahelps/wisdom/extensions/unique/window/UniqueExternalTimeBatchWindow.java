@@ -32,7 +32,7 @@ public class UniqueExternalTimeBatchWindow extends UniqueWindow {
 
         List<Event> eventsToSend = null;
         Comparable uniqueValue = event.get(this.uniqueKey);
-        Long currentTimestamp = (Long) event.get(this.timestampKey);
+        long currentTimestamp = event.getAsLong(this.timestampKey);
 
         if (eventMap.isEmpty()) {
             this.endTime = currentTimestamp + this.timeToKeep;
