@@ -2,7 +2,7 @@ package com.javahelps.wisdom.core.processor.pattern;
 
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.event.AttributeOperator;
+import com.javahelps.wisdom.core.operator.AttributeOperator;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import org.junit.Assert;

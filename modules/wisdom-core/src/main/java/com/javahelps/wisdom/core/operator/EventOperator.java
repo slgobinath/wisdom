@@ -1,4 +1,6 @@
-package com.javahelps.wisdom.core.event;
+package com.javahelps.wisdom.core.operator;
+
+import com.javahelps.wisdom.core.event.Event;
 
 import java.util.List;
 import java.util.function.Function;

@@ -1,7 +1,7 @@
 package com.javahelps.wisdom.extensions.unique.window;
 
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.event.EventOperator;
+import com.javahelps.wisdom.core.operator.EventOperator;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import org.junit.Assert;

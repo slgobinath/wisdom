@@ -1,5 +1,6 @@
-package com.javahelps.wisdom.core.event;
+package com.javahelps.wisdom.core.operator;
 
+import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.util.WisdomConfig;
 
 import java.util.Comparator;
@@ -7,6 +8,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * {@link AttributeOperator} provides some built-in operations on the given attribute of an {@link Event} at the
@@ -144,5 +147,20 @@ public class AttributeOperator {
     public Predicate<Event> LESS_THAN_OR_EQUAL(Number value) {
 
         return event -> event.get(name).compareTo(value) <= 0;
+    }
+
+    public Predicate<Event> STRING_MATCHES(String regex) {
+
+        Pattern pattern = Pattern.compile(regex);
+
+        return event -> {
+            String data = (String) event.get(name);
+            if (data == null) {
+                return false;
+            } else {
+                Matcher matcher = pattern.matcher(data);
+                return matcher.find();
+            }
+        };
     }
 }

@@ -1,5 +1,7 @@
 package com.javahelps.wisdom.core.event;
 
+import com.javahelps.wisdom.core.operator.AttributeOperator;
+
 import java.util.function.Function;
 import java.util.function.Supplier;
 
