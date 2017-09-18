@@ -1,0 +1,1 @@
+|ABC|;|PQR|;within:10;
