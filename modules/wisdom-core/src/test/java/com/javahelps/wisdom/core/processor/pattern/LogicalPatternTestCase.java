@@ -22,13 +22,6 @@ import static com.javahelps.wisdom.core.TestUtil.map;
 public class LogicalPatternTestCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LogicalPatternTestCase.class);
-    private AtomicInteger eventCount = new AtomicInteger(0);
-    private TestUtil.CallbackUtil callbackUtil = new TestUtil.CallbackUtil(LOGGER, eventCount);
-
-    @Before
-    public void init() {
-        this.eventCount.set(0);
-    }
 
     @Test
     public void testPattern1() throws InterruptedException {
@@ -55,7 +48,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
 
         wisdomApp.start();
 
@@ -67,7 +60,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -95,7 +88,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp);
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
 
         wisdomApp.start();
 
@@ -106,7 +99,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 0, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
     }
 
     @Test
@@ -134,7 +127,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp);
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
 
         wisdomApp.start();
 
@@ -145,7 +138,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 0, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
     }
 
     @Test
@@ -173,7 +166,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp);
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
 
         wisdomApp.start();
 
@@ -184,7 +177,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 0, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
     }
 
     @Test
@@ -212,7 +205,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
 
         wisdomApp.start();
 
@@ -224,7 +217,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -252,7 +245,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e3.symbol", "ORACLE"));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e1.symbol", "IBM", "e3.symbol", "ORACLE"));
 
         wisdomApp.start();
 
@@ -263,7 +256,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -291,7 +284,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e2.symbol", "WSO2", "e3.symbol", "ORACLE"));
 
         wisdomApp.start();
 
@@ -302,7 +295,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -330,7 +323,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp);
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
 
         wisdomApp.start();
 
@@ -340,7 +333,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 0, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
 
     }
 
@@ -372,7 +365,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol", "e4.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE",
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e3.symbol", "ORACLE",
                 "e4.symbol", "MICROSOFT"));
 
         wisdomApp.start();
@@ -384,7 +377,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -409,7 +402,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e2.symbol", "WSO2"));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e2.symbol", "WSO2"));
 
         wisdomApp.start();
 
@@ -417,7 +410,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -442,7 +435,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp);
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
 
         wisdomApp.start();
 
@@ -451,7 +444,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 0, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
     }
 
     @Test
@@ -476,7 +469,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM"));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e1.symbol", "IBM"));
 
         wisdomApp.start();
 
@@ -487,7 +480,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -516,7 +509,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e3.symbol", "WSO2"));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e1.symbol", "IBM", "e3.symbol", "WSO2"));
 
         wisdomApp.start();
 
@@ -528,7 +521,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -557,7 +550,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp);
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
 
         wisdomApp.start();
 
@@ -570,7 +563,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 0, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
     }
 
     @Test
@@ -601,7 +594,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol", "e4.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e4.symbol", "MICROSOFT"));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e1.symbol", "IBM", "e2.symbol", "WSO2", "e4.symbol", "MICROSOFT"));
 
         wisdomApp.start();
 
@@ -611,7 +604,7 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -642,7 +635,7 @@ public class LogicalPatternTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol", "e4.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e3.symbol", "ORACLE", "e4.symbol", "MICROSOFT"));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e3.symbol", "ORACLE", "e4.symbol", "MICROSOFT"));
 
         wisdomApp.start();
 
@@ -652,6 +645,6 @@ public class LogicalPatternTestCase {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 }

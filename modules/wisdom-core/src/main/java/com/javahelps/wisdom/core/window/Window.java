@@ -4,6 +4,8 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.partition.Partitionable;
 import com.javahelps.wisdom.core.processor.Processor;
 
+import java.time.Duration;
+
 /**
  * A utility to construct Windows.
  */
@@ -19,6 +21,10 @@ public abstract class Window implements Partitionable {
 
     public static Window lengthBatch(int length) {
         return new LengthBatchWindow(length);
+    }
+
+    public static Window externalTimeBatch(String timestampKey, Duration duration) {
+        return new ExternalTimeBatchWindow(timestampKey, duration);
     }
 
     public abstract void process(Event event, Processor nextProcessor);

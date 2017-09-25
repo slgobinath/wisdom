@@ -7,12 +7,9 @@ import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.core.window.Window;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.javahelps.wisdom.core.TestUtil.map;
 
@@ -22,13 +19,6 @@ import static com.javahelps.wisdom.core.TestUtil.map;
 public class LengthBatchWindowTestCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LengthBatchWindowTestCase.class);
-    private AtomicInteger eventCount = new AtomicInteger(0);
-    private TestUtil.CallbackUtil callbackUtil = new TestUtil.CallbackUtil(LOGGER, eventCount);
-
-    @Before
-    public void init() {
-        this.eventCount.set(0);
-    }
 
     @Test
     public void testWindow1() throws InterruptedException {
@@ -44,7 +34,7 @@ public class LengthBatchWindowTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp,
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
                 map("symbol", "IBM", "price", 50.0),
                 map("symbol", "WSO2", "price", 60.0),
                 map("symbol", "ORACLE", "price", 70.0));
@@ -58,7 +48,7 @@ public class LengthBatchWindowTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 3, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
     }
 
     @Test
@@ -75,7 +65,7 @@ public class LengthBatchWindowTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp);
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
 
         wisdomApp.start();
 
@@ -85,7 +75,7 @@ public class LengthBatchWindowTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 0, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
     }
 
     @Test
@@ -103,7 +93,7 @@ public class LengthBatchWindowTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp,
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
                 map("symbol", "WSO2", "price", 60.0),
                 map("symbol", "ORACLE", "price", 70.0),
                 map("symbol", "GOOGLE", "price", 80.0));
@@ -118,6 +108,6 @@ public class LengthBatchWindowTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 3, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
     }
 }

@@ -24,20 +24,26 @@ public class TestUtil {
         return map;
     }
 
+    public static TestCallback addStreamCallback(Logger logger, WisdomApp wisdomApp, String query, Map<String,
+            Comparable>... expectedEvents) {
+        TestCallback testCallback = new TestCallback(logger);
+        testCallback.addCallback(wisdomApp, "OutputStream", expectedEvents);
+        return testCallback;
+    }
 
-    public static class CallbackUtil {
+
+    public static class TestCallback {
 
         private final Logger logger;
-        private final AtomicInteger eventCount;
+        private final AtomicInteger eventCount = new AtomicInteger();
 
-        public CallbackUtil(Logger logger, AtomicInteger eventCount) {
+        public TestCallback(Logger logger) {
             this.logger = logger;
-            this.eventCount = eventCount;
         }
 
-        public void addCallback(WisdomApp wisdomApp, Map<String, Comparable>... expectedEvents) {
+        private void addCallback(WisdomApp wisdomApp, String stream, Map<String, Comparable>... expectedEvents) {
 
-            wisdomApp.addCallback("OutputStream", new StreamCallback() {
+            wisdomApp.addCallback(stream, new StreamCallback() {
 
                 private int currentIndex = 0;
 
@@ -54,6 +60,10 @@ public class TestUtil {
                     }
                 }
             });
+        }
+
+        public int getEventCount() {
+            return this.eventCount.get();
         }
     }
 }

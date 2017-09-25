@@ -5,12 +5,9 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.javahelps.wisdom.core.TestUtil.map;
 
@@ -20,13 +17,6 @@ import static com.javahelps.wisdom.core.TestUtil.map;
 public class WithinTestCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WithinTestCase.class);
-    private AtomicInteger eventCount = new AtomicInteger(0);
-    private TestUtil.CallbackUtil callbackUtil = new TestUtil.CallbackUtil(LOGGER, eventCount);
-
-    @Before
-    public void init() {
-        this.eventCount.set(0);
-    }
 
     @Test
     public void testWithin1() throws InterruptedException {
@@ -51,7 +41,8 @@ public class WithinTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("e1.symbol", "IBM", "e2.symbol", "WSO2"));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map
+                ("e1.symbol", "IBM", "e2.symbol", "WSO2"));
 
         wisdomApp.start();
 
@@ -61,7 +52,7 @@ public class WithinTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -87,7 +78,7 @@ public class WithinTestCase {
                 .select("e1.symbol", "e2.symbol", "e3.symbol")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp);
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
 
         wisdomApp.start();
 
@@ -97,6 +88,6 @@ public class WithinTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 0, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
     }
 }

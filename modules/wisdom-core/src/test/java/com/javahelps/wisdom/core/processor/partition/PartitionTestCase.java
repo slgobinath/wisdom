@@ -8,12 +8,9 @@ import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.core.window.Window;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.javahelps.wisdom.core.TestUtil.map;
 
@@ -23,13 +20,6 @@ import static com.javahelps.wisdom.core.TestUtil.map;
 public class PartitionTestCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PartitionTestCase.class);
-    private AtomicInteger eventCount = new AtomicInteger(0);
-    private TestUtil.CallbackUtil callbackUtil = new TestUtil.CallbackUtil(LOGGER, eventCount);
-
-    @Before
-    public void init() {
-        this.eventCount.set(0);
-    }
 
     @Test
     public void testPartition1() throws InterruptedException {
@@ -47,7 +37,7 @@ public class PartitionTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp,
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
                 map("symbol", "IBM", "price", 110.0),
                 map("symbol", "ORACLE", "price", 150.0));
 
@@ -61,7 +51,7 @@ public class PartitionTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 2, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
 
     @Test
@@ -80,7 +70,8 @@ public class PartitionTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("symbol", "IBM", "price", 110.0));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("symbol",
+                "IBM", "price", 110.0));
 
         wisdomApp.start();
 
@@ -92,7 +83,7 @@ public class PartitionTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -109,7 +100,7 @@ public class PartitionTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp,
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
                 map("symbol", "IBM", "price", 50.0),
                 map("symbol", "WSO2", "price", 70.0),
                 map("symbol", "WSO2", "price", 60.0));
@@ -123,7 +114,7 @@ public class PartitionTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 3, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
     }
 
     @Test
@@ -142,7 +133,7 @@ public class PartitionTestCase {
                 .select("symbol", "price", "volume")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp/*,
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream"/*,
                 map("symbol", "IBM", "price", 50.0),
                 map("symbol", "WSO2", "price", 70.0),
                 map("symbol", "WSO2", "price", 60.0)*/);
@@ -157,7 +148,7 @@ public class PartitionTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 3, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
     }
 
 

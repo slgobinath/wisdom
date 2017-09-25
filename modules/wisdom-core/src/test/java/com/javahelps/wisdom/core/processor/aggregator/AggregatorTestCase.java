@@ -7,12 +7,9 @@ import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.core.window.Window;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.javahelps.wisdom.core.TestUtil.map;
 
@@ -22,13 +19,6 @@ import static com.javahelps.wisdom.core.TestUtil.map;
 public class AggregatorTestCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregatorTestCase.class);
-    private AtomicInteger eventCount = new AtomicInteger(0);
-    private TestUtil.CallbackUtil callbackUtil = new TestUtil.CallbackUtil(LOGGER, eventCount);
-
-    @Before
-    public void init() {
-        this.eventCount.set(0);
-    }
 
     @Test
     public void testWindow1() throws InterruptedException {
@@ -45,7 +35,8 @@ public class AggregatorTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("symbol", "ORACLE", "price", 180.0));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "ORACLE", "price", 180.0));
 
         wisdomApp.start();
 
@@ -56,7 +47,7 @@ public class AggregatorTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -74,7 +65,8 @@ public class AggregatorTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("symbol", "ORACLE", "price", 50.0));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("symbol",
+                "ORACLE", "price", 50.0));
 
         wisdomApp.start();
 
@@ -85,7 +77,7 @@ public class AggregatorTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -103,7 +95,8 @@ public class AggregatorTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("symbol", "ORACLE", "price", 150.0));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("symbol",
+                "ORACLE", "price", 150.0));
 
         wisdomApp.start();
 
@@ -114,7 +107,7 @@ public class AggregatorTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test
@@ -132,7 +125,8 @@ public class AggregatorTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp, map("symbol", "ORACLE", "price", 61.6667));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("symbol",
+                "ORACLE", "price", 61.6667));
 
         wisdomApp.start();
 
@@ -143,6 +137,6 @@ public class AggregatorTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 1, eventCount.get());
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 }
