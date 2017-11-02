@@ -12,6 +12,7 @@ import com.javahelps.wisdom.core.processor.SelectProcessor;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
 import com.javahelps.wisdom.core.processor.WindowProcessor;
 import com.javahelps.wisdom.core.stream.Stream;
+import com.javahelps.wisdom.core.variable.Variable;
 import com.javahelps.wisdom.core.window.Window;
 
 import java.util.List;
@@ -132,7 +133,7 @@ public class Query {
         return this;
     }
 
-    public Query insertInto(String streamId) {
+    public void insertInto(String streamId) {
 
         this.outputStream = this.wisdomApp.getStream(streamId);
 
@@ -142,8 +143,18 @@ public class Query {
         } else {
             this.lastStreamProcessor.setNextProcessor(this.outputStream);
         }
+    }
 
-        return this;
+    public void update(String variableId) {
+
+        Variable variable = this.wisdomApp.getVariable(variableId);
+
+        if (this.lastStreamProcessor == null) {
+            // No processors in between
+            this.inputStream.addProcessor(variable);
+        } else {
+            this.lastStreamProcessor.setNextProcessor(variable);
+        }
     }
 
     public Query partitionBy(String... attributes) {

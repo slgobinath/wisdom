@@ -10,6 +10,7 @@ import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.stream.StreamCallback;
 import com.javahelps.wisdom.core.stream.output.Sink;
+import com.javahelps.wisdom.core.variable.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ public class WisdomApp {
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomApp.class);
     private final String name;
     private final Map<String, Stream> streamMap = new HashMap<>();
+    private final Map<String, Variable> variableMap = new HashMap<>();
     private final Map<String, StreamProcessor> streamProcessorMap = new HashMap<>();
     private final Map<String, Query> queryMap = new HashMap<>();
     private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
@@ -58,6 +60,12 @@ public class WisdomApp {
         Stream stream = new Stream(this, id);
         this.streamMap.put(id, stream);
         return stream;
+    }
+
+    public <T> Variable<T> defineVariable(String id, T defaultValue) {
+        Variable<T> variable = new Variable(id, defaultValue);
+        this.variableMap.put(id, variable);
+        return variable;
     }
 
     public Query defineQuery(String id) {
@@ -109,6 +117,10 @@ public class WisdomApp {
 
     public Stream getStream(String id) {
         return this.streamMap.get(id);
+    }
+
+    public Variable getVariable(String id) {
+        return this.variableMap.get(id);
     }
 
     public void send(String streamId, Event event) {

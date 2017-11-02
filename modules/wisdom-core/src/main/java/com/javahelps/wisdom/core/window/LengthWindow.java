@@ -2,6 +2,7 @@ package com.javahelps.wisdom.core.window;
 
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
+import com.javahelps.wisdom.core.variable.Variable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +13,21 @@ import java.util.List;
 class LengthWindow extends Window {
 
     private List<Event> events;
-    private final int length;
+    private int length;
+    private Variable<Integer> variable;
 
     LengthWindow(int length) {
         this.length = length;
         this.events = new ArrayList<>(length);
+    }
+
+    LengthWindow(Variable<Integer> length) {
+        this(length.get());
+        length.addOnUpdateListener(value -> {
+            synchronized (this) {
+                this.length = (Integer) value;
+            }
+        });
     }
 
     public void process(Event event, Processor nextProcessor) {
@@ -35,7 +46,15 @@ class LengthWindow extends Window {
     @Override
     public Window copy() {
 
-        Window window = new LengthWindow(this.length);
+        LengthWindow window = new LengthWindow(this.length);
+        if (this.variable != null) {
+            window.variable = this.variable;
+            variable.addOnUpdateListener(value -> {
+                synchronized (window) {
+                    window.length = (Integer) value;
+                }
+            });
+        }
         return window;
     }
 }
