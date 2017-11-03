@@ -18,6 +18,8 @@
     <properties>
         <junit.version>4.12</junit.version>
         <slf4j.version>1.7.25</slf4j.version>
+        <msf4j.version>2.2.2</msf4j.version>
+        <disruptor.version>3.3.7</disruptor.version>
         <logback.version>1.2.3</logback.version>
         <apache.httpcomponents.version>4.5.3</apache.httpcomponents.version>
     </properties>
@@ -38,11 +40,18 @@
     <dependencyManagement>
         <dependencies>
 
+            <!-- Disruptor -->
+            <dependency>
+                <groupId>com.lmax</groupId>
+                <artifactId>disruptor</artifactId>
+                <version>${disruptor.version}</version>
+            </dependency>
+
             <!-- MSF4J Core -->
             <dependency>
                 <groupId>org.wso2.msf4j</groupId>
                 <artifactId>msf4j-core</artifactId>
-                <version>2.2.2</version>
+                <version>${msf4j.version}</version>
             </dependency>
 
             <!-- HTTP Client -->
