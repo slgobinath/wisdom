@@ -85,6 +85,11 @@ public class WisdomApp {
                 }
 
                 @Override
+                public void stop() {
+
+                }
+
+                @Override
                 public void process(Event event) {
                     callback.receive(event);
                 }
@@ -153,6 +158,11 @@ public class WisdomApp {
             @Override
             public void start() {
                 sink.start();
+            }
+
+            @Override
+            public void stop() {
+                sink.stop();
             }
 
             @Override

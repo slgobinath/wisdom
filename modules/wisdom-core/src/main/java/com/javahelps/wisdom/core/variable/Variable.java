@@ -86,6 +86,11 @@ public class Variable<T> implements Processor {
     }
 
     @Override
+    public void stop() {
+        // Do nothing
+    }
+
+    @Override
     public void process(Event event) {
         T value = (T) event.get(this.id);
         if (value != null) {

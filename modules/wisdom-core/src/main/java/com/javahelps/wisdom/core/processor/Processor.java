@@ -14,6 +14,8 @@ public interface Processor extends Partitionable {
 
     void start();
 
+    void stop();
+
     void process(Event event);
 
     void process(List<Event> events);

@@ -4,6 +4,10 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.processor.Processor;
+import com.javahelps.wisdom.core.stream.async.EventHolder;
+import com.javahelps.wisdom.core.util.WisdomConfig;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.dsl.Disruptor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,24 +23,58 @@ public class Stream implements Processor {
     private List<Processor> processorList = new ArrayList<>();
     private Processor[] processors;
     private int noOfProcessors;
+    private Disruptor<EventHolder> disruptor;
+    private RingBuffer<EventHolder> ringBuffer;
 
-    public Stream(String id) {
-        this.id = id;
-    }
 
     public Stream(WisdomApp wisdomApp, String id) {
-        this.wisdomApp = wisdomApp;
         this.id = id;
+        this.wisdomApp = wisdomApp;
+
+        // Create disruptor if async mode is enables
+        if (WisdomConfig.ASYNC_ENABLED) {
+            this.disruptor = new Disruptor<>(EventHolder::new, WisdomConfig.EVENT_BUFFER_SIZE,
+                    wisdomApp.getWisdomContext().getExecutorService());
+
+            // Connect the handler
+            disruptor.handleEventsWith((eventHolder, sequence, endOfBatch) -> this.sendToProcessors(eventHolder.get()));
+
+            // Get the ring buffer from the Disruptor to be used for publishing.
+            this.ringBuffer = disruptor.getRingBuffer();
+
+        }
     }
 
     @Override
     public void start() {
         this.noOfProcessors = this.processorList.size();
         this.processors = this.processorList.toArray(new Processor[0]);
+
+        if (this.disruptor != null) {
+            // Start the Disruptor, starts all threads running
+            disruptor.start();
+        }
+    }
+
+    @Override
+    public void stop() {
+        if (this.disruptor != null) {
+            // Start the Disruptor, starts all threads running
+            disruptor.shutdown();
+        }
     }
 
     @Override
     public void process(Event event) {
+        if (this.disruptor == null) {
+            this.sendToProcessors(event);
+        } else {
+            // Async enabled
+            this.ringBuffer.publishEvent((eventHolder, sequence, buffer) -> eventHolder.set(event));
+        }
+    }
+
+    private void sendToProcessors(Event event) {
         Event newEvent = this.convertEvent(event);
         if (this.noOfProcessors == 1) {
             this.processors[0].process(newEvent);

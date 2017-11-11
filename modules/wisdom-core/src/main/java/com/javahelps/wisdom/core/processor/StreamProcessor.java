@@ -32,4 +32,9 @@ public abstract class StreamProcessor implements Processor {
     public void init(WisdomApp wisdomApp) {
 
     }
+
+    @Override
+    public void stop() {
+        // Do nothing
+    }
 }

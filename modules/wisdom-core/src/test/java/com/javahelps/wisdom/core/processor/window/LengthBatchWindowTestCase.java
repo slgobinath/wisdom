@@ -48,6 +48,7 @@ public class LengthBatchWindowTestCase {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
 
         Thread.sleep(100);
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
     }
@@ -75,6 +76,7 @@ public class LengthBatchWindowTestCase {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
 
         Thread.sleep(100);
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
     }
@@ -108,6 +110,7 @@ public class LengthBatchWindowTestCase {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "GOOGLE", "price", 80.0, "volume", 25));
 
         Thread.sleep(100);
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
     }
@@ -147,10 +150,12 @@ public class LengthBatchWindowTestCase {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
         // Update the window length
         wisdomApp.getInputHandler("VariableStream").send(EventGenerator.generate("value", 2));
+        Thread.sleep(100);
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "GOOGLE", "price", 80.0, "volume", 25));
 
         Thread.sleep(100);
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
