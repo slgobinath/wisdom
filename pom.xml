@@ -13,6 +13,7 @@
         <module>modules/wisdom-core</module>
         <module>modules/wisdom-extensions</module>
         <module>modules/wisdom-service</module>
+        <module>modules/wisdom-dev</module>
     </modules>
 
     <properties>

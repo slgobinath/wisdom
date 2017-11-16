@@ -3,26 +3,17 @@ package com.javahelps.wisdom.extensions.ml.quantizer;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
-import org.junit.Assert;
-import org.junit.Before;
+import com.javahelps.wisdom.dev.test.TestCallback;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.javahelps.wisdom.extensions.ml.quantizer.TestUtil.map;
+import static com.javahelps.wisdom.dev.util.EventUtil.map;
 
 public class PredicateQuantizerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PredicateQuantizerTest.class);
-    private AtomicInteger eventCount = new AtomicInteger(0);
-    private TestUtil.CallbackUtil callbackUtil = new TestUtil.CallbackUtil(LOGGER, eventCount);
-
-    @Before
-    public void init() {
-        this.eventCount.set(0);
-    }
+    private TestCallback callbackUtil = new TestCallback(LOGGER);
 
     @Test
     public void testQuantizer1() throws InterruptedException {
@@ -37,7 +28,7 @@ public class PredicateQuantizerTest {
                 .map(Quantizer.predicate("port", 0).greaterThan(1024, 1024))
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp,
+        TestCallback.TestResult testResult = callbackUtil.addCallback(wisdomApp, "OutputStream",
                 map("port", 0),
                 map("port", 80),
                 map("port", 1023),
@@ -57,6 +48,6 @@ public class PredicateQuantizerTest {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 5, eventCount.get());
+        testResult.assertTestResult(5);
     }
 }

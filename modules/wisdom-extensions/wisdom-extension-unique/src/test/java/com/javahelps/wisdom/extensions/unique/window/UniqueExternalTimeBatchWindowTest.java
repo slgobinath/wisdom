@@ -4,28 +4,20 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.operator.EventOperator;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
-import org.junit.Assert;
-import org.junit.Before;
+import com.javahelps.wisdom.dev.test.TestCallback;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.javahelps.wisdom.extensions.unique.window.TestUtil.map;
+import static com.javahelps.wisdom.dev.util.EventUtil.map;
 
 public class UniqueExternalTimeBatchWindowTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UniqueExternalTimeBatchWindowTest.class);
-    private AtomicInteger eventCount = new AtomicInteger(0);
-    private TestUtil.CallbackUtil callbackUtil = new TestUtil.CallbackUtil(LOGGER, eventCount);
-
-    @Before
-    public void init() {
-        this.eventCount.set(0);
-    }
+    private TestCallback callbackUtil = new TestCallback(LOGGER);
 
     @Test
     public void testWindow1() throws InterruptedException {
@@ -42,7 +34,7 @@ public class UniqueExternalTimeBatchWindowTest {
                 .select("ip", "timestamp", "count")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp,
+        TestCallback.TestResult testResult = callbackUtil.addCallback(wisdomApp, "OutputStream",
                 map("ip", "192.10.1.4", "timestamp", 1366335804342L, "count", 2L),
                 map("ip", "192.10.1.4", "timestamp", 1366335805341L, "count", 1L),
                 map("ip", "192.10.1.6", "timestamp", 1366335814345L, "count", 2L));
@@ -61,7 +53,7 @@ public class UniqueExternalTimeBatchWindowTest {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 3, eventCount.get());
+        testResult.assertTestResult(3);
     }
 
     @Test
@@ -79,7 +71,7 @@ public class UniqueExternalTimeBatchWindowTest {
                 .select("ip", "timestamp", "count")
                 .insertInto("OutputStream");
 
-        callbackUtil.addCallback(wisdomApp,
+        TestCallback.TestResult testResult = callbackUtil.addCallback(wisdomApp, "OutputStream",
                 map("ip", "192.10.1.4", "timestamp", 1366335805340L, "count", 2L),
                 map("ip", "192.10.1.6", "timestamp", 1366335814545L, "count", 2L));
 
@@ -99,6 +91,6 @@ public class UniqueExternalTimeBatchWindowTest {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 2, eventCount.get());
+        testResult.assertTestResult(2);
     }
 }
