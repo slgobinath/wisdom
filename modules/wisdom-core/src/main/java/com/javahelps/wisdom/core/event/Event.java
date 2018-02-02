@@ -31,7 +31,7 @@ public class Event {
         this.timestamp = timestamp;
         this.data = new HashMap<>();
         this.alias = new HashMap<>();
-        this.original = this;
+        this.original = null;
     }
 
     public Attribute attribute(String attribute) {
@@ -141,7 +141,7 @@ public class Event {
     public String toString() {
         return "Event{" +
                 "timestamp=" + timestamp +
-                ", stream=" + stream.getId() +
+                ", stream=" + (stream == null ? "" : stream.getId()) +
                 ", data=" + data +
                 ", isExpired=" + isExpired +
                 '}';

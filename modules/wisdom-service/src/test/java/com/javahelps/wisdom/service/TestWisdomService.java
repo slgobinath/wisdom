@@ -38,6 +38,8 @@ public class TestWisdomService {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
+        wisdomApp.addCallback("OutputStream", events -> System.out.println(events[0]));
+
         // Create a WisdomService
         WisdomService wisdomService = new WisdomService(wisdomApp, 8080);
         wisdomService.addSource("StockStream");
