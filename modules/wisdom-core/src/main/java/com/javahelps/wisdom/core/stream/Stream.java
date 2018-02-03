@@ -127,6 +127,12 @@ public class Stream implements Processor {
         }
     }
 
+    public void addProcessor(Processor processor, int index) {
+        if (!this.processorList.contains(processor)) {
+            this.processorList.add(index, processor);
+        }
+    }
+
     public void removeProcessor(Processor processor) {
         this.processorList.remove(processor);
     }

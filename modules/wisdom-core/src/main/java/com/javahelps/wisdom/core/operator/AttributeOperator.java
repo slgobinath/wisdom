@@ -5,6 +5,7 @@ import com.javahelps.wisdom.core.util.WisdomConfig;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -112,7 +113,7 @@ public class AttributeOperator {
 
     public Predicate<Event> EQUALS(Object value) {
 
-        return event -> event.get(name).equals(value);
+        return event -> Objects.equals(event.get(name), value);
     }
 
     public Predicate<Event> GREATER_THAN(String attribute) {

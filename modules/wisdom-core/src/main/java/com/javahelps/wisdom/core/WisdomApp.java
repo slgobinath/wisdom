@@ -103,7 +103,7 @@ public class WisdomApp {
                 public Processor copy() {
                     return this;
                 }
-            });
+            }, 0);
         }
     }
 
