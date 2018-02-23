@@ -2,7 +2,6 @@ package com.javahelps.wisdom.service;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.stream.InputHandler;
-import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.service.exception.WisdomServiceException;
 import com.javahelps.wisdom.service.exception.WisdomServiceExceptionMapper;
@@ -24,8 +23,8 @@ public class WisdomService {
     private final WisdomApp wisdomApp;
     private final int wisdomPort;
     private Map<String, InputHandler> inputHandlerMap = new HashMap<>();
-    private Map<String, Source> sourceMap = new HashMap<>();
     private MicroservicesRunner microservicesRunner;
+    private boolean running;
 
     public WisdomService(WisdomApp wisdomApp, int port) {
         this.wisdomApp = wisdomApp;
@@ -38,11 +37,17 @@ public class WisdomService {
     public void start() {
         this.wisdomApp.start();
         this.microservicesRunner.start();
+        this.running = true;
     }
 
-    public void shutdown() {
+    public void stop() {
         this.microservicesRunner.stop();
         this.wisdomApp.shutdown();
+        this.running = false;
+    }
+
+    public boolean isRunning() {
+        return this.running;
     }
 
     public void addSink(String streamId, String endpoint) {
@@ -67,5 +72,12 @@ public class WisdomService {
             throw new WisdomServiceException(
                     String.format("The stream %s is neither defined nor not an input stream", streamId));
         }
+    }
+
+    @POST
+    @Path("/admin/shutdown")
+    public void shutdown() {
+        System.out.println("Shutting down the server");
+        this.stop();
     }
 }

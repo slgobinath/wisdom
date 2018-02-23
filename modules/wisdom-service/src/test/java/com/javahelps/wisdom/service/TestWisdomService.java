@@ -1,6 +1,7 @@
 package com.javahelps.wisdom.service;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.service.client.WisdomAdminClient;
 import com.javahelps.wisdom.service.client.WisdomClient;
 import com.javahelps.wisdom.service.util.TestUtil;
 import org.junit.Assert;
@@ -16,7 +17,7 @@ import static com.javahelps.wisdom.service.util.TestUtil.map;
 public class TestWisdomService {
 
     @Test
-    public void test() throws IOException, InterruptedException {
+    public void testWisdomService() throws IOException, InterruptedException {
 
         long testServerWaitingTime = 5_000L;
 
@@ -26,7 +27,7 @@ public class TestWisdomService {
 
         TestUtil.execTestServer(testServerWaitingTime);
 
-        Thread.sleep(100);
+        Thread.sleep(1100);
 
         // Create a WisdomApp
         WisdomApp wisdomApp = new WisdomApp();
@@ -69,8 +70,45 @@ public class TestWisdomService {
         Assert.assertTrue(lines.get(1).contains("WSO2"));
         Assert.assertTrue(lines.get(2).contains("ORACLE"));
 
-        wisdomService.shutdown();
+        wisdomService.stop();
         client.close();
+    }
+
+    @Test
+    public void testShutdown() throws IOException, InterruptedException {
+
+        // Create a WisdomApp
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream");
+
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .select("symbol", "price")
+                .insertInto("OutputStream");
+
+        wisdomApp.addCallback("OutputStream", events -> System.out.println(events[0]));
+
+        // Create a WisdomService
+        WisdomService wisdomService = new WisdomService(wisdomApp, 8081);
+        wisdomService.addSource("StockStream");
+        wisdomService.start();
+
+        // Let the server to start
+        Thread.sleep(100);
+
+        Assert.assertTrue("WisdomService is not running", wisdomService.isRunning());
+
+        // Stop the server
+        WisdomAdminClient client = new WisdomAdminClient("localhost", 8081);
+        client.stop();
+        client.close();
+
+        // Let the server to shutdown
+        Thread.sleep(100);
+
+        Assert.assertFalse("WisdomService has not been shutdown", wisdomService.isRunning());
+
     }
 
 }
