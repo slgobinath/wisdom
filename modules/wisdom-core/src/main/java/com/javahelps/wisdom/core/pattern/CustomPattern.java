@@ -17,6 +17,6 @@ class CustomPattern extends Pattern {
     @Override
     public Pattern filter(Predicate<Event> predicate) {
 
-        throw new WisdomAppValidationException(this.getClass().getSimpleName() + " cannot have filter");
+        throw new WisdomAppValidationException("%s cannot have filter", this.getClass().getSimpleName());
     }
 }

@@ -111,7 +111,7 @@ public class WisdomApp {
 
         Stream stream = this.streamMap.get(streamId);
         if (stream == null) {
-            throw new WisdomAppValidationException(String.format("Stream id %s is not defined", streamId));
+            throw new WisdomAppValidationException("Stream id %s is not defined", streamId);
         }
         return new InputHandler(stream, this);
     }
@@ -152,7 +152,7 @@ public class WisdomApp {
     public void addSink(String streamId, Sink sink) {
         Stream stream = this.streamMap.get(streamId);
         if (stream == null) {
-            throw new WisdomAppValidationException(String.format("Stream id %s is not defined", streamId));
+            throw new WisdomAppValidationException("Stream id %s is not defined", streamId);
         }
         stream.addProcessor(new Processor() {
             @Override

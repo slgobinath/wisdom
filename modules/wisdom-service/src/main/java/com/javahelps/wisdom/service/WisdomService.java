@@ -77,7 +77,6 @@ public class WisdomService {
     @POST
     @Path("/admin/shutdown")
     public void shutdown() {
-        System.out.println("Shutting down the server");
         this.stop();
     }
 }

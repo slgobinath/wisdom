@@ -42,7 +42,7 @@ public class Query {
 
         this.inputStream = this.wisdomApp.getStream(streamId);
         if (this.inputStream == null) {
-            throw new WisdomAppValidationException(String.format("The stream %s is not defined", streamId));
+            throw new WisdomAppValidationException("Stream %s is not defined in %s", streamId, this.wisdomApp.getName());
         }
         return this;
     }
@@ -137,6 +137,9 @@ public class Query {
 
         this.outputStream = this.wisdomApp.getStream(streamId);
 
+        if (this.outputStream == null) {
+            throw new WisdomAppValidationException("Stream %s is not defined in %s", streamId, this.wisdomApp.getName());
+        }
         if (this.lastStreamProcessor == null) {
             // No processors in between
             this.inputStream.addProcessor(this.outputStream);
