@@ -1,6 +1,6 @@
 package com.javahelps.wisdom.service.util;
 
-import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.wso2.msf4j.MicroservicesRunner;
 
 import javax.ws.rs.Consumes;
@@ -24,7 +24,7 @@ public class TestServer {
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void receive(JsonArray msg) {
+    public void receive(JsonObject msg) {
 
         new Thread(() -> appendToFile(msg.toString())).start();
     }

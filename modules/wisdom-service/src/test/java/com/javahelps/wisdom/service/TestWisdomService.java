@@ -3,9 +3,13 @@ package com.javahelps.wisdom.service;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.service.client.WisdomAdminClient;
 import com.javahelps.wisdom.service.client.WisdomClient;
+import com.javahelps.wisdom.service.client.WisdomHTTPClient;
+import com.javahelps.wisdom.service.sink.HTTPSink;
 import com.javahelps.wisdom.service.util.TestUtil;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,8 +20,12 @@ import static com.javahelps.wisdom.service.util.TestUtil.map;
 
 public class TestWisdomService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestWisdomService.class);
+
     @Test
-    public void testWisdomService() throws IOException, InterruptedException {
+    public void testHTTPSink() throws IOException, InterruptedException {
+
+        LOGGER.info("Test HTTP sink");
 
         long testServerWaitingTime = 5_000L;
 
@@ -44,13 +52,13 @@ public class TestWisdomService {
         // Create a WisdomService
         WisdomService wisdomService = new WisdomService(wisdomApp, 8080);
         wisdomService.addSource("StockStream");
-        wisdomService.addSink("OutputStream", "http://localhost:9999/streamReceiver");
+        wisdomService.addSink("OutputStream", new HTTPSink("http://localhost:9999/streamReceiver"));
         wisdomService.start();
 
         // Let the server to start
         Thread.sleep(100);
 
-        WisdomClient client = new WisdomClient("localhost", 8080);
+        WisdomClient client = new WisdomHTTPClient("localhost", 8080);
 
         WisdomClient.Response response = client.send("StockStream", map("symbol", "IBM", "price", 50.0, "volume", 10));
         Assert.assertEquals("Failed to send input", 202, response.getStatus());
@@ -76,6 +84,8 @@ public class TestWisdomService {
 
     @Test
     public void testShutdown() throws IOException, InterruptedException {
+
+        LOGGER.info("Test the shutdown REST API");
 
         // Create a WisdomApp
         WisdomApp wisdomApp = new WisdomApp();

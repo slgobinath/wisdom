@@ -27,6 +27,7 @@ public class WisdomApp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomApp.class);
     private final String name;
+    private final String version;
     private final Map<String, Stream> streamMap = new HashMap<>();
     private final Map<String, Variable> variableMap = new HashMap<>();
     private final Map<String, StreamProcessor> streamProcessorMap = new HashMap<>();
@@ -35,11 +36,12 @@ public class WisdomApp {
     private WisdomContext wisdomContext;
 
     public WisdomApp() {
-        this("WisdomApp_1.0.0");
+        this("WisdomApp", "1.0.0");
     }
 
-    public WisdomApp(String name) {
+    public WisdomApp(String name, String version) {
         this.name = name;
+        this.version = version;
         this.wisdomContext = new WisdomContext();
     }
 
@@ -154,6 +156,7 @@ public class WisdomApp {
         if (stream == null) {
             throw new WisdomAppValidationException("Stream id %s is not defined", streamId);
         }
+        sink.init(this, streamId);
         stream.addProcessor(new Processor() {
             @Override
             public void start() {
@@ -192,5 +195,9 @@ public class WisdomApp {
 
     public String getName() {
         return name;
+    }
+
+    public String getVersion() {
+        return version;
     }
 }
