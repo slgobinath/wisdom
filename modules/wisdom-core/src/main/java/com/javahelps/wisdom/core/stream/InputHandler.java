@@ -6,7 +6,7 @@ import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.processor.Processor;
 
 /**
- * Created by gobinath on 6/29/17.
+ * InputHandler to send events into a stream.
  */
 public class InputHandler {
 

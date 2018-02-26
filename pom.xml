@@ -14,6 +14,7 @@
         <module>modules/wisdom-extensions</module>
         <module>modules/wisdom-service</module>
         <module>modules/wisdom-dev</module>
+        <module>modules/wisdom-manager</module>
     </modules>
 
     <properties>
