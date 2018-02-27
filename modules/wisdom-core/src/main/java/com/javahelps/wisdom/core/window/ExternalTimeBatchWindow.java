@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by gobinath on 6/29/17.
+ * TimeBatchWindow depending on external timestamp.
  */
 class ExternalTimeBatchWindow extends Window {
 
@@ -32,18 +32,22 @@ class ExternalTimeBatchWindow extends Window {
         List<Event> eventsToSend = null;
         long currentTimestamp = event.getAsLong(this.timestampKey);
 
-        if (events.isEmpty()) {
-            this.endTime = currentTimestamp + this.timeToKeep;
-        }
+        try {
+            this.lock.lock();
+            if (events.isEmpty()) {
+                this.endTime = currentTimestamp + this.timeToKeep;
+            }
 
-        if (currentTimestamp >= this.endTime) {
-            // Timeout happened
-            eventsToSend = new ArrayList<>(this.events);
-            this.events.clear();
-            this.endTime = this.findEndTime(currentTimestamp, this.endTime, this.timeToKeep);
+            if (currentTimestamp >= this.endTime) {
+                // Timeout happened
+                eventsToSend = new ArrayList<>(this.events);
+                this.events.clear();
+                this.endTime = this.findEndTime(currentTimestamp, this.endTime, this.timeToKeep);
+            }
+            this.events.add(event);
+        } finally {
+            this.lock.unlock();
         }
-        this.events.add(event);
-
 
         if (eventsToSend != null) {
             nextProcessor.process(eventsToSend);
@@ -61,5 +65,16 @@ class ExternalTimeBatchWindow extends Window {
 
         Window window = new ExternalTimeBatchWindow(this.timestampKey, this.duration);
         return window;
+    }
+
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.events.clear();
+            this.endTime = -1;
+        } finally {
+            this.lock.unlock();
+        }
     }
 }

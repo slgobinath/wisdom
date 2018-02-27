@@ -37,4 +37,31 @@ public abstract class StreamProcessor implements Processor {
     public void stop() {
         // Do nothing
     }
+
+//    @Override
+//    public Checkpoint checkpoint(boolean includeEvents) {
+//        Checkpoint checkpoint = Checkpoint.forID(this.id);
+//        synchronized (this) {
+//            if (this.previousProcessor == null) {
+//                checkpoint.add("previousProcessor", null);
+//            } else {
+//                checkpoint.add("previousProcessor", this.previousProcessor.getId());
+//            }
+//            if (this.nextProcessor == null) {
+//                checkpoint.add("nextProcessor", null);
+//            } else {
+//                checkpoint.add("nextProcessor", this.nextProcessor.getId());
+//            }
+//        }
+//        return checkpoint;
+//    }
+//
+//    @Override
+//    public void restore(Checkpoint checkpoint) {
+//        synchronized (this) {
+//            this.id = checkpoint.getID();
+//            this.previousProcessor = checkpoint.get("previousProcessor");
+//            this.nextProcessor = checkpoint.get("nextProcessor");
+//        }
+//    }
 }

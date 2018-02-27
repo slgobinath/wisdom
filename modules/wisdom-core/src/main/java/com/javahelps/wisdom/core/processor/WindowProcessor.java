@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * The runtime {@link StreamProcessor} of {@link Window}s.
  */
-public class WindowProcessor extends StreamProcessor {
+public class WindowProcessor extends StreamProcessor implements Stateful {
 
 
     private Window window;
@@ -40,5 +40,10 @@ public class WindowProcessor extends StreamProcessor {
         WindowProcessor windowProcessor = new WindowProcessor(this.id, this.window.copy());
         windowProcessor.setNextProcessor(this.getNextProcessor().copy());
         return windowProcessor;
+    }
+
+    @Override
+    public void clear() {
+        this.window.clear();
     }
 }

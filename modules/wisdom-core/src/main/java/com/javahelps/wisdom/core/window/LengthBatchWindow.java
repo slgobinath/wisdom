@@ -28,12 +28,15 @@ class LengthBatchWindow extends Window implements Variable.OnUpdateListener<Inte
 
     public void process(Event event, Processor nextProcessor) {
         List<Event> eventsToSend = null;
-        synchronized (this) {
+        try {
+            this.lock.lock();
             events.add(event);
             if (events.size() >= length) {
                 eventsToSend = new ArrayList<>(events);
                 events.clear();
             }
+        } finally {
+            this.lock.unlock();
         }
         if (eventsToSend != null) {
             nextProcessor.process(eventsToSend);
@@ -43,18 +46,36 @@ class LengthBatchWindow extends Window implements Variable.OnUpdateListener<Inte
     @Override
     public Window copy() {
 
-        LengthBatchWindow window = new LengthBatchWindow(this.length);
-        if (this.variable != null) {
-            window.variable = this.variable;
-            variable.addOnUpdateListener(window);
+        try {
+            this.lock.lock();
+            LengthBatchWindow window = new LengthBatchWindow(this.length);
+            if (this.variable != null) {
+                window.variable = this.variable;
+                variable.addOnUpdateListener(window);
+            }
+            return window;
+        } finally {
+            this.lock.unlock();
         }
-        return window;
     }
 
     @Override
     public void update(Integer value) {
-        synchronized (this) {
+        try {
+            this.lock.lock();
             this.length = value;
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.events.clear();
+        } finally {
+            this.lock.unlock();
         }
     }
 }

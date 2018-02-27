@@ -4,7 +4,7 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.ExceptionListener;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.processor.Processor;
-import com.javahelps.wisdom.core.processor.StreamProcessor;
+import com.javahelps.wisdom.core.processor.Stateful;
 import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.Stream;
@@ -23,14 +23,13 @@ import java.util.Map;
  * {@link WisdomApp} is the event processing application which lets the users to create stream processing components
  * and queries, and accepts the inputs.
  */
-public class WisdomApp {
+public class WisdomApp implements Stateful {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomApp.class);
     private final String name;
     private final String version;
     private final Map<String, Stream> streamMap = new HashMap<>();
     private final Map<String, Variable> variableMap = new HashMap<>();
-    private final Map<String, StreamProcessor> streamProcessorMap = new HashMap<>();
     private final Map<String, Query> queryMap = new HashMap<>();
     private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
     private WisdomContext wisdomContext;
@@ -50,7 +49,7 @@ public class WisdomApp {
     }
 
     public void start() {
-        this.streamProcessorMap.values().forEach(processor -> processor.init(this));
+        this.queryMap.values().forEach(Query::init);
         this.streamMap.values().forEach(Processor::start);
     }
 
@@ -153,10 +152,6 @@ public class WisdomApp {
         }
     }
 
-    public void addStreamProcessor(StreamProcessor processor) {
-        this.streamProcessorMap.put(processor.getId(), processor);
-    }
-
     public void addSink(String streamId, Sink sink) {
         Stream stream = this.streamMap.get(streamId);
         if (stream == null) {
@@ -205,5 +200,12 @@ public class WisdomApp {
 
     public String getVersion() {
         return version;
+    }
+
+    @Override
+    public void clear() {
+        this.streamMap.values().forEach(Stream::disable);
+        this.queryMap.values().forEach(Query::clear);
+        this.streamMap.values().forEach(Stream::enable);
     }
 }

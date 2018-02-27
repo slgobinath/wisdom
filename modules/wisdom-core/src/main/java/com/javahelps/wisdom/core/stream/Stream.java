@@ -25,6 +25,7 @@ public class Stream implements Processor {
     private int noOfProcessors;
     private Disruptor<EventHolder> disruptor;
     private RingBuffer<EventHolder> ringBuffer;
+    private boolean disabled = false;
 
 
     public Stream(WisdomApp wisdomApp, String id) {
@@ -66,11 +67,31 @@ public class Stream implements Processor {
 
     @Override
     public void process(Event event) {
+
+        if (this.disabled) {
+            return;
+        }
         if (this.disruptor == null) {
             this.sendToProcessors(event);
         } else {
             // Async enabled
             this.ringBuffer.publishEvent((eventHolder, sequence, buffer) -> eventHolder.set(event));
+        }
+    }
+
+    @Override
+    public void process(List<Event> events) {
+
+        if (this.disabled) {
+            return;
+        }
+        if (this.noOfProcessors == 1) {
+            this.processors[0].process(events);
+        } else {
+            for (Processor processor : this.processors) {
+                List<Event> newEvents = this.convertEvent(events);
+                processor.process(newEvents);
+            }
         }
     }
 
@@ -85,18 +106,6 @@ public class Stream implements Processor {
                 } catch (WisdomAppRuntimeException ex) {
                     this.wisdomApp.handleException(ex);
                 }
-            }
-        }
-    }
-
-    @Override
-    public void process(List<Event> events) {
-        if (this.noOfProcessors == 1) {
-            this.processors[0].process(events);
-        } else {
-            for (Processor processor : this.processors) {
-                List<Event> newEvents = this.convertEvent(events);
-                processor.process(newEvents);
             }
         }
     }
@@ -141,5 +150,13 @@ public class Stream implements Processor {
     public Processor copy() {
 
         return this;
+    }
+
+    public void enable() {
+        this.disabled = false;
+    }
+
+    public void disable() {
+        this.disabled = true;
     }
 }

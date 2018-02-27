@@ -109,9 +109,14 @@ class LogicalPattern extends CustomPattern {
     @Override
     public void process(Event event) {
 
-        this.patternX.setConsumed(false);
-        this.patternY.setConsumed(false);
-        this.eventDistributor.process(event);
+        try {
+            this.lock.lock();
+            this.patternX.setConsumed(false);
+            this.patternY.setConsumed(false);
+            this.eventDistributor.process(event);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
@@ -161,4 +166,15 @@ class LogicalPattern extends CustomPattern {
 //        this.patternX.setMergePreviousEvents(this.patternX.getMergePreviousEvents().andThen(mergePreviousEvents));
 //        this.patternY.setMergePreviousEvents(this.patternY.getMergePreviousEvents().andThen(mergePreviousEvents));
 //    }
+
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.patternX.clear();
+            this.patternY.clear();
+        } finally {
+            this.lock.unlock();
+        }
+    }
 }

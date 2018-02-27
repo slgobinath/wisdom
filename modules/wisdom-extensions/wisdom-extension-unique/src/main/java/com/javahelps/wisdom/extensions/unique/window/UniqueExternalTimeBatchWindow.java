@@ -34,7 +34,8 @@ public class UniqueExternalTimeBatchWindow extends UniqueWindow {
         Comparable uniqueValue = event.get(this.uniqueKey);
         long currentTimestamp = event.getAsLong(this.timestampKey);
 
-        synchronized (this) {
+        try {
+            this.lock.lock();
             if (eventMap.isEmpty()) {
                 this.endTime = currentTimestamp + this.timeToKeep;
             }
@@ -46,6 +47,8 @@ public class UniqueExternalTimeBatchWindow extends UniqueWindow {
                 this.endTime = this.findEndTime(currentTimestamp, this.endTime, this.timeToKeep);
             }
             this.eventMap.put(uniqueValue, event);
+        } finally {
+            this.lock.unlock();
         }
 
         if (eventsToSend != null) {
@@ -64,5 +67,16 @@ public class UniqueExternalTimeBatchWindow extends UniqueWindow {
 
         Window window = new UniqueExternalTimeBatchWindow(this.uniqueKey, this.timestampKey, this.duration);
         return window;
+    }
+
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.eventMap.clear();
+            this.endTime = -1;
+        } finally {
+            this.lock.unlock();
+        }
     }
 }

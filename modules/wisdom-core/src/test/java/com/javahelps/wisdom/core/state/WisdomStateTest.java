@@ -22,21 +22,21 @@ public class WisdomStateTest {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .filter(Operator.EQUALS("symbol", "WSO2"))
-                .window(Window.length(3))
-                .select("symbol", "price")
-//                .having(AttributeOperator.attribute("price").GREATER_THAN(100.0))
+                .window(Window.lengthBatch(3))
+                .aggregate(Operator.SUM("volume"), "sum")
+                .select("symbol", "sum")
                 .insertInto("OutputStream");
 
         wisdomApp.addCallback("OutputStream", EventPrinter::print);
 
         wisdomApp.start();
 
-        wisdomApp.send("StockStream", EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
-        wisdomApp.send("StockStream", EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
-        wisdomApp.send("StockStream", EventGenerator.generate("symbol", "WSO2", "price", 61.0, "volume", 15));
-        wisdomApp.send("StockStream", EventGenerator.generate("symbol", "WSO2", "price", 62.0, "volume", 15));
-        wisdomApp.send("StockStream", EventGenerator.generate("symbol", "WSO2", "price", 63.0, "volume", 15));
+        wisdomApp.send("StockStream", EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 1));
+        wisdomApp.send("StockStream", EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 2));
+        wisdomApp.clear();
+        wisdomApp.send("StockStream", EventGenerator.generate("symbol", "ORACLE", "price", 61.0, "volume", 3));
+        wisdomApp.send("StockStream", EventGenerator.generate("symbol", "GOOGLE", "price", 62.0, "volume", 4));
+        wisdomApp.send("StockStream", EventGenerator.generate("symbol", "AMAZON", "price", 63.0, "volume", 5));
     }
 
 }

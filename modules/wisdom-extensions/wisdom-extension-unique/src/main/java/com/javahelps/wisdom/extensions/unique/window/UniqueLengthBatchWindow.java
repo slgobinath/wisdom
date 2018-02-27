@@ -26,13 +26,16 @@ public class UniqueLengthBatchWindow extends UniqueWindow {
 
         List<Event> eventsToSend = null;
         Comparable uniqueValue = event.get(this.uniqueKey);
-        synchronized (this) {
+        try {
+            this.lock.lock();
             this.eventMap.put(uniqueValue, event);
 
             if (this.eventMap.size() >= length) {
                 eventsToSend = new ArrayList<>(this.eventMap.values());
                 this.eventMap.clear();
             }
+        } finally {
+            this.lock.unlock();
         }
         if (eventsToSend != null) {
             nextProcessor.process(eventsToSend);
@@ -44,5 +47,15 @@ public class UniqueLengthBatchWindow extends UniqueWindow {
 
         Window window = new UniqueLengthBatchWindow(this.uniqueKey, this.length);
         return window;
+    }
+
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.eventMap.clear();
+        } finally {
+            this.lock.unlock();
+        }
     }
 }

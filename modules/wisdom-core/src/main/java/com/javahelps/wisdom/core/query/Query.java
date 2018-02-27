@@ -11,12 +11,17 @@ import com.javahelps.wisdom.core.processor.EventSelectProcessor;
 import com.javahelps.wisdom.core.processor.FilterProcessor;
 import com.javahelps.wisdom.core.processor.MapProcessor;
 import com.javahelps.wisdom.core.processor.PartitionProcessor;
+import com.javahelps.wisdom.core.processor.Stateful;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
 import com.javahelps.wisdom.core.processor.WindowProcessor;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.variable.Variable;
 import com.javahelps.wisdom.core.window.Window;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -24,7 +29,7 @@ import java.util.function.Predicate;
  * {@link Query} is the complete executable component with the self contained logic to process the events from an
  * input {@link Stream} and insert the outputs into an output {@link Stream}.
  */
-public class Query {
+public class Query implements Stateful {
 
     private String id;
     private WisdomApp wisdomApp;
@@ -32,11 +37,20 @@ public class Query {
     private Stream outputStream;
     private StreamProcessor lastStreamProcessor;
     private int processorIndex = 0;
+    private final Map<String, StreamProcessor> streamProcessorMap = new HashMap<>();
+    private final List<Stateful> statefulList = new ArrayList<>();
 
     public Query(WisdomApp wisdomApp, String id) {
 
         this.wisdomApp = wisdomApp;
         this.id = id;
+    }
+
+    /**
+     * Initialize all stream processors of the query.
+     */
+    public void init() {
+        this.streamProcessorMap.values().forEach(processor -> processor.init(this.wisdomApp));
     }
 
     public Query from(String streamId) {
@@ -51,7 +65,7 @@ public class Query {
     public Query from(Pattern pattern) {
 
         this.lastStreamProcessor = pattern;
-        this.wisdomApp.addStreamProcessor(pattern);
+        this.addStreamProcessor(pattern);
         return this;
     }
 
@@ -63,6 +77,7 @@ public class Query {
         } else {
             this.lastStreamProcessor.setNextProcessor(filterProcessor);
         }
+        this.addStreamProcessor(filterProcessor);
         this.lastStreamProcessor = filterProcessor;
 
         return this;
@@ -76,6 +91,7 @@ public class Query {
         } else {
             this.lastStreamProcessor.setNextProcessor(windowProcessor);
         }
+        this.addStreamProcessor(windowProcessor);
         this.lastStreamProcessor = windowProcessor;
         return this;
     }
@@ -88,9 +104,8 @@ public class Query {
         } else {
             this.lastStreamProcessor.setNextProcessor(attributeSelectProcessor);
         }
+        this.addStreamProcessor(attributeSelectProcessor);
         this.lastStreamProcessor = attributeSelectProcessor;
-
-        attributeSelectProcessor.init();
 
         return this;
     }
@@ -103,9 +118,8 @@ public class Query {
         } else {
             this.lastStreamProcessor.setNextProcessor(eventSelectProcessor);
         }
+        this.addStreamProcessor(eventSelectProcessor);
         this.lastStreamProcessor = eventSelectProcessor;
-
-        eventSelectProcessor.init();
 
         return this;
     }
@@ -118,6 +132,7 @@ public class Query {
         } else {
             this.lastStreamProcessor.setNextProcessor(mapProcessor);
         }
+        this.addStreamProcessor(mapProcessor);
         this.lastStreamProcessor = mapProcessor;
 
         return this;
@@ -131,20 +146,8 @@ public class Query {
         } else {
             this.lastStreamProcessor.setNextProcessor(aggregateProcessor);
         }
+        this.addStreamProcessor(aggregateProcessor);
         this.lastStreamProcessor = aggregateProcessor;
-
-        return this;
-    }
-
-    public Query having(Predicate<Event> predicate) {
-
-        FilterProcessor filterProcessor = new FilterProcessor(generateId(), predicate);
-        if (this.lastStreamProcessor == null) {
-            this.inputStream.addProcessor(filterProcessor);
-        } else {
-            this.lastStreamProcessor.setNextProcessor(filterProcessor);
-        }
-        this.lastStreamProcessor = filterProcessor;
 
         return this;
     }
@@ -185,11 +188,24 @@ public class Query {
             this.lastStreamProcessor.setNextProcessor(partitionProcessor);
         }
         this.lastStreamProcessor = partitionProcessor;
+        this.addStreamProcessor(partitionProcessor);
 
         return this;
     }
 
+    private void addStreamProcessor(StreamProcessor processor) {
+        this.streamProcessorMap.put(processor.getId(), processor);
+        if (processor instanceof Stateful) {
+            this.statefulList.add((Stateful) processor);
+        }
+    }
+
     private String generateId() {
         return String.format("%s[%d]", this.id, this.processorIndex++);
+    }
+
+    @Override
+    public void clear() {
+        this.statefulList.forEach(Stateful::clear);
     }
 }

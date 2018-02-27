@@ -47,8 +47,13 @@ class EveryPattern extends CustomPattern {
     @Override
     public void process(Event event) {
 
-        this.pattern.process(event);
-        this.pattern.setAccepting(true);
+        try {
+            this.lock.lock();
+            this.pattern.process(event);
+            this.pattern.setAccepting(true);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
@@ -111,5 +116,15 @@ class EveryPattern extends CustomPattern {
     @Override
     public void onNextPreProcess(Event event) {
         super.onNextPreProcess(event);
+    }
+
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.pattern.clear();
+        } finally {
+            this.lock.unlock();
+        }
     }
 }

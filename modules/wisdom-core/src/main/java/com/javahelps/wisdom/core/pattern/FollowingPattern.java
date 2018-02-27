@@ -145,9 +145,14 @@ class FollowingPattern extends CustomPattern {
 
     @Override
     public void process(Event event) {
-        this.first.setConsumed(false);
-        this.next.setConsumed(false);
-        this.eventDistributor.process(event);
+        try {
+            this.lock.lock();
+            this.first.setConsumed(false);
+            this.next.setConsumed(false);
+            this.eventDistributor.process(event);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
@@ -204,5 +209,16 @@ class FollowingPattern extends CustomPattern {
     @Override
     public void setExpiredCondition(BiFunction<Event, Event, Boolean> expiredCondition) {
         this.next.setExpiredCondition(expiredCondition);
+    }
+
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.first.clear();
+            this.next.clear();
+        } finally {
+            this.lock.unlock();
+        }
     }
 }

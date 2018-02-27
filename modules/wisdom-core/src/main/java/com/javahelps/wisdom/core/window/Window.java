@@ -3,14 +3,19 @@ package com.javahelps.wisdom.core.window;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.partition.Partitionable;
 import com.javahelps.wisdom.core.processor.Processor;
+import com.javahelps.wisdom.core.processor.Stateful;
 import com.javahelps.wisdom.core.variable.Variable;
 
 import java.time.Duration;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A utility to construct Windows.
  */
-public abstract class Window implements Partitionable {
+public abstract class Window implements Partitionable, Stateful {
+
+    protected final Lock lock = new ReentrantLock();
 
     protected Window() {
 

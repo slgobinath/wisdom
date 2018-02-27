@@ -32,16 +32,26 @@ class NotPattern extends CustomPattern implements EmptiablePattern {
     @Override
     public void onPreviousPostProcess(Event event) {
 
-        if (duration != null) {
-            this.previousEvent = event;
-            scheduler.schedule(duration, this::timeoutHappend);
+        try {
+            this.lock.lock();
+            if (duration != null) {
+                this.previousEvent = event;
+                scheduler.schedule(duration, this::timeoutHappend);
+            }
+        } finally {
+            this.lock.unlock();
         }
     }
 
     public void timeoutHappend(long timestamp) {
 
-        if (this.pattern.isAccepting()) {
-            this.getNextProcessor().process(this.previousEvent);
+        try {
+            this.lock.lock();
+            if (this.pattern.isAccepting()) {
+                this.getNextProcessor().process(this.previousEvent);
+            }
+        } finally {
+            this.lock.unlock();
         }
     }
 
@@ -62,69 +72,135 @@ class NotPattern extends CustomPattern implements EmptiablePattern {
     @Override
     public void process(Event event) {
 
-        this.pattern.process(event);
+        try {
+            this.lock.lock();
+            this.pattern.process(event);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
 
     @Override
     public void setProcessConditionMet(Predicate<Event> processConditionMet) {
 
-        this.pattern.setProcessConditionMet(processConditionMet);
+        try {
+            this.lock.lock();
+            this.pattern.setProcessConditionMet(processConditionMet);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
     public void setEmitConditionMet(Predicate<Event> emitConditionMet) {
 
-        Predicate<Event> predicate = this.predicate.and(emitConditionMet);
-        this.pattern.setEmitConditionMet(predicate);
+        try {
+            this.lock.lock();
+            Predicate<Event> predicate = this.predicate.and(emitConditionMet);
+            this.pattern.setEmitConditionMet(predicate);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
     public boolean isAccepting() {
-        return this.pattern.isAccepting();
+
+        try {
+            this.lock.lock();
+            return this.pattern.isAccepting();
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
     public boolean isConsumed() {
 
-        return this.pattern.isConsumed();
+        try {
+            this.lock.lock();
+            return this.pattern.isConsumed();
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
     public void setConsumed(boolean consumed) {
-        this.pattern.setConsumed(consumed);
+
+        try {
+            this.lock.lock();
+            this.pattern.setConsumed(consumed);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
     public boolean isComplete() {
 
-        return !this.pattern.isComplete();
+        try {
+            this.lock.lock();
+            return !this.pattern.isComplete();
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
     public void setPreviousEvents(Supplier<List<Event>> previousEvents) {
-        super.setPreviousEvents(previousEvents);
-        this.pattern.setPreviousEvents(previousEvents);
+
+        try {
+            this.lock.lock();
+            super.setPreviousEvents(previousEvents);
+            this.pattern.setPreviousEvents(previousEvents);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
     public List<Event> getEvents() {
-        return this.getEvents(true);
+
+        try {
+            this.lock.lock();
+            return this.getEvents(true);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
     public List<Event> getEvents(boolean isFirst) {
 
-        List<Event> events = new ArrayList<>();
-        if (this.pattern.getEvents().isEmpty()) {
-            if (isFirst) {
-                events.add(EmptiablePattern.EMPTY_EVENT);
+        List<Event> events;
+        try {
+            this.lock.lock();
+            if (this.pattern.getEvents().isEmpty()) {
+                if (isFirst) {
+                    events = new ArrayList<>();
+                    events.add(EmptiablePattern.EMPTY_EVENT);
+                } else {
+                    events = this.getPreviousEvents().get();
+                }
             } else {
-                events = this.getPreviousEvents().get();
+                events = Collections.EMPTY_LIST;
             }
-        } else {
-            return Collections.EMPTY_LIST;
+        } finally {
+            this.lock.unlock();
         }
         return events;
+    }
+
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.pattern.clear();
+            this.previousEvent = null;
+        } finally {
+            this.lock.unlock();
+        }
     }
 }

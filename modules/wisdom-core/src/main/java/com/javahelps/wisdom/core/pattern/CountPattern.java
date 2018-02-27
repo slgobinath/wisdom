@@ -64,7 +64,12 @@ class CountPattern extends CustomPattern implements EmptiablePattern {
     @Override
     public void process(Event event) {
 
-        this.pattern.process(event);
+        try {
+            this.lock.lock();
+            this.pattern.process(event);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
@@ -155,5 +160,15 @@ class CountPattern extends CustomPattern implements EmptiablePattern {
             }
         }
         return list;
+    }
+
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.pattern.clear();
+        } finally {
+            this.lock.unlock();
+        }
     }
 }

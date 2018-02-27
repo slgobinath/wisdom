@@ -3,7 +3,9 @@ package com.javahelps.wisdom.core.pattern;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Attribute;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.processor.Stateful;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
+import com.javahelps.wisdom.core.util.FunctionalUtility;
 import com.javahelps.wisdom.core.util.TimestampGenerator;
 import com.javahelps.wisdom.core.util.WisdomConstants;
 
@@ -13,6 +15,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -21,20 +25,29 @@ import java.util.function.Supplier;
 /**
  * The most basic component of a Wisdom pattern. A pattern must have a name and optionally a filter.
  */
-public class Pattern extends StreamProcessor {
+public class Pattern extends StreamProcessor implements Stateful {
 
+    /**
+     * User defined unique name to refer this pattern.
+     */
     protected String name;
-    protected List<String> streamIds = new ArrayList<>();
-    protected Predicate<Event> predicate = event -> true;
     protected Duration duration;
-    protected EventDistributor eventDistributor = new EventDistributor();
+    protected List<String> streamIds = new ArrayList<>();
     private boolean consumed = false;
     private boolean accepting = true;
+    protected Predicate<Event> predicate = FunctionalUtility.truePredicator();
+    protected EventDistributor eventDistributor = new EventDistributor();
+    protected Lock lock = new ReentrantLock();
+    private TimestampGenerator timestampGenerator;
+    private boolean batchPattern = false;
+    private List<Event> events = new ArrayList<>();
+    private Map<Event, Event> eventMap = new HashMap<>();
+    private Consumer<Event> postProcess = FunctionalUtility.silentConsumer();
+    private Consumer<Event> preProcess = FunctionalUtility.silentConsumer();
+
     private Predicate<Event> emitConditionMet = event -> consumed;
     private Predicate<Event> processConditionMet = event -> accepting;
-    private List<Event> events = new ArrayList<>();
-    private boolean batchPattern = false;
-    private TimestampGenerator timestampGenerator;
+    private BiFunction<Event, Event, Boolean> expiredCondition = (currentEvent, oldEvent) -> false;
     private Supplier<List<Event>> previousEvents = () -> {
         ArrayList<Event> arrayList = new ArrayList<>();
         arrayList.add(new Event(timestampGenerator.currentTimestamp()));
@@ -45,13 +58,6 @@ public class Pattern extends StreamProcessor {
             destination.set(this.name + "." + entry.getKey(), entry.getValue());
         }
     };
-
-    private Consumer<Event> postProcess = event -> {
-    };
-    private Consumer<Event> preProcess = event -> {
-    };
-    private Map<Event, Event> eventMap = new HashMap<>();
-    private BiFunction<Event, Event, Boolean> expiredCondition = (currentEvent, oldEvent) -> false;
 
 
     public Pattern(String patternId) {
@@ -252,58 +258,64 @@ public class Pattern extends StreamProcessor {
     @Override
     public void process(Event event) {
 
-        consumed = false;
-        if (this.processConditionMet.test(event) && this.predicate.test(event)) {
+        try {
+            this.lock.lock();
 
-            this.preProcess.accept(event);
+            consumed = false;
+            if (this.processConditionMet.test(event) && this.predicate.test(event)) {
 
-            Iterator<Event> events = this.previousEvents.get().iterator();
-            Event newEvent = null;
-            while (events.hasNext()) {
+                this.preProcess.accept(event);
 
-                Event preEvent = events.next();
+                Iterator<Event> events = this.previousEvents.get().iterator();
+                Event newEvent = null;
+                while (events.hasNext()) {
 
-                // Remove the expired events
-                if (this.expiredCondition.apply(event, preEvent)) {
-                    events.remove();
-                    continue;
+                    Event preEvent = events.next();
+
+                    // Remove the expired events
+                    if (this.expiredCondition.apply(event, preEvent)) {
+                        events.remove();
+                        continue;
+                    }
+
+                    newEvent = new Event(event.getStream(), event.getTimestamp());
+                    newEvent.setOriginal(event);
+                    newEvent.setName(this.name);
+                    this.copyEventAttributes.copy(this, event, newEvent);
+
+                    newEvent.getData().putAll(preEvent.getData());
+
+                    this.events.add(newEvent);
+                    this.eventMap.put(event.getOriginal(), newEvent);
                 }
 
-                newEvent = new Event(event.getStream(), event.getTimestamp());
-                newEvent.setOriginal(event);
-                newEvent.setName(this.name);
-                this.copyEventAttributes.copy(this, event, newEvent);
+                if (newEvent != null) {
 
-                newEvent.getData().putAll(preEvent.getData());
+                    this.accepting = false;
+                    this.consumed = true;
+                    this.postProcess.accept(newEvent);
 
-                this.events.add(newEvent);
-                this.eventMap.put(event.getOriginal(), newEvent);
-            }
+                    if (this.emitConditionMet.test(newEvent)) {
 
-            if (newEvent != null) {
-
-                this.accepting = false;
-                this.consumed = true;
-                this.postProcess.accept(newEvent);
-
-                if (this.emitConditionMet.test(newEvent)) {
-
-                    if (batchPattern) {
-                        List<Event> eventsToEmit = new ArrayList<>();
-                        eventsToEmit.addAll(this.events);
-                        this.reset();
-                        this.getNextProcessor().process(eventsToEmit);
-                    } else {
-                        for (Event e : this.events) {
-                            if (e != newEvent) {
-                                newEvent.getData().putAll(e.getData());
+                        if (batchPattern) {
+                            List<Event> eventsToEmit = new ArrayList<>();
+                            eventsToEmit.addAll(this.events);
+                            this.reset();
+                            this.getNextProcessor().process(eventsToEmit);
+                        } else {
+                            for (Event e : this.events) {
+                                if (e != newEvent) {
+                                    newEvent.getData().putAll(e.getData());
+                                }
                             }
+                            this.reset();
+                            this.getNextProcessor().process(newEvent);
                         }
-                        this.reset();
-                        this.getNextProcessor().process(newEvent);
                     }
                 }
             }
+        } finally {
+            this.lock.unlock();
         }
     }
 
@@ -337,6 +349,17 @@ public class Pattern extends StreamProcessor {
     @Override
     public Pattern copy() {
         return null;
+    }
+
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.events.clear();
+            this.eventMap.clear();
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @FunctionalInterface
