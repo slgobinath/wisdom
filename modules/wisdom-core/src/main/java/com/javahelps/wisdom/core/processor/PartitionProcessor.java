@@ -41,7 +41,7 @@ public class PartitionProcessor extends StreamProcessor {
         String key = this.calculateKey(event);
         Processor nextProcessor = this.processorMap.get(key);
         if (nextProcessor == null) {
-            nextProcessor = (Processor) getNextProcessor().copy();
+            nextProcessor = getNextProcessor().copy();
             this.processorMap.putIfAbsent(key, nextProcessor);
         }
         return nextProcessor;

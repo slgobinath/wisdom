@@ -109,6 +109,12 @@ public class WisdomApp {
         }
     }
 
+    /**
+     * Create input handler to feed events to the given stream.
+     *
+     * @param streamId the Wisdom stream id
+     * @return new {@link InputHandler}
+     */
     public InputHandler getInputHandler(String streamId) {
 
         Stream stream = this.streamMap.get(streamId);

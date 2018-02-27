@@ -2,7 +2,7 @@ package com.javahelps.wisdom.core.processor.aggregator;
 
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.operator.AttributeOperator;
+import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.core.window.Window;
@@ -31,7 +31,7 @@ public class AggregatorTestCase {
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
                 .window(Window.lengthBatch(3))
-                .aggregate(AttributeOperator.attribute("price").SUM_AS("price"))
+                .aggregate(Operator.SUM("price"), "price")
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
@@ -61,7 +61,7 @@ public class AggregatorTestCase {
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
                 .window(Window.lengthBatch(3))
-                .aggregate(AttributeOperator.attribute("price").MIN_AS("price"))
+                .aggregate(Operator.MIN("price"), "price")
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
@@ -91,7 +91,7 @@ public class AggregatorTestCase {
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
                 .window(Window.lengthBatch(3))
-                .aggregate(AttributeOperator.attribute("price").MAX_AS("price"))
+                .aggregate(Operator.MAX("price"), "price")
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
@@ -121,7 +121,7 @@ public class AggregatorTestCase {
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
                 .window(Window.lengthBatch(3))
-                .aggregate(AttributeOperator.attribute("price").AVG_AS("price"))
+                .aggregate(Operator.AVG("price"), "price")
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
@@ -150,7 +150,7 @@ public class AggregatorTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .aggregate(AttributeOperator.attribute("price").SUM_AS("sum"))
+                .aggregate(Operator.SUM("price"), "sum")
                 .select("symbol", "sum")
                 .insertInto("OutputStream");
 
@@ -181,7 +181,7 @@ public class AggregatorTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .aggregate(AttributeOperator.attribute("price").MIN_AS("min"))
+                .aggregate(Operator.MIN("price"), "min")
                 .select("symbol", "min")
                 .insertInto("OutputStream");
 
@@ -212,7 +212,7 @@ public class AggregatorTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .aggregate(AttributeOperator.attribute("price").MAX_AS("max"))
+                .aggregate(Operator.MAX("price"), "max")
                 .select("symbol", "max")
                 .insertInto("OutputStream");
 
@@ -243,7 +243,7 @@ public class AggregatorTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .aggregate(AttributeOperator.attribute("price").AVG_AS("avg"))
+                .aggregate(Operator.AVG("price"), "avg")
                 .select("symbol", "avg")
                 .insertInto("OutputStream");
 

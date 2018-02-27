@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by gobinath on 7/10/17.
+ * Wisdom scheduler for scheduling tasks to run later.
  */
 public class Scheduler {
 
@@ -21,8 +21,8 @@ public class Scheduler {
     }
 
     public ScheduledFuture schedule(Duration duration, Executor executor) {
-        return this.scheduledExecutorService.schedule(new TaskRunner(executor), duration.toMillis(), TimeUnit
-                .MILLISECONDS);
+        return this.scheduledExecutorService.schedule(new TaskRunner(executor),
+                duration.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     private class TaskRunner implements Runnable {

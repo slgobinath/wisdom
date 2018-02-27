@@ -16,24 +16,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * {@link AttributeOperator} provides some built-in operations on the given attribute of an {@link Event} at the
+ * {@link Operator} provides some built-in operations on the given attribute of an {@link Event} at the
  * runtime.
- * {@link AttributeOperator} modifies the attributes of the {@link Event} which is passed as the parameter of the
+ * {@link Operator} modifies the attributes of the {@link Event} which is passed as the parameter of the
  * {@link Function}.
  *
  * @see AttributeSelectProcessor
  */
-public class AttributeOperator {
-
-    protected final String name;
-
-    public AttributeOperator(String name) {
-        this.name = name;
-    }
-
-    public static AttributeOperator attribute(String attribute) {
-        return new AttributeOperator(attribute);
-    }
+public class Operator {
 
     //    public Attribute ADD(Comparable valueToAdd) {
 //        Function<Event, Event> function = event -> {
@@ -67,193 +57,206 @@ public class AttributeOperator {
 //
 //
 
-    public Function<Event, Event> SUM_AS(String newName) {
+    public static Function<Event, Comparable> SUM(final String attribute) {
 
         final WisdomDouble sum = new WisdomDouble();
-        Function<Event, Event> function;
+        Function<Event, Comparable> function;
         if (WisdomConfig.ASYNC_ENABLED) {
             // Thread safe operator
             function = event -> {
+                Double value;
                 synchronized (sum) {
                     if (event.isReset()) {
-                        sum.set(0);
+                        value = sum.set(0);
                     } else {
-                        double sumValue = sum.addAndGet(event.getAsDouble(this.name));
-                        event.set(newName, sumValue);
+                        value = sum.addAndGet(event.getAsDouble(attribute));
                     }
                 }
-                return event;
+                return value;
             };
         } else {
             function = event -> {
+                Double value;
                 if (event.isReset()) {
-                    sum.set(0);
+                    value = sum.set(0);
                 } else {
-                    double sumValue = sum.addAndGet(event.getAsDouble(this.name));
-                    event.set(newName, sumValue);
+                    value = sum.addAndGet(event.getAsDouble(attribute));
                 }
-                return event;
+                return value;
             };
         }
         return function;
 
     }
 
-    public Function<Event, Event> MIN_AS(String newName) {
+    public static Function<Event, Comparable> MIN(final String attribute) {
 
         final WisdomReference<Comparable> min = new WisdomReference<>();
         final Comparator<Comparable> naturalOrder = Comparator.naturalOrder();
         final Comparator<Comparable> comparator = Comparator.nullsLast(naturalOrder);
-        Function<Event, Event> function;
+        Function<Event, Comparable> function;
         if (WisdomConfig.ASYNC_ENABLED) {
             // Thread safe operator
             function = event -> {
+                Comparable value;
                 synchronized (min) {
                     if (event.isReset()) {
-                        min.set(null);
+                        value = min.set(null);
                     } else {
-                        min.setIfLess(comparator, event.get(this.name));
-                        event.set(newName, min.get());
+                        value = min.setIfLess(comparator, event.get(attribute));
                     }
                 }
-                return event;
+                return value;
             };
         } else {
             function = event -> {
+                Comparable value;
                 if (event.isReset()) {
-                    min.set(null);
+                    value = min.set(null);
                 } else {
-                    min.setIfLess(comparator, event.get(this.name));
-                    event.set(newName, min.get());
+                    value = min.setIfLess(comparator, event.get(attribute));
                 }
-                return event;
+                return value;
             };
         }
         return function;
     }
 
-    public Function<Event, Event> MAX_AS(String newName) {
+    public static Function<Event, Comparable> MAX(final String attribute) {
 
         final WisdomReference<Comparable> max = new WisdomReference<>();
         final Comparator<Comparable> naturalOrder = Comparator.naturalOrder();
         final Comparator<Comparable> comparator = Comparator.nullsFirst(naturalOrder);
-        Function<Event, Event> function;
+        Function<Event, Comparable> function;
         if (WisdomConfig.ASYNC_ENABLED) {
             // Thread safe operator
             function = event -> {
+                Comparable value;
                 synchronized (max) {
                     if (event.isReset()) {
-                        max.set(null);
+                        value = max.set(null);
                     } else {
-                        max.setIfGreater(comparator, event.get(this.name));
-                        event.set(newName, max.get());
+                        value = max.setIfGreater(comparator, event.get(attribute));
                     }
                 }
-                return event;
+                return value;
             };
         } else {
             function = event -> {
+                Comparable value;
                 if (event.isReset()) {
-                    max.set(null);
+                    value = max.set(null);
                 } else {
-                    max.setIfGreater(comparator, event.get(this.name));
-                    event.set(newName, max.get());
+                    value = max.setIfGreater(comparator, event.get(attribute));
                 }
-                return event;
+                return value;
             };
         }
         return function;
     }
 
-    public Function<Event, Event> AVG_AS(String newName) {
+    public static Function<Event, Comparable> AVG(final String attribute) {
 
         final WisdomDouble sum = new WisdomDouble();
         final WisdomLong count = new WisdomLong();
-        Function<Event, Event> function;
+        Function<Event, Comparable> function;
         if (WisdomConfig.ASYNC_ENABLED) {
             // Thread safe operator
             function = event -> {
+                Double value;
                 synchronized (sum) {
                     if (event.isReset()) {
                         sum.set(0);
                         count.set(0);
+                        value = 0.0;
                     } else {
-                        double total = sum.addAndGet(event.getAsDouble(this.name));
+                        double total = sum.addAndGet(event.getAsDouble(attribute));
                         long noOfEvents = count.incrementAndGet();
                         double avg = total / noOfEvents;
                         if (avg != Double.NaN) {
                             avg = Math.round(avg * 10_000.0) / WisdomConfig.DOUBLE_PRECISION;
                         }
-                        event.set(newName, avg);
+                        value = avg;
                     }
                 }
-                return event;
+                return value;
             };
         } else {
             function = event -> {
+                Double value;
                 if (event.isReset()) {
                     sum.set(0);
                     count.set(0);
+                    value = 0.0;
                 } else {
-                    double total = sum.addAndGet(event.getAsDouble(this.name));
+                    double total = sum.addAndGet(event.getAsDouble(attribute));
                     long noOfEvents = count.incrementAndGet();
                     double avg = total / noOfEvents;
                     if (avg != Double.NaN) {
                         avg = Math.round(avg * 10_000.0) / WisdomConfig.DOUBLE_PRECISION;
                     }
-                    event.set(newName, avg);
+                    value = avg;
                 }
-                return event;
+                return value;
             };
         }
         return function;
     }
 
-    public Predicate<Event> EQUALS(Object value) {
+    public static Predicate<Event> EQUALS(final String attribute, final Comparable value) {
 
-        return event -> Objects.equals(event.get(name), value);
+        return event -> Objects.equals(event.get(attribute), value);
     }
 
-    public Predicate<Event> GREATER_THAN(String attribute) {
+    public static Predicate<Event> IS_TRUE(final String attribute) {
+
+        return event -> Objects.equals(event.get(attribute), true);
+    }
+
+    public static Predicate<Event> IS_FALSE(final String attribute) {
+
+        return event -> Objects.equals(event.get(attribute), false);
+    }
+
+    public static Predicate<Event> GREATER_THAN(final String attributeOne, final String attributeTwo) {
 
         return event -> {
-            System.out.println(event.getData());
-            boolean result = event.get(name).compareTo(event.get(attribute)) > 0;
+            boolean result = event.get(attributeOne).compareTo(event.get(attributeTwo)) > 0;
             return result;
         };
     }
 
-    public Predicate<Event> GREATER_THAN(Supplier<Comparable> supplier) {
+    public static Predicate<Event> GREATER_THAN(final String attribute, final Supplier<Comparable> supplier) {
 
-        return event -> event.get(name).compareTo(supplier.get()) > 0;
+        return event -> event.get(attribute).compareTo(supplier.get()) > 0;
     }
 
-    public Predicate<Event> GREATER_THAN(Number value) {
+    public static Predicate<Event> GREATER_THAN(final String attribute, final double value) {
 
-        return event -> event.get(name).compareTo(value) > 0;
+        return event -> event.getAsDouble(attribute) > value;
     }
 
-    public Predicate<Event> GREATER_THAN_OR_EQUAL(Number value) {
+    public static Predicate<Event> GREATER_THAN_OR_EQUAL(final String attribute, final double value) {
 
-        return event -> event.get(name).compareTo(value) >= 0;
+        return event -> event.getAsDouble(attribute) >= value;
     }
 
-    public Predicate<Event> LESS_THAN(Number value) {
+    public static Predicate<Event> LESS_THAN(final String attribute, final double value) {
 
-        return event -> event.get(name).compareTo(value) < 0;
+        return event -> event.getAsDouble(attribute) < value;
     }
 
-    public Predicate<Event> LESS_THAN_OR_EQUAL(Number value) {
+    public static Predicate<Event> LESS_THAN_OR_EQUAL(final String attribute, final double value) {
 
-        return event -> event.get(name).compareTo(value) <= 0;
+        return event -> event.getAsDouble(attribute) <= value;
     }
 
-    public Predicate<Event> STRING_MATCHES(String regex) {
+    public static Predicate<Event> STRING_MATCHES(final String attribute, final String regex) {
 
         Pattern pattern = Pattern.compile(regex);
 
         return event -> {
-            String data = (String) event.get(name);
+            String data = (String) event.get(attribute);
             if (data == null) {
                 return false;
             } else {
@@ -261,5 +264,35 @@ public class AttributeOperator {
                 return matcher.find();
             }
         };
+    }
+
+    public static final Function<Event, Comparable> COUNT() {
+
+        final WisdomLong count = new WisdomLong();
+        Function<Event, Comparable> function;
+        if (WisdomConfig.ASYNC_ENABLED) {
+            function = event -> {
+                long value;
+                synchronized (count) {
+                    if (event.isReset()) {
+                        value = count.set(0);
+                    } else {
+                        value = count.incrementAndGet();
+                    }
+                }
+                return value;
+            };
+        } else {
+            function = event -> {
+                long value;
+                if (event.isReset()) {
+                    value = count.set(0);
+                } else {
+                    value = count.incrementAndGet();
+                }
+                return value;
+            };
+        }
+        return function;
     }
 }

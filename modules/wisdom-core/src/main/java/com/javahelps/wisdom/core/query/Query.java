@@ -123,9 +123,9 @@ public class Query {
         return this;
     }
 
-    public Query aggregate(Function<Event, Event> function) {
+    public Query aggregate(Function<Event, Comparable> function, String setAs) {
 
-        AggregateProcessor aggregateProcessor = new AggregateProcessor(generateId(), function);
+        AggregateProcessor aggregateProcessor = new AggregateProcessor(generateId(), function, setAs);
         if (this.lastStreamProcessor == null) {
             this.inputStream.addProcessor(aggregateProcessor);
         } else {

@@ -2,8 +2,7 @@ package com.javahelps.wisdom.core.processor.partition;
 
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.event.Attribute;
-import com.javahelps.wisdom.core.operator.AttributeOperator;
+import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.core.window.Window;
@@ -33,7 +32,7 @@ public class PartitionTestCase {
                 .from("StockStream")
                 .partitionBy("symbol")
                 .window(Window.lengthBatch(2))
-                .aggregate(AttributeOperator.attribute("price").SUM_AS("price"))
+                .aggregate(Operator.SUM("price"), "price")
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
@@ -66,7 +65,7 @@ public class PartitionTestCase {
                 .from("StockStream")
                 .partitionBy("symbol", "volume")
                 .window(Window.lengthBatch(2))
-                .aggregate(AttributeOperator.attribute("price").SUM_AS("price"))
+                .aggregate(Operator.SUM("price"), "price")
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
@@ -127,9 +126,9 @@ public class PartitionTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .filter(Attribute.attribute("price").LESS_THAN(700.0))
+                .filter(Operator.LESS_THAN("price", 700.0))
                 .partitionBy("symbol")
-                .aggregate(AttributeOperator.attribute("price").SUM_AS("price"))
+                .aggregate(Operator.SUM("price"), "price")
                 .select("symbol", "price", "volume")
                 .insertInto("OutputStream");
 

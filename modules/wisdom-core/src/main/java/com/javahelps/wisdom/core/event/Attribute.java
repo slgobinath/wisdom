@@ -1,6 +1,6 @@
 package com.javahelps.wisdom.core.event;
 
-import com.javahelps.wisdom.core.operator.AttributeOperator;
+import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.processor.AttributeSelectProcessor;
 
 import java.util.function.Function;
@@ -13,8 +13,9 @@ import java.util.function.Supplier;
  *
  * @see AttributeSelectProcessor
  */
-public class Attribute extends AttributeOperator implements Supplier<Comparable> {
+public class Attribute extends Operator implements Supplier<Comparable> {
 
+    private final String name;
     private final Supplier<Event> eventSupplier;
 
     public Attribute(Event event, String name) {
@@ -22,7 +23,7 @@ public class Attribute extends AttributeOperator implements Supplier<Comparable>
     }
 
     public Attribute(Supplier<Event> eventSupplier, String name) {
-        super(name);
+        this.name = name;
         this.eventSupplier = eventSupplier;
     }
 

@@ -2,7 +2,7 @@ package com.javahelps.wisdom.core.processor.pattern;
 
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.operator.AttributeOperator;
+import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import org.junit.Assert;
@@ -314,13 +314,13 @@ public class CountPatternTestCase {
 
         // e1 -> e2<0:5> -> e3
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(AttributeOperator.attribute("price").GREATER_THAN_OR_EQUAL(50.0)
-                        .and(AttributeOperator.attribute("volume").GREATER_THAN(100)));
+                .filter(Operator.GREATER_THAN_OR_EQUAL("price", 50.0)
+                        .and(Operator.GREATER_THAN("volume", 100)));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
-                .filter(AttributeOperator.attribute("price").LESS_THAN_OR_EQUAL(40.0))
+                .filter(Operator.LESS_THAN_OR_EQUAL("price", 40.0))
                 .times(0, 5);
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")
-                .filter(AttributeOperator.attribute("volume").LESS_THAN_OR_EQUAL(70));
+                .filter(Operator.LESS_THAN_OR_EQUAL("volume", 70));
 
         Pattern pattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
@@ -351,13 +351,13 @@ public class CountPatternTestCase {
 
         // e1 -> e2<:5> -> e3
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(AttributeOperator.attribute("price").GREATER_THAN_OR_EQUAL(50.0)
-                        .and(AttributeOperator.attribute("volume").GREATER_THAN(100)));
+                .filter(Operator.GREATER_THAN_OR_EQUAL("price", 50.0)
+                        .and(Operator.GREATER_THAN("volume", 100)));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
-                .filter(AttributeOperator.attribute("price").LESS_THAN_OR_EQUAL(40.0))
+                .filter(Operator.LESS_THAN_OR_EQUAL("price", 40.0))
                 .maxTimes(5);
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")
-                .filter(AttributeOperator.attribute("volume").LESS_THAN_OR_EQUAL(70));
+                .filter(Operator.LESS_THAN_OR_EQUAL("volume", 70));
 
         Pattern pattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
@@ -388,13 +388,13 @@ public class CountPatternTestCase {
 
         // e1 -> e2<:5> -> e3
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(AttributeOperator.attribute("price").GREATER_THAN_OR_EQUAL(50.0)
-                        .and(AttributeOperator.attribute("volume").GREATER_THAN(100)));
+                .filter(Operator.GREATER_THAN_OR_EQUAL("price", 50.0)
+                        .and(Operator.GREATER_THAN("volume", 100)));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
-                .filter(AttributeOperator.attribute("price").LESS_THAN_OR_EQUAL(40.0))
+                .filter(Operator.LESS_THAN_OR_EQUAL("price", 40.0))
                 .maxTimes(5);
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")
-                .filter(AttributeOperator.attribute("volume").LESS_THAN_OR_EQUAL(70));
+                .filter(Operator.LESS_THAN_OR_EQUAL("volume", 70));
 
         Pattern pattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 

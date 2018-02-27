@@ -21,7 +21,8 @@ public class WisdomLong {
         return ++this.value;
     }
 
-    public void set(int val) {
+    public long set(long val) {
         this.value = val;
+        return this.value;
     }
 }

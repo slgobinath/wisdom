@@ -2,7 +2,7 @@ package com.javahelps.wisdom.core.operand;
 
 import java.util.Comparator;
 
-public class WisdomReference<T> {
+public class WisdomReference<T extends Comparable> {
 
     private T reference;
 
@@ -14,20 +14,23 @@ public class WisdomReference<T> {
         this.reference = initialReference;
     }
 
-    public void set(T newReference) {
+    public T set(T newReference) {
         this.reference = newReference;
+        return this.reference;
     }
 
-    public void setIfLess(Comparator<T> comparator, T newReference) {
+    public T setIfLess(Comparator<T> comparator, T newReference) {
         if (comparator.compare(newReference, this.reference) < 0) {
             this.reference = newReference;
         }
+        return this.reference;
     }
 
-    public void setIfGreater(Comparator<T> comparator, T newReference) {
+    public T setIfGreater(Comparator<T> comparator, T newReference) {
         if (comparator.compare(newReference, this.reference) > 0) {
             this.reference = newReference;
         }
+        return this.reference;
     }
 
     public T get() {

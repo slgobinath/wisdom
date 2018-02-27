@@ -1,7 +1,7 @@
 package com.javahelps.wisdom.extensions.unique.window;
 
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.operator.EventOperator;
+import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.dev.test.TestCallback;
@@ -30,7 +30,7 @@ public class UniqueExternalTimeBatchWindowTest {
         wisdomApp.defineQuery("query1")
                 .from("LoginEventStream")
                 .window(UniqueWindow.externalTimeBatch("ip", "timestamp", Duration.of(1, ChronoUnit.SECONDS)))
-                .aggregate(EventOperator.COUNT_AS("count"))
+                .aggregate(Operator.COUNT(), "count")
                 .select("ip", "timestamp", "count")
                 .insertInto("OutputStream");
 
@@ -67,7 +67,7 @@ public class UniqueExternalTimeBatchWindowTest {
         wisdomApp.defineQuery("query1")
                 .from("LoginEventStream")
                 .window(UniqueWindow.externalTimeBatch("ip", "timestamp", Duration.of(1, ChronoUnit.SECONDS)))
-                .aggregate(EventOperator.COUNT_AS("count"))
+                .aggregate(Operator.COUNT(), "count")
                 .select("ip", "timestamp", "count")
                 .insertInto("OutputStream");
 

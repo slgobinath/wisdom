@@ -17,7 +17,8 @@ public class WisdomDouble {
         return this.value;
     }
 
-    public void set(int val) {
+    public double set(double val) {
         this.value = val;
+        return this.value;
     }
 }
