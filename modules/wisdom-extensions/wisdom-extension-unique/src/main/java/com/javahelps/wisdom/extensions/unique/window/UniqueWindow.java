@@ -11,4 +11,9 @@ public abstract class UniqueWindow extends Window {
         return new UniqueExternalTimeBatchWindow(uniqueKey, timestampKey, duration);
     }
 
+    public static Window lengthBatch(String uniqueKey, int length) {
+
+        return new UniqueLengthBatchWindow(uniqueKey, length);
+    }
+
 }

@@ -1,8 +1,10 @@
 package com.javahelps.wisdom.core.operator;
 
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.operand.WisdomLong;
+import com.javahelps.wisdom.core.processor.AttributeSelectProcessor;
+import com.javahelps.wisdom.core.util.WisdomConfig;
 
-import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -11,18 +13,35 @@ import java.util.function.Function;
  * {@link EventOperator} modifies the attributes of the {@link Event} which is passed as the parameter of the
  * {@link Function}.
  *
- * @see com.javahelps.wisdom.core.processor.SelectProcessor
+ * @see AttributeSelectProcessor
  */
 public class EventOperator {
 
-    public static final Function<List<Event>, Event> COUNT_AS(String newName) {
+    public static final Function<Event, Event> COUNT_AS(String newName) {
 
-        Function<List<Event>, Event> function = events -> {
-            long count = events.stream().count();
-            Event lastEvent = events.get(events.size() - 1);
-            lastEvent.set(newName, count);
-            return lastEvent;
-        };
+        final WisdomLong count = new WisdomLong();
+        Function<Event, Event> function;
+        if (WisdomConfig.ASYNC_ENABLED) {
+            function = event -> {
+                synchronized (count) {
+                    if (event.isReset()) {
+                        count.set(0);
+                    } else {
+                        event.set(newName, count.incrementAndGet());
+                    }
+                }
+                return event;
+            };
+        } else {
+            function = event -> {
+                if (event.isReset()) {
+                    count.set(0);
+                } else {
+                    event.set(newName, count.incrementAndGet());
+                }
+                return event;
+            };
+        }
         return function;
     }
 }

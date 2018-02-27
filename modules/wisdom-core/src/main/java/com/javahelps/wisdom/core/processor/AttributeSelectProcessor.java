@@ -8,12 +8,12 @@ import java.util.List;
 /**
  * {@link StreamProcessor} to create a new {@link Event} with a subset of the attributes of previous {@link Event}.
  */
-public class SelectProcessor extends StreamProcessor {
+public class AttributeSelectProcessor extends StreamProcessor {
 
     private final boolean selectAll;
     private List<String> attributes;
 
-    public SelectProcessor(String id, String... attributes) {
+    public AttributeSelectProcessor(String id, String... attributes) {
         super(id);
         this.selectAll = attributes.length == 0;
         this.attributes = Arrays.asList(attributes);
@@ -51,8 +51,8 @@ public class SelectProcessor extends StreamProcessor {
     @Override
     public Processor copy() {
 
-        SelectProcessor selectProcessor = new SelectProcessor(this.id, this.attributes.toArray(new String[0]));
-        selectProcessor.setNextProcessor(this.getNextProcessor().copy());
-        return selectProcessor;
+        AttributeSelectProcessor attributeSelectProcessor = new AttributeSelectProcessor(this.id, this.attributes.toArray(new String[0]));
+        attributeSelectProcessor.setNextProcessor(this.getNextProcessor().copy());
+        return attributeSelectProcessor;
     }
 }

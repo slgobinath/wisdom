@@ -9,7 +9,7 @@ public class WisdomAppValidationException extends RuntimeException {
         super(message);
     }
 
-    public WisdomAppValidationException(String message, String... args) {
+    public WisdomAppValidationException(String message, Object... args) {
         super(String.format(message, args));
     }
 

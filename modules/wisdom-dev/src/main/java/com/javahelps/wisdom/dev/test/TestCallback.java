@@ -5,7 +5,11 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.stream.StreamCallback;
 import org.slf4j.Logger;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestCallback {

@@ -16,10 +16,29 @@ import java.util.Arrays;
 @Path("/streamReceiver")
 public class TestServer {
 
-    private MicroservicesRunner microservicesRunner;
-    private static long waitingTime = 10_000L;
     private static final String OUTPUT_FILE = "test_server_output.log";
     private static final int PORT = 9999;
+    private static long waitingTime = 10_000L;
+    private MicroservicesRunner microservicesRunner;
+
+    private static void appendToFile(String data) {
+
+        try {
+            Files.write(Paths.get(OUTPUT_FILE), Arrays.asList(data), StandardOpenOption.APPEND);
+        } catch (IOException e) {
+        }
+    }
+
+    public static void main(String[] args) {
+        if (args.length > 0) {
+            try {
+                long value = Long.parseLong(args[0]);
+                waitingTime = value;
+            } catch (NumberFormatException e) {
+            }
+        }
+        new TestServer().start();
+    }
 
     @POST
     @Path("/")
@@ -56,24 +75,5 @@ public class TestServer {
             Thread.sleep(timestamp);
         } catch (InterruptedException e) {
         }
-    }
-
-    private static void appendToFile(String data) {
-
-        try {
-            Files.write(Paths.get(OUTPUT_FILE), Arrays.asList(data), StandardOpenOption.APPEND);
-        } catch (IOException e) {
-        }
-    }
-
-    public static void main(String[] args) {
-        if (args.length > 0) {
-            try {
-                long value = Long.parseLong(args[0]);
-                waitingTime = value;
-            } catch (NumberFormatException e) {
-            }
-        }
-        new TestServer().start();
     }
 }

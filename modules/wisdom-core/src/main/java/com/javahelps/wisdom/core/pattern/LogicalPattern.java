@@ -16,6 +16,7 @@ class LogicalPattern extends CustomPattern {
     private Type type;
     private Pattern patternX;
     private Pattern patternY;
+
     LogicalPattern(String patternId, Type type, Pattern patternX, Pattern patternY) {
 
         super(patternId);

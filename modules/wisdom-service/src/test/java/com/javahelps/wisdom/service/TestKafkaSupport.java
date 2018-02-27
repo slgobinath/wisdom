@@ -29,7 +29,7 @@ public class TestKafkaSupport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestKafkaSupport.class);
 
-    @Test
+    //    @Test
     public void testKafkaSource() throws IOException, InterruptedException {
 
         LOGGER.info("Test Kafka source");
@@ -75,7 +75,7 @@ public class TestKafkaSupport {
         Assert.assertEquals("First event was not received", "ORACLE", receivedEvents.get(2).get("symbol"));
     }
 
-    @Test
+    //    @Test
     public void testKafkaSink() throws IOException, InterruptedException {
 
         LOGGER.info("Test Kafka sink");

@@ -15,9 +15,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class Variable<T> implements Processor {
 
     private final String id;
-    private T value;
     private final ReadWriteLock lock;
     private final List<OnUpdateListener<T>> listeners;
+    private T value;
 
     public Variable(String id, T value) {
         this.id = id;

@@ -54,8 +54,8 @@ public class KafkaSource implements Source {
         private final String groupId;
         private final String streamId;
         private final InputHandler inputHandler;
-        private transient boolean active = true;
         private final Lock lock = new ReentrantLock();
+        private transient boolean active = true;
         private Consumer<String, String> consumer;
 
         private KafkaConsumerThread(String bootstrapServers, String groupId, String streamId, InputHandler inputHandler) {

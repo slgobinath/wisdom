@@ -139,4 +139,128 @@ public class AggregatorTestCase {
 
         Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
+
+    @Test
+    public void testSumWithoutWindow() throws InterruptedException {
+        LOGGER.info("Test sum without window - OUT 3");
+
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream");
+
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .aggregate(AttributeOperator.attribute("price").SUM_AS("sum"))
+                .select("symbol", "sum")
+                .insertInto("OutputStream");
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "IBM", "sum", 55.0),
+                map("symbol", "WSO2", "sum", 115.0),
+                map("symbol", "ORACLE", "sum", 185.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 55.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
+    }
+
+    @Test
+    public void testMinWithoutWindow() throws InterruptedException {
+        LOGGER.info("Test minimum without window - OUT 3");
+
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream");
+
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .aggregate(AttributeOperator.attribute("price").MIN_AS("min"))
+                .select("symbol", "min")
+                .insertInto("OutputStream");
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "WSO2", "min", 60.0),
+                map("symbol", "IBM", "min", 55.0),
+                map("symbol", "ORACLE", "min", 55.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 55.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
+    }
+
+    @Test
+    public void testMaxWithoutWindow() throws InterruptedException {
+        LOGGER.info("Test maximum without window - OUT 3");
+
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream");
+
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .aggregate(AttributeOperator.attribute("price").MAX_AS("max"))
+                .select("symbol", "max")
+                .insertInto("OutputStream");
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "WSO2", "max", 60.0),
+                map("symbol", "IBM", "max", 60.0),
+                map("symbol", "ORACLE", "max", 70.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 55.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
+    }
+
+    @Test
+    public void testAvgWithoutWindow() throws InterruptedException {
+        LOGGER.info("Test average without window - OUT 3");
+
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream");
+
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .aggregate(AttributeOperator.attribute("price").AVG_AS("avg"))
+                .select("symbol", "avg")
+                .insertInto("OutputStream");
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "IBM", "avg", 55.0),
+                map("symbol", "WSO2", "avg", 57.5),
+                map("symbol", "ORACLE", "avg", 61.6667));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 55.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
+    }
 }

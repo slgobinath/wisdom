@@ -334,13 +334,13 @@ public class Pattern extends StreamProcessor {
         return this;
     }
 
-    @FunctionalInterface
-    protected interface CopyEventAttributes {
-        void copy(Pattern pattern, Event src, Event destination);
-    }
-
     @Override
     public Pattern copy() {
         return null;
+    }
+
+    @FunctionalInterface
+    protected interface CopyEventAttributes {
+        void copy(Pattern pattern, Event src, Event destination);
     }
 }

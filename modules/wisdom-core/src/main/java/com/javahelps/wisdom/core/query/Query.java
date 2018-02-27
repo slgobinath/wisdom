@@ -2,20 +2,21 @@ package com.javahelps.wisdom.core.query;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.event.Index;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.processor.AggregateProcessor;
+import com.javahelps.wisdom.core.processor.AttributeSelectProcessor;
+import com.javahelps.wisdom.core.processor.EventSelectProcessor;
 import com.javahelps.wisdom.core.processor.FilterProcessor;
 import com.javahelps.wisdom.core.processor.MapProcessor;
 import com.javahelps.wisdom.core.processor.PartitionProcessor;
-import com.javahelps.wisdom.core.processor.SelectProcessor;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
 import com.javahelps.wisdom.core.processor.WindowProcessor;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.variable.Variable;
 import com.javahelps.wisdom.core.window.Window;
 
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -30,7 +31,7 @@ public class Query {
     private Stream inputStream;
     private Stream outputStream;
     private StreamProcessor lastStreamProcessor;
-    private int processorIndex;
+    private int processorIndex = 0;
 
     public Query(WisdomApp wisdomApp, String id) {
 
@@ -81,15 +82,30 @@ public class Query {
 
     public Query select(String... attributes) {
 
-        SelectProcessor selectProcessor = new SelectProcessor(generateId(), attributes);
+        AttributeSelectProcessor attributeSelectProcessor = new AttributeSelectProcessor(generateId(), attributes);
         if (this.lastStreamProcessor == null) {
-            this.inputStream.addProcessor(selectProcessor);
+            this.inputStream.addProcessor(attributeSelectProcessor);
         } else {
-            this.lastStreamProcessor.setNextProcessor(selectProcessor);
+            this.lastStreamProcessor.setNextProcessor(attributeSelectProcessor);
         }
-        this.lastStreamProcessor = selectProcessor;
+        this.lastStreamProcessor = attributeSelectProcessor;
 
-        selectProcessor.init();
+        attributeSelectProcessor.init();
+
+        return this;
+    }
+
+    public Query select(Index index) {
+
+        EventSelectProcessor eventSelectProcessor = new EventSelectProcessor(generateId(), index);
+        if (this.lastStreamProcessor == null) {
+            this.inputStream.addProcessor(eventSelectProcessor);
+        } else {
+            this.lastStreamProcessor.setNextProcessor(eventSelectProcessor);
+        }
+        this.lastStreamProcessor = eventSelectProcessor;
+
+        eventSelectProcessor.init();
 
         return this;
     }
@@ -107,7 +123,7 @@ public class Query {
         return this;
     }
 
-    public Query aggregate(Function<List<Event>, Event> function) {
+    public Query aggregate(Function<Event, Event> function) {
 
         AggregateProcessor aggregateProcessor = new AggregateProcessor(generateId(), function);
         if (this.lastStreamProcessor == null) {
@@ -174,6 +190,6 @@ public class Query {
     }
 
     private String generateId() {
-        return String.format("%s[%d]", this.id, this.processorIndex);
+        return String.format("%s[%d]", this.id, this.processorIndex++);
     }
 }

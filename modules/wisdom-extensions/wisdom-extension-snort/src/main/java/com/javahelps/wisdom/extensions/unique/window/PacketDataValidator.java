@@ -13,10 +13,6 @@ import java.util.regex.Pattern;
 
 public class PacketDataValidator implements Predicate<Event> {
 
-    private enum Operation {
-        PATTERN, DISTANCE, WITHIN, DEPTH;
-    }
-
     private final String attribute;
     private Operation lastOperation;
     private String reqexQuery = "";
@@ -26,7 +22,6 @@ public class PacketDataValidator implements Predicate<Event> {
     private Map<Integer, Integer> depth = new HashMap<>();
     private boolean hasWithin;
     private boolean hasDepth;
-
     private PacketDataValidator(String attribute) {
         this.attribute = attribute;
     }
@@ -159,6 +154,10 @@ public class PacketDataValidator implements Predicate<Event> {
 
     public PacketDataValidator or(PacketDataValidator other) {
         return new CombinedORPatternEngine(this, other);
+    }
+
+    private enum Operation {
+        PATTERN, DISTANCE, WITHIN, DEPTH;
     }
 
     private class CombinedORPatternEngine extends PacketDataValidator {

@@ -25,10 +25,10 @@ public class WisdomService {
 
     private final WisdomApp wisdomApp;
     private final int wisdomPort;
+    private final List<Source> sources = new ArrayList<>();
     private Map<String, InputHandler> inputHandlerMap = new HashMap<>();
     private MicroservicesRunner microservicesRunner;
     private boolean running;
-    private final List<Source> sources = new ArrayList<>();
 
     public WisdomService(WisdomApp wisdomApp, int port) {
         this.wisdomApp = wisdomApp;

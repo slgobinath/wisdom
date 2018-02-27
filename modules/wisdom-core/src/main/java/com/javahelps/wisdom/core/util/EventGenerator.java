@@ -10,8 +10,13 @@ import java.util.Map;
  */
 public class EventGenerator {
 
-    private EventGenerator() {
+    private static final Event RESET_EVENT = new Event(-1L);
 
+    static {
+        RESET_EVENT.setReset(true);
+    }
+
+    private EventGenerator() {
     }
 
     public static Event generate(Comparable... entries) {
@@ -32,5 +37,9 @@ public class EventGenerator {
         Event event = new Event(System.currentTimeMillis());
         event.getData().putAll(map);
         return event;
+    }
+
+    public static Event getResetEvent() {
+        return RESET_EVENT;
     }
 }

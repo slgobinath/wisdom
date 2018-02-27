@@ -14,7 +14,7 @@ public class ConsoleSink implements Sink {
 
     @Override
     public void init(WisdomApp wisdomApp, String streamId) {
-        
+
     }
 
     @Override

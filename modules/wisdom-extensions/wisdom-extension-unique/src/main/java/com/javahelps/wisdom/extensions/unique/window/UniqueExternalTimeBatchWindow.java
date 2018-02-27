@@ -34,18 +34,19 @@ public class UniqueExternalTimeBatchWindow extends UniqueWindow {
         Comparable uniqueValue = event.get(this.uniqueKey);
         long currentTimestamp = event.getAsLong(this.timestampKey);
 
-        if (eventMap.isEmpty()) {
-            this.endTime = currentTimestamp + this.timeToKeep;
-        }
+        synchronized (this) {
+            if (eventMap.isEmpty()) {
+                this.endTime = currentTimestamp + this.timeToKeep;
+            }
 
-        if (currentTimestamp >= this.endTime) {
-            // Timeout happened
-            eventsToSend = new ArrayList<>(this.eventMap.values());
-            this.eventMap.clear();
-            this.endTime = this.findEndTime(currentTimestamp, this.endTime, this.timeToKeep);
+            if (currentTimestamp >= this.endTime) {
+                // Timeout happened
+                eventsToSend = new ArrayList<>(this.eventMap.values());
+                this.eventMap.clear();
+                this.endTime = this.findEndTime(currentTimestamp, this.endTime, this.timeToKeep);
+            }
+            this.eventMap.put(uniqueValue, event);
         }
-        this.eventMap.put(uniqueValue, event);
-
 
         if (eventsToSend != null) {
             nextProcessor.process(eventsToSend);

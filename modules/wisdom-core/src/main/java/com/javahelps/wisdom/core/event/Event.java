@@ -13,12 +13,16 @@ import java.util.Map;
  */
 public class Event {
 
+    public static final Index FIRST = new Index(0);
+    public static final Index LAST = new Index(Integer.MAX_VALUE);
+
     private long timestamp = -1;
     private Stream stream;
     private String name;
     private Map<String, Comparable> data;
     private transient Map<String, String> alias;
-    private boolean isExpired = false;
+    private boolean expired = false;
+    private boolean reset = false;
     private transient Event original;
 
     public Event(Stream stream, long timestamp) {
@@ -102,7 +106,7 @@ public class Event {
     }
 
     public void setExpired(boolean expired) {
-        isExpired = expired;
+        this.expired = expired;
     }
 
     public Stream getStream() {
@@ -125,10 +129,18 @@ public class Event {
         return data;
     }
 
+    public boolean isReset() {
+        return reset;
+    }
+
+    public void setReset(boolean reset) {
+        this.reset = reset;
+    }
+
     public Event copyEvent() {
         Event event = new Event(this.stream, this.timestamp);
         event.data = new HashMap<>(this.data);
-        event.isExpired = this.isExpired;
+        event.expired = this.expired;
         event.original = this;
         return event;
     }
@@ -143,7 +155,7 @@ public class Event {
                 "timestamp=" + timestamp +
                 ", stream=" + (stream == null ? "" : stream.getId()) +
                 ", data=" + data +
-                ", isExpired=" + isExpired +
+                ", expired=" + expired +
                 '}';
     }
 }

@@ -12,10 +12,10 @@ import java.util.List;
  */
 class ExternalTimeBatchWindow extends Window {
 
-    private List<Event> events;
     private final String timestampKey;
     private final Duration duration;
     private final long timeToKeep;
+    private List<Event> events;
     private long endTime = -1;
 
     ExternalTimeBatchWindow(String timestampKey, Duration duration) {

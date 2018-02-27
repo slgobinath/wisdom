@@ -1,6 +1,7 @@
 package com.javahelps.wisdom.core.event;
 
 import com.javahelps.wisdom.core.operator.AttributeOperator;
+import com.javahelps.wisdom.core.processor.AttributeSelectProcessor;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -10,7 +11,7 @@ import java.util.function.Supplier;
  * {@link Attribute} modifies the attributes of the {@link Event} which is passed as the parameter of the
  * {@link Function}.
  *
- * @see com.javahelps.wisdom.core.processor.SelectProcessor
+ * @see AttributeSelectProcessor
  */
 public class Attribute extends AttributeOperator implements Supplier<Comparable> {
 

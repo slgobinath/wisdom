@@ -1,10 +1,13 @@
 package com.javahelps.wisdom.core.operator;
 
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.operand.WisdomDouble;
+import com.javahelps.wisdom.core.operand.WisdomLong;
+import com.javahelps.wisdom.core.operand.WisdomReference;
+import com.javahelps.wisdom.core.processor.AttributeSelectProcessor;
 import com.javahelps.wisdom.core.util.WisdomConfig;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -18,7 +21,7 @@ import java.util.regex.Pattern;
  * {@link AttributeOperator} modifies the attributes of the {@link Event} which is passed as the parameter of the
  * {@link Function}.
  *
- * @see com.javahelps.wisdom.core.processor.SelectProcessor
+ * @see AttributeSelectProcessor
  */
 public class AttributeOperator {
 
@@ -64,50 +67,145 @@ public class AttributeOperator {
 //
 //
 
-    public Function<List<Event>, Event> SUM_AS(String newName) {
+    public Function<Event, Event> SUM_AS(String newName) {
 
-        Function<List<Event>, Event> function = events -> {
-            double sum = events.stream().mapToDouble(e -> e.getAsDouble(this.name)).sum();
-            Event lastEvent = events.get(events.size() - 1);
-            lastEvent.set(newName, sum);
-            return lastEvent;
-        };
+        final WisdomDouble sum = new WisdomDouble();
+        Function<Event, Event> function;
+        if (WisdomConfig.ASYNC_ENABLED) {
+            // Thread safe operator
+            function = event -> {
+                synchronized (sum) {
+                    if (event.isReset()) {
+                        sum.set(0);
+                    } else {
+                        double sumValue = sum.addAndGet(event.getAsDouble(this.name));
+                        event.set(newName, sumValue);
+                    }
+                }
+                return event;
+            };
+        } else {
+            function = event -> {
+                if (event.isReset()) {
+                    sum.set(0);
+                } else {
+                    double sumValue = sum.addAndGet(event.getAsDouble(this.name));
+                    event.set(newName, sumValue);
+                }
+                return event;
+            };
+        }
+        return function;
+
+    }
+
+    public Function<Event, Event> MIN_AS(String newName) {
+
+        final WisdomReference<Comparable> min = new WisdomReference<>();
+        final Comparator<Comparable> naturalOrder = Comparator.naturalOrder();
+        final Comparator<Comparable> comparator = Comparator.nullsLast(naturalOrder);
+        Function<Event, Event> function;
+        if (WisdomConfig.ASYNC_ENABLED) {
+            // Thread safe operator
+            function = event -> {
+                synchronized (min) {
+                    if (event.isReset()) {
+                        min.set(null);
+                    } else {
+                        min.setIfLess(comparator, event.get(this.name));
+                        event.set(newName, min.get());
+                    }
+                }
+                return event;
+            };
+        } else {
+            function = event -> {
+                if (event.isReset()) {
+                    min.set(null);
+                } else {
+                    min.setIfLess(comparator, event.get(this.name));
+                    event.set(newName, min.get());
+                }
+                return event;
+            };
+        }
         return function;
     }
 
-    public Function<List<Event>, Event> MIN_AS(String newName) {
+    public Function<Event, Event> MAX_AS(String newName) {
 
-        Function<List<Event>, Event> function = events -> {
-            Object min = events.stream().map(event -> event.get(this.name)).min(Comparator.naturalOrder()).get();
-            Event lastEvent = events.get(events.size() - 1);
-            lastEvent.set(newName, (Comparable) min);
-            return lastEvent;
-        };
+        final WisdomReference<Comparable> max = new WisdomReference<>();
+        final Comparator<Comparable> naturalOrder = Comparator.naturalOrder();
+        final Comparator<Comparable> comparator = Comparator.nullsFirst(naturalOrder);
+        Function<Event, Event> function;
+        if (WisdomConfig.ASYNC_ENABLED) {
+            // Thread safe operator
+            function = event -> {
+                synchronized (max) {
+                    if (event.isReset()) {
+                        max.set(null);
+                    } else {
+                        max.setIfGreater(comparator, event.get(this.name));
+                        event.set(newName, max.get());
+                    }
+                }
+                return event;
+            };
+        } else {
+            function = event -> {
+                if (event.isReset()) {
+                    max.set(null);
+                } else {
+                    max.setIfGreater(comparator, event.get(this.name));
+                    event.set(newName, max.get());
+                }
+                return event;
+            };
+        }
         return function;
     }
 
-    public Function<List<Event>, Event> MAX_AS(String newName) {
+    public Function<Event, Event> AVG_AS(String newName) {
 
-        Function<List<Event>, Event> function = events -> {
-            Object min = events.stream().map(event -> event.get(this.name)).max(Comparator.naturalOrder()).get();
-            Event lastEvent = events.get(events.size() - 1);
-            lastEvent.set(newName, (Comparable) min);
-            return lastEvent;
-        };
-        return function;
-    }
-
-    public Function<List<Event>, Event> AVG_AS(String newName) {
-
-        Function<List<Event>, Event> function = events -> {
-            double avg = events.stream().mapToDouble(e -> e.getAsDouble(this.name)).average().orElse(Double.NaN);
-            if (avg != Double.NaN) {
-                avg = Math.round(avg * 10_000.0) / WisdomConfig.DOUBLE_PRECISION;
-            }
-            Event lastEvent = events.get(events.size() - 1);
-            lastEvent.set(newName, avg);
-            return lastEvent;
-        };
+        final WisdomDouble sum = new WisdomDouble();
+        final WisdomLong count = new WisdomLong();
+        Function<Event, Event> function;
+        if (WisdomConfig.ASYNC_ENABLED) {
+            // Thread safe operator
+            function = event -> {
+                synchronized (sum) {
+                    if (event.isReset()) {
+                        sum.set(0);
+                        count.set(0);
+                    } else {
+                        double total = sum.addAndGet(event.getAsDouble(this.name));
+                        long noOfEvents = count.incrementAndGet();
+                        double avg = total / noOfEvents;
+                        if (avg != Double.NaN) {
+                            avg = Math.round(avg * 10_000.0) / WisdomConfig.DOUBLE_PRECISION;
+                        }
+                        event.set(newName, avg);
+                    }
+                }
+                return event;
+            };
+        } else {
+            function = event -> {
+                if (event.isReset()) {
+                    sum.set(0);
+                    count.set(0);
+                } else {
+                    double total = sum.addAndGet(event.getAsDouble(this.name));
+                    long noOfEvents = count.incrementAndGet();
+                    double avg = total / noOfEvents;
+                    if (avg != Double.NaN) {
+                        avg = Math.round(avg * 10_000.0) / WisdomConfig.DOUBLE_PRECISION;
+                    }
+                    event.set(newName, avg);
+                }
+                return event;
+            };
+        }
         return function;
     }
 
