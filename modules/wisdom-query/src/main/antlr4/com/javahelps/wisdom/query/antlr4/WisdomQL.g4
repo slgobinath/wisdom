@@ -124,10 +124,27 @@ query
 
 query_statement
     : select_statement
+    | filter_statement
     ;
 
 select_statement
     : SELECT (STAR | (NAME (COMMA NAME)*))
+    ;
+
+filter_statement
+    : FILTER logical_operator
+    ;
+
+logical_operator
+    : OPEN_PAREN logical_operator CLOSE_PAREN
+    | (left=NAME GREATER_THAN right=NUMBER) | (left=NUMBER GREATER_THAN right=NAME) | (left=NAME GREATER_THAN right=NAME)
+    | (left=NAME GT_EQ right=NUMBER) | (left=NUMBER GT_EQ right=NAME) | (left=NAME GT_EQ right=NAME)
+    | (left=NAME LESS_THAN right=NUMBER) | (left=NUMBER LESS_THAN right=NAME) | (left=NAME LESS_THAN right=NAME)
+    | (left=NAME LT_EQ right=NUMBER) | (left=NUMBER LT_EQ right=NAME) | (left=NAME LT_EQ right=NAME)
+    | (left=NAME EQUALS right=(NUMBER|STRING|TRUE|FALSE)) | (left=(NUMBER|STRING|TRUE|FALSE) EQUALS right=NAME) | (left=NAME EQUALS right=NAME)
+    | NOT logical_operator
+    | logical_operator AND logical_operator
+    | logical_operator OR logical_operator
     ;
 
 /*
@@ -197,6 +214,7 @@ VARIABLE : 'variable';
 SELECT : 'select';
 INSERT : 'insert';
 INTO : 'into';
+FILTER : 'filter';
 
 NEWLINE
  : ( {atStartOfInput()}?   SPACES

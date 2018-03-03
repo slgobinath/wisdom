@@ -375,7 +375,7 @@ public class EveryPatternTestCase {
 
         // e1 -> every(e2 -> e3) -> e4
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Operator.EQUAL("symbol", "MSFT"));
+                .filter(Operator.EQUALS("symbol", "MSFT"));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
                 .filter(Operator.GREATER_THAN("price", 20.0));
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")

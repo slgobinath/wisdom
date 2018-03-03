@@ -1,20 +1,17 @@
 package com.javahelps.wisdom.query.antlr;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.query.antlr4.WisdomQLBaseVisitor;
 import com.javahelps.wisdom.query.antlr4.WisdomQLParser;
-import com.javahelps.wisdom.query.tree.Annotation;
-import com.javahelps.wisdom.query.tree.AnnotationElement;
-import com.javahelps.wisdom.query.tree.Definition;
-import com.javahelps.wisdom.query.tree.QueryNode;
-import com.javahelps.wisdom.query.tree.SelectStatement;
-import com.javahelps.wisdom.query.tree.Statement;
-import com.javahelps.wisdom.query.tree.StreamDefinition;
-import com.javahelps.wisdom.query.tree.VariableDefinition;
+import com.javahelps.wisdom.query.tree.*;
 import com.javahelps.wisdom.query.util.Utility;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+
+import java.util.function.Predicate;
 
 import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.*;
 
@@ -66,7 +63,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     public VariableDefinition visitDef_variable(WisdomQLParser.Def_variableContext ctx) {
         VariableDefinition definition = new VariableDefinition(ctx.NAME().getText());
         if (ctx.STRING() != null) {
-            definition.setValue(ctx.STRING().getText());
+            definition.setValue(Utility.toString(ctx.STRING().getText()));
         } else if (ctx.NUMBER() != null) {
             definition.setValue(Double.parseDouble(ctx.NUMBER().getText()));
         } else {
@@ -97,7 +94,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             element.setKey(ctx.NAME().getText());
         }
         if (ctx.STRING() != null) {
-            element.setValue(ctx.STRING().getText());
+            element.setValue(Utility.toString(ctx.STRING().getText()));
         } else if (ctx.NUMBER() != null) {
             element.setValue(Double.parseDouble(ctx.NUMBER().getText()));
         }
@@ -105,7 +102,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
-    public SelectStatement visitSelect_statement(WisdomQLParser.Select_statementContext ctx) {
+    public Statement visitSelect_statement(WisdomQLParser.Select_statementContext ctx) {
         SelectStatement selectStatement = new SelectStatement();
         if (ctx.STAR() == null) {
             for (TerminalNode attribute : ctx.NAME()) {
@@ -116,9 +113,16 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
+    public Statement visitFilter_statement(WisdomQLParser.Filter_statementContext ctx) {
+        return new FilterStatement((Predicate<Event>) visit(ctx.logical_operator()));
+    }
+
+    @Override
     public Statement visitQuery_statement(WisdomQLParser.Query_statementContext ctx) {
         if (ctx.select_statement() != null) {
             return (Statement) visit(ctx.select_statement());
+        } else if (ctx.filter_statement() != null) {
+            return (Statement) visit(ctx.filter_statement());
         } else {
             throw new WisdomParserException(ctx, "unknown query statement");
         }
@@ -136,5 +140,75 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             queryNode.addStatement((Statement) visit(tree));
         }
         return queryNode;
+    }
+
+    @Override
+    public Predicate<Event> visitLogical_operator(WisdomQLParser.Logical_operatorContext ctx) {
+        Predicate<Event> predicate = null;
+        int noOfLogicalOperators = ctx.logical_operator().size();
+        if (noOfLogicalOperators == 1) {
+            predicate = (Predicate<Event>) visit(ctx.logical_operator(0));
+            if (ctx.NOT() != null) {
+                predicate = predicate.negate();
+            }
+        } else if (noOfLogicalOperators == 2) {
+            Predicate<Event> left = (Predicate<Event>) visit(ctx.logical_operator(0));
+            Predicate<Event> right = (Predicate<Event>) visit(ctx.logical_operator(1));
+            if (ctx.AND() != null) {
+                predicate = left.and(right);
+            } else if (ctx.OR() != null) {
+                predicate = left.or(right);
+            }
+        } else if (noOfLogicalOperators == 0) {
+            if (ctx.GREATER_THAN() != null) {
+                if (ctx.NAME().size() == 2) {
+                    predicate = Operator.GREATER_THAN(ctx.left.getText(), ctx.right.getText());
+                } else {
+                    if (ctx.right.getType() == ctx.NUMBER().getSymbol().getType()) {
+                        predicate = Operator.GREATER_THAN(ctx.left.getText(), Double.parseDouble(ctx.right.getText()));
+                    } else if (ctx.left.getType() == ctx.NUMBER().getSymbol().getType()) {
+                        predicate = Operator.LESS_THAN(ctx.right.getText(), Double.parseDouble(ctx.left.getText()));
+                    }
+                }
+            } else if (ctx.LESS_THAN() != null) {
+                if (ctx.NAME().size() == 2) {
+                    predicate = Operator.LESS_THAN(ctx.left.getText(), ctx.right.getText());
+                } else {
+                    if (ctx.right.getType() == ctx.NUMBER().getSymbol().getType()) {
+                        predicate = Operator.LESS_THAN(ctx.left.getText(), Double.parseDouble(ctx.right.getText()));
+                    } else if (ctx.left.getType() == ctx.NUMBER().getSymbol().getType()) {
+                        predicate = Operator.GREATER_THAN(ctx.right.getText(), Double.parseDouble(ctx.left.getText()));
+                    }
+                }
+            } else if (ctx.EQUALS() != null) {
+                if (ctx.NAME().size() == 2) {
+                    predicate = Operator.EQUAL_ATTRIBUTES(ctx.left.getText(), ctx.right.getText());
+                } else {
+                    if (ctx.NUMBER() != null) {
+                        if (ctx.right.getType() == ctx.NUMBER().getSymbol().getType()) {
+                            predicate = Operator.EQUALS(ctx.left.getText(), Double.parseDouble(ctx.right.getText()));
+                        } else if (ctx.left.getType() == ctx.NUMBER().getSymbol().getType()) {
+                            predicate = Operator.EQUALS(ctx.right.getText(), Double.parseDouble(ctx.left.getText()));
+                        }
+                    } else if (ctx.STRING() != null) {
+                        if (ctx.right.getType() == ctx.STRING().getSymbol().getType()) {
+                            predicate = Operator.EQUALS(ctx.left.getText(), Utility.toString(ctx.right.getText()));
+                        } else if (ctx.left.getType() == ctx.STRING().getSymbol().getType()) {
+                            predicate = Operator.EQUALS(ctx.right.getText(), Utility.toString(ctx.left.getText()));
+                        }
+                    } else if (ctx.TRUE() != null) {
+                        predicate = Operator.IS_TRUE(ctx.NAME(0).getText());
+                    } else if (ctx.FALSE() != null) {
+                        predicate = Operator.IS_FALSE(ctx.NAME(0).getText());
+                    } else {
+                        throw new WisdomParserException(ctx, "unknown operand for equality");
+                    }
+                }
+            }
+        }
+        if (predicate == null) {
+            throw new WisdomParserException(ctx, "unknown logical operator");
+        }
+        return predicate;
     }
 }

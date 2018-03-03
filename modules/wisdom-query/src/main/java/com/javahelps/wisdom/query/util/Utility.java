@@ -21,4 +21,13 @@ public class Utility {
             throw new WisdomParserException(ctx, String.format("required @%s, but found @%s", name, annotation.getName()));
         }
     }
+
+    public static String toString(String str) {
+        if (str.startsWith("\"")) {
+            str = str.replaceAll("^\"|\"$", "");
+        } else if (str.startsWith("'")) {
+            str = str.replaceAll("^'|'$", "");
+        }
+        return str;
+    }
 }

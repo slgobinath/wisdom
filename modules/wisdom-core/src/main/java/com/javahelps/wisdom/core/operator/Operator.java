@@ -203,7 +203,7 @@ public class Operator {
         return function;
     }
 
-    public static Predicate<Event> EQUAL(final String attribute, final Comparable value) {
+    public static Predicate<Event> EQUALS(final String attribute, final Comparable value) {
 
         return event -> Objects.equals(event.get(attribute), value);
     }
@@ -249,6 +249,14 @@ public class Operator {
     public static Predicate<Event> LESS_THAN(final String attribute, final double value) {
 
         return event -> event.getAsDouble(attribute) < value;
+    }
+
+    public static Predicate<Event> LESS_THAN(final String attributeOne, final String attributeTwo) {
+
+        return event -> {
+            boolean result = event.get(attributeOne).compareTo(event.get(attributeTwo)) < 0;
+            return result;
+        };
     }
 
     public static Predicate<Event> LESS_THAN_OR_EQUAL(final String attribute, final double value) {
