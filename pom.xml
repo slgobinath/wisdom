@@ -15,6 +15,7 @@
         <module>modules/wisdom-service</module>
         <module>modules/wisdom-dev</module>
         <module>modules/wisdom-manager</module>
+        <module>modules/wisdom-query</module>
     </modules>
 
     <properties>
@@ -23,9 +24,11 @@
         <msf4j.version>2.5.2</msf4j.version>
         <kafka.version>1.0.0</kafka.version>
         <gson.version>2.8.2</gson.version>
+        <antlr.version>4.7.1</antlr.version>
         <disruptor.version>3.3.7</disruptor.version>
         <logback.version>1.2.3</logback.version>
         <apache.httpcomponents.version>4.5.3</apache.httpcomponents.version>
+        <antlr.build.plugin.version>4.7.1</antlr.build.plugin.version>
     </properties>
 
     <repositories>
@@ -86,6 +89,13 @@
                 <version>${gson.version}</version>
             </dependency>
 
+            <!-- Antlr -->
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr.version}</version>
+            </dependency>
+
             <!-- SLF4J -->
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -131,6 +141,11 @@
                         <source>1.8</source>
                         <target>1.8</target>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-maven-plugin</artifactId>
+                    <version>${antlr.build.plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

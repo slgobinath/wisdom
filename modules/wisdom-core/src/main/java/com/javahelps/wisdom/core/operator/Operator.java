@@ -203,9 +203,14 @@ public class Operator {
         return function;
     }
 
-    public static Predicate<Event> EQUALS(final String attribute, final Comparable value) {
+    public static Predicate<Event> EQUAL(final String attribute, final Comparable value) {
 
         return event -> Objects.equals(event.get(attribute), value);
+    }
+
+    public static Predicate<Event> EQUAL_ATTRIBUTES(final String attrOne, final String attrTwo) {
+
+        return event -> Objects.equals(event.get(attrOne), event.get(attrTwo));
     }
 
     public static Predicate<Event> IS_TRUE(final String attribute) {

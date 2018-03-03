@@ -1,6 +1,7 @@
 package com.javahelps.wisdom.core.processor;
 
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.operand.Checkpoint;
 import com.javahelps.wisdom.core.util.EventGenerator;
 
 import java.util.List;
