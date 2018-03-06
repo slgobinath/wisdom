@@ -14,7 +14,8 @@ public class Utility {
         if (name.equals(annotation.getName())) {
             for (String key : properties) {
                 if (!annotation.hasProperty(key)) {
-                    throw new WisdomParserException(ctx, String.format("property bot found @%s in @app", key));
+                    throw new WisdomParserException(ctx, String.format("property not found @%s in @%s", key,
+                            annotation.getName()));
                 }
             }
         } else {

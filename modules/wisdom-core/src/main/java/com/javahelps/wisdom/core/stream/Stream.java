@@ -5,9 +5,10 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.stream.async.EventHolder;
-import com.javahelps.wisdom.core.util.WisdomConfig;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,8 @@ import java.util.List;
  * and manager of all the queries starting with this as the input stream.
  */
 public class Stream implements Processor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Stream.class);
 
     protected String id;
     private WisdomApp wisdomApp;
@@ -33,9 +36,9 @@ public class Stream implements Processor {
         this.wisdomApp = wisdomApp;
 
         // Create disruptor if async mode is enables
-        if (WisdomConfig.ASYNC_ENABLED) {
-            this.disruptor = new Disruptor<>(EventHolder::new, WisdomConfig.EVENT_BUFFER_SIZE,
-                    wisdomApp.getWisdomContext().getExecutorService());
+        if (wisdomApp.isAsync()) {
+            this.disruptor = new Disruptor<>(EventHolder::new, wisdomApp.getBufferSize(),
+                    wisdomApp.getWisdomContext().getThreadFactory());
 
             // Connect the handler
             disruptor.handleEventsWith((eventHolder, sequence, endOfBatch) -> this.sendToProcessors(eventHolder.get()));

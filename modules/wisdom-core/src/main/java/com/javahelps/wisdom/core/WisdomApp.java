@@ -10,6 +10,7 @@ import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.stream.StreamCallback;
 import com.javahelps.wisdom.core.stream.output.Sink;
+import com.javahelps.wisdom.core.util.WisdomConfig;
 import com.javahelps.wisdom.core.variable.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+
+import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 
 /**
  * {@link WisdomApp} is the event processing application which lets the users to create stream processing components
@@ -28,11 +32,13 @@ public class WisdomApp implements Stateful {
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomApp.class);
     private final String name;
     private final String version;
+    private final boolean async;
+    private final int bufferSize;
     private final Map<String, Stream> streamMap = new HashMap<>();
     private final Map<String, Variable> variableMap = new HashMap<>();
     private final Map<String, Query> queryMap = new HashMap<>();
     private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
-    private WisdomContext wisdomContext;
+    private final WisdomContext wisdomContext;
 
     public WisdomApp() {
         this("WisdomApp", "1.0.0");
@@ -41,6 +47,16 @@ public class WisdomApp implements Stateful {
     public WisdomApp(String name, String version) {
         this.name = name;
         this.version = version;
+        this.async = WisdomConfig.ASYNC_ENABLED;
+        this.bufferSize = WisdomConfig.EVENT_BUFFER_SIZE;
+        this.wisdomContext = new WisdomContext();
+    }
+
+    public WisdomApp(Properties properties) {
+        this.name = properties.getProperty(NAME);
+        this.version = properties.getProperty(VERSION);
+        this.async = (boolean) properties.getOrDefault(ASYNC, false);
+        this.bufferSize = ((Number) properties.getOrDefault(BUFFER, WisdomConfig.EVENT_BUFFER_SIZE)).intValue();
         this.wisdomContext = new WisdomContext();
     }
 
@@ -54,6 +70,10 @@ public class WisdomApp implements Stateful {
     }
 
     public void shutdown() {
+        // Stop all streams
+        for (Stream stream : this.streamMap.values()) {
+            stream.stop();
+        }
         this.wisdomContext.shutdown();
     }
 
@@ -200,6 +220,14 @@ public class WisdomApp implements Stateful {
 
     public String getVersion() {
         return version;
+    }
+
+    public boolean isAsync() {
+        return async;
+    }
+
+    public int getBufferSize() {
+        return bufferSize;
     }
 
     @Override

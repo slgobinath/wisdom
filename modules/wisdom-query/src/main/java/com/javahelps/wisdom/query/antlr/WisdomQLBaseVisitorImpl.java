@@ -6,7 +6,17 @@ import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.query.antlr4.WisdomQLBaseVisitor;
 import com.javahelps.wisdom.query.antlr4.WisdomQLParser;
-import com.javahelps.wisdom.query.tree.*;
+import com.javahelps.wisdom.query.tree.Annotation;
+import com.javahelps.wisdom.query.tree.AnnotationElement;
+import com.javahelps.wisdom.query.tree.Definition;
+import com.javahelps.wisdom.query.tree.FilterStatement;
+import com.javahelps.wisdom.query.tree.KeyValueElement;
+import com.javahelps.wisdom.query.tree.QueryNode;
+import com.javahelps.wisdom.query.tree.SelectStatement;
+import com.javahelps.wisdom.query.tree.Statement;
+import com.javahelps.wisdom.query.tree.StreamDefinition;
+import com.javahelps.wisdom.query.tree.VariableDefinition;
+import com.javahelps.wisdom.query.tree.WindowStatement;
 import com.javahelps.wisdom.query.util.Utility;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -27,7 +37,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         if (ctx.annotation() != null) {
             Annotation annotation = (Annotation) visit(ctx.annotation());
             Utility.verifyAnnotation(ctx.annotation(), annotation, APP_ANNOTATION, NAME, VERSION);
-            wisdomApp = new WisdomApp(annotation.getProperty(NAME), annotation.getProperty(VERSION));
+            wisdomApp = new WisdomApp(annotation.getProperties());
         } else {
             wisdomApp = new WisdomApp();
         }

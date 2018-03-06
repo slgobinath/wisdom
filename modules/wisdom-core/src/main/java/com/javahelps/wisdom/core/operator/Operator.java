@@ -60,31 +60,17 @@ public class Operator {
     public static Function<Event, Comparable> SUM(final String attribute) {
 
         final WisdomDouble sum = new WisdomDouble();
-        Function<Event, Comparable> function;
-        if (WisdomConfig.ASYNC_ENABLED) {
-            // Thread safe operator
-            function = event -> {
-                Double value;
-                synchronized (sum) {
-                    if (event.isReset()) {
-                        value = sum.set(0);
-                    } else {
-                        value = sum.addAndGet(event.getAsDouble(attribute));
-                    }
-                }
-                return value;
-            };
-        } else {
-            function = event -> {
-                Double value;
+        Function<Event, Comparable> function = event -> {
+            Double value;
+            synchronized (sum) {
                 if (event.isReset()) {
                     value = sum.set(0);
                 } else {
                     value = sum.addAndGet(event.getAsDouble(attribute));
                 }
-                return value;
-            };
-        }
+            }
+            return value;
+        };
         return function;
 
     }
@@ -94,31 +80,17 @@ public class Operator {
         final WisdomReference<Comparable> min = new WisdomReference<>();
         final Comparator<Comparable> naturalOrder = Comparator.naturalOrder();
         final Comparator<Comparable> comparator = Comparator.nullsLast(naturalOrder);
-        Function<Event, Comparable> function;
-        if (WisdomConfig.ASYNC_ENABLED) {
-            // Thread safe operator
-            function = event -> {
-                Comparable value;
-                synchronized (min) {
-                    if (event.isReset()) {
-                        value = min.set(null);
-                    } else {
-                        value = min.setIfLess(comparator, event.get(attribute));
-                    }
-                }
-                return value;
-            };
-        } else {
-            function = event -> {
-                Comparable value;
+        Function<Event, Comparable> function = event -> {
+            Comparable value;
+            synchronized (min) {
                 if (event.isReset()) {
                     value = min.set(null);
                 } else {
                     value = min.setIfLess(comparator, event.get(attribute));
                 }
-                return value;
-            };
-        }
+            }
+            return value;
+        };
         return function;
     }
 
@@ -127,31 +99,18 @@ public class Operator {
         final WisdomReference<Comparable> max = new WisdomReference<>();
         final Comparator<Comparable> naturalOrder = Comparator.naturalOrder();
         final Comparator<Comparable> comparator = Comparator.nullsFirst(naturalOrder);
-        Function<Event, Comparable> function;
-        if (WisdomConfig.ASYNC_ENABLED) {
-            // Thread safe operator
-            function = event -> {
-                Comparable value;
-                synchronized (max) {
-                    if (event.isReset()) {
-                        value = max.set(null);
-                    } else {
-                        value = max.setIfGreater(comparator, event.get(attribute));
-                    }
-                }
-                return value;
-            };
-        } else {
-            function = event -> {
-                Comparable value;
+        Function<Event, Comparable> function = event -> {
+            Comparable value;
+            synchronized (max) {
                 if (event.isReset()) {
                     value = max.set(null);
                 } else {
                     value = max.setIfGreater(comparator, event.get(attribute));
                 }
-                return value;
-            };
-        }
+            }
+            return value;
+        };
+
         return function;
     }
 
@@ -159,31 +118,9 @@ public class Operator {
 
         final WisdomDouble sum = new WisdomDouble();
         final WisdomLong count = new WisdomLong();
-        Function<Event, Comparable> function;
-        if (WisdomConfig.ASYNC_ENABLED) {
-            // Thread safe operator
-            function = event -> {
-                Double value;
-                synchronized (sum) {
-                    if (event.isReset()) {
-                        sum.set(0);
-                        count.set(0);
-                        value = 0.0;
-                    } else {
-                        double total = sum.addAndGet(event.getAsDouble(attribute));
-                        long noOfEvents = count.incrementAndGet();
-                        double avg = total / noOfEvents;
-                        if (avg != Double.NaN) {
-                            avg = Math.round(avg * 10_000.0) / WisdomConfig.DOUBLE_PRECISION;
-                        }
-                        value = avg;
-                    }
-                }
-                return value;
-            };
-        } else {
-            function = event -> {
-                Double value;
+        Function<Event, Comparable> function = event -> {
+            Double value;
+            synchronized (sum) {
                 if (event.isReset()) {
                     sum.set(0);
                     count.set(0);
@@ -197,9 +134,9 @@ public class Operator {
                     }
                     value = avg;
                 }
-                return value;
-            };
-        }
+            }
+            return value;
+        };
         return function;
     }
 
@@ -282,30 +219,17 @@ public class Operator {
     public static final Function<Event, Comparable> COUNT() {
 
         final WisdomLong count = new WisdomLong();
-        Function<Event, Comparable> function;
-        if (WisdomConfig.ASYNC_ENABLED) {
-            function = event -> {
-                long value;
-                synchronized (count) {
-                    if (event.isReset()) {
-                        value = count.set(0);
-                    } else {
-                        value = count.incrementAndGet();
-                    }
-                }
-                return value;
-            };
-        } else {
-            function = event -> {
-                long value;
+        Function<Event, Comparable> function = event -> {
+            long value;
+            synchronized (count) {
                 if (event.isReset()) {
                     value = count.set(0);
                 } else {
                     value = count.incrementAndGet();
                 }
-                return value;
-            };
-        }
+            }
+            return value;
+        };
         return function;
     }
 }

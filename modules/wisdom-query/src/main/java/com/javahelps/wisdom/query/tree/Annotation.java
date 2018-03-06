@@ -32,6 +32,10 @@ public class Annotation {
         return this.properties.containsKey(key);
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
+
     @Override
     public String toString() {
         return String.format("@%s%s", this.name, this.properties);
