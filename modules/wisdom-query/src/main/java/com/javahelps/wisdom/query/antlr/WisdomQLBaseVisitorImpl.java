@@ -46,12 +46,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         // Define components
         for (ParseTree tree : ctx.definition()) {
             Definition definition = (Definition) visit(tree);
-            if (definition instanceof StreamDefinition) {
-                wisdomApp.defineStream(definition.getName());
-            } else if (definition instanceof VariableDefinition) {
-                VariableDefinition varDef = (VariableDefinition) definition;
-                wisdomApp.defineVariable(varDef.getName(), varDef.getValue());
-            }
+            definition.define(wisdomApp);
         }
         // Create queries
         for (ParseTree tree : ctx.query()) {
@@ -81,7 +76,13 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
     @Override
     public StreamDefinition visitDef_stream(WisdomQLParser.Def_streamContext ctx) {
-        return new StreamDefinition(ctx.NAME().getText());
+        StreamDefinition definition = new StreamDefinition(ctx.NAME().getText());
+        if (ctx.annotation() != null) {
+            Annotation annotation = (Annotation) visit(ctx.annotation());
+            Utility.verifyAnnotation(ctx.annotation(), annotation, CONFIG_ANNOTATION);
+            definition.setAnnotation(annotation);
+        }
+        return definition;
     }
 
     @Override

@@ -16,6 +16,8 @@ public class Constants {
 
         public static final String QUERY_ANNOTATION = "query";
 
+        public static final String CONFIG_ANNOTATION = "config";
+
         public static final String NAME = "name";
 
         public static final String VERSION = "version";

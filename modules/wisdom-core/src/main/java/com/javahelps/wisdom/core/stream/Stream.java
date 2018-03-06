@@ -6,12 +6,18 @@ import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.stream.async.EventHolder;
 import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+
+import static com.javahelps.wisdom.core.util.WisdomConstants.ASYNC;
+import static com.javahelps.wisdom.core.util.WisdomConstants.BUFFER;
 
 /**
  * {@link Stream} is the fundamental data-structure of the event processor. At the runtime, it acts as the entry point
@@ -32,20 +38,26 @@ public class Stream implements Processor {
 
 
     public Stream(WisdomApp wisdomApp, String id) {
+        this(wisdomApp, id, new Properties());
+    }
+
+    public Stream(WisdomApp wisdomApp, String id, Properties properties) {
         this.id = id;
         this.wisdomApp = wisdomApp;
+        final boolean async = ((Boolean) properties.getOrDefault(ASYNC, wisdomApp.isAsync()));
+        final int bufferSize = ((Number) properties.getOrDefault(BUFFER, wisdomApp.getBufferSize())).intValue();
 
         // Create disruptor if async mode is enables
-        if (wisdomApp.isAsync()) {
-            this.disruptor = new Disruptor<>(EventHolder::new, wisdomApp.getBufferSize(),
-                    wisdomApp.getWisdomContext().getThreadFactory());
+        if (async) {
+            this.disruptor = new Disruptor<>(EventHolder::new, bufferSize,
+                    wisdomApp.getWisdomContext().getThreadFactory(),
+                    ProducerType.MULTI, new YieldingWaitStrategy());
 
             // Connect the handler
             disruptor.handleEventsWith((eventHolder, sequence, endOfBatch) -> this.sendToProcessors(eventHolder.get()));
 
             // Get the ring buffer from the Disruptor to be used for publishing.
             this.ringBuffer = disruptor.getRingBuffer();
-
         }
     }
 

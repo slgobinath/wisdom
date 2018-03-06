@@ -327,7 +327,46 @@ public class WisdomCompilerTest {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
 
-        Thread.sleep(1000);
+        Thread.sleep(100);
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
+    @Test
+    public void testAsyncQuery() throws InterruptedException {
+
+        LOGGER.info("Test stream async annotation");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "@config(async=true, buffer=32) " +
+                "def stream FilterStream; " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "filter volume > 10 " +
+                "insert into FilterStream; " +
+                "" +
+                "from FilterStream " +
+                "select symbol, price " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "WSO2", "price", 60.0),
+                map("symbol", "ORACLE", "price", 70.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 25));
+
+        Thread.sleep(100);
 
         wisdomApp.shutdown();
 

@@ -83,6 +83,12 @@ public class WisdomApp implements Stateful {
         return stream;
     }
 
+    public Stream defineStream(String id, Properties properties) {
+        Stream stream = new Stream(this, id, properties);
+        this.streamMap.put(id, stream);
+        return stream;
+    }
+
     public <T> Variable<T> defineVariable(String id, T defaultValue) {
         Variable<T> variable = new Variable(id, defaultValue);
         this.variableMap.put(id, variable);
