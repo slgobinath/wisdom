@@ -1,31 +1,26 @@
 package com.javahelps.wisdom.query.tree;
 
+import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.query.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class QueryNode {
 
     private String name;
     private final String input;
-    private final String output;
     private final List<Statement> statements = new ArrayList<>();
 
-    public QueryNode(String input, String output) {
+    public QueryNode(String input) {
         this.input = input;
-        this.output = output;
-    }
-
-    public String getInput() {
-        return input;
-    }
-
-    public String getOutput() {
-        return output;
     }
 
     public String getName() {
+        if (name == null) {
+            name = UUID.randomUUID().toString();
+        }
         return name;
     }
 
@@ -41,11 +36,10 @@ public class QueryNode {
         return statements;
     }
 
-    public void build(Query query) {
+    public void build(WisdomApp app, Query query) {
         query.from(this.input);
         for (Statement statement : this.statements) {
-            statement.addTo(query);
+            statement.addTo(app, query);
         }
-        query.insertInto(this.output);
     }
 }

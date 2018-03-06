@@ -47,6 +47,16 @@ public class Event {
         return this;
     }
 
+    public Event set(String attribute, Integer value) {
+        this.data.put(attribute, value.longValue());
+        return this;
+    }
+
+    public Event set(String attribute, Float value) {
+        this.data.put(attribute, value.doubleValue());
+        return this;
+    }
+
     public Comparable get(String attribute) {
         if (this.name != null) {
             if (!attribute.contains(".")) {

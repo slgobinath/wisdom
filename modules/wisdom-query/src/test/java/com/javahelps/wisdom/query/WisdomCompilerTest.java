@@ -225,10 +225,10 @@ public class WisdomCompilerTest {
         wisdomApp.start();
 
         InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 10.0, "volume", 25.0));
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 50.0, "volume", 10.0));
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15.0));
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 20.0, "volume", 25.0));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 10.0, "volume", 25));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 20.0, "volume", 25));
 
         wisdomApp.shutdown();
 
@@ -258,10 +258,10 @@ public class WisdomCompilerTest {
         wisdomApp.start();
 
         InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 10.0, "volume", 25.0));
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 50.0, "volume", 10.0));
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15.0));
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 20.0, "volume", 25.0));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 10.0, "volume", 25));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 20.0, "volume", 25));
 
         wisdomApp.shutdown();
 
@@ -271,7 +271,7 @@ public class WisdomCompilerTest {
     @Test
     public void testWindowQuery() {
 
-        LOGGER.info("Test logical operator precedence query");
+        LOGGER.info("Test length window");
 
         String query = "@app(name='WisdomApp', version='1.0.0') " +
                 "def stream StockStream; " +
@@ -292,10 +292,10 @@ public class WisdomCompilerTest {
         wisdomApp.start();
 
         InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 10.0, "volume", 25.0));
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 50.0, "volume", 10.0));
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15.0));
-        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 20.0, "volume", 25.0));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 10.0, "volume", 25));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 20.0, "volume", 25));
 
         wisdomApp.shutdown();
 
@@ -305,7 +305,7 @@ public class WisdomCompilerTest {
     @Test
     public void testAsyncApp() throws InterruptedException {
 
-        LOGGER.info("Test select query");
+        LOGGER.info("Test Wisdom app async annotation");
 
         String query = "@app(name='WisdomApp', version='1.0.0', async=true, buffer=32) " +
                 "def stream StockStream; " +
@@ -329,6 +329,49 @@ public class WisdomCompilerTest {
 
         Thread.sleep(1000);
 
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
+    @Test
+    public void testVariableWithLengthBatchWindow() throws InterruptedException {
+        LOGGER.info("Test window 4 - OUT 3");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def variable window_length = 3; " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "def stream VariableStream; " +
+                "" +
+                "from StockStream " +
+                "filter price > 55.0 " +
+                "window.lengthBatch($window_length) " +
+                "select symbol, price " +
+                "insert into OutputStream; " +
+                "" +
+                "from VariableStream " +
+                "filter window_length > 0 " +
+                "update window_length; ";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "WSO2", "price", 60.0),
+                map("symbol", "ORACLE", "price", 70.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        // Update the window length
+        wisdomApp.getInputHandler("VariableStream").send(EventGenerator.generate("window_length", 2));
+        Thread.sleep(100);
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "GOOGLE", "price", 80.0, "volume", 25));
+
+        Thread.sleep(100);
         wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());

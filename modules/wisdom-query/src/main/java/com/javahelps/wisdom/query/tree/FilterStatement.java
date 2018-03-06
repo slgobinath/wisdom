@@ -1,5 +1,6 @@
 package com.javahelps.wisdom.query.tree;
 
+import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.query.Query;
 
@@ -14,7 +15,7 @@ public class FilterStatement implements Statement {
     }
 
     @Override
-    public void addTo(Query query) {
+    public void addTo(WisdomApp app, Query query) {
         query.filter(this.predicate);
     }
 }

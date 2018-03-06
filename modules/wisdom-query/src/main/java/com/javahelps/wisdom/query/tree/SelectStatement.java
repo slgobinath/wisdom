@@ -1,5 +1,6 @@
 package com.javahelps.wisdom.query.tree;
 
+import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.query.Query;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public class SelectStatement implements Statement {
     }
 
     @Override
-    public void addTo(Query query) {
+    public void addTo(WisdomApp app, Query query) {
         query.select(attributes.toArray(new String[0]));
     }
 }

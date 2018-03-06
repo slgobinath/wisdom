@@ -106,7 +106,7 @@ annotation_element
     ;
 
 optional_key_value_element
-    : (NAME ASSIGN)? wisdom_primitive
+    : (NAME ASSIGN)? (wisdom_primitive|variable_reference)
     ;
 
 definition
@@ -123,7 +123,7 @@ def_variable
     ;
 
 query
-    : annotation? FROM input=NAME query_statement+ INSERT INTO output=NAME
+    : annotation? FROM input=NAME query_statement+ (insert_into_statement|update_statement)
     ;
 
 query_statement
@@ -142,6 +142,14 @@ filter_statement
 
 window_statement
     : WINDOW DOT name=NAME (COLON type=NAME)? OPEN_PAREN (optional_key_value_element (COMMA optional_key_value_element)*)? CLOSE_PAREN
+    ;
+
+insert_into_statement
+    : INSERT INTO output=NAME
+    ;
+
+update_statement
+    : UPDATE output=NAME
     ;
 
 logical_operator
@@ -166,6 +174,10 @@ wisdom_primitive
     | NUMBER
     | TRUE
     | FALSE
+    ;
+
+variable_reference
+    : DOLLAR NAME
     ;
 
 time_duration
@@ -237,6 +249,7 @@ STREAM : 'stream';
 VARIABLE : 'variable';
 SELECT : 'select';
 INSERT : 'insert';
+UPDATE : 'update';
 INTO : 'into';
 FILTER : 'filter';
 WINDOW : 'window';
@@ -336,6 +349,7 @@ IMAG_NUMBER
  ;
 
 DOT : '.';
+DOLLAR : '$';
 ELLIPSIS : '...';
 STAR : '*';
 OPEN_PAREN : '(' {opened++;};

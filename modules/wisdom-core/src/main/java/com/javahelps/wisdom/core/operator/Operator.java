@@ -142,7 +142,15 @@ public class Operator {
 
     public static Predicate<Event> EQUALS(final String attribute, final Comparable value) {
 
-        return event -> Objects.equals(event.get(attribute), value);
+        if (value instanceof Long || value instanceof Integer) {
+            final long longValue = ((Number) value).longValue();
+            return event -> event.getAsDouble(attribute) == longValue;
+        } else if (value instanceof Double || value instanceof Float) {
+            final double doubleValue = ((Number) value).doubleValue();
+            return event -> event.getAsDouble(attribute) == doubleValue;
+        } else {
+            return event -> Objects.equals(event.get(attribute), value);
+        }
     }
 
     public static Predicate<Event> EQUAL_ATTRIBUTES(final String attrOne, final String attrTwo) {

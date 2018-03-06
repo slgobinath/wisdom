@@ -10,11 +10,13 @@ import com.javahelps.wisdom.query.tree.Annotation;
 import com.javahelps.wisdom.query.tree.AnnotationElement;
 import com.javahelps.wisdom.query.tree.Definition;
 import com.javahelps.wisdom.query.tree.FilterStatement;
+import com.javahelps.wisdom.query.tree.InsertIntoStatement;
 import com.javahelps.wisdom.query.tree.KeyValueElement;
 import com.javahelps.wisdom.query.tree.QueryNode;
 import com.javahelps.wisdom.query.tree.SelectStatement;
 import com.javahelps.wisdom.query.tree.Statement;
 import com.javahelps.wisdom.query.tree.StreamDefinition;
+import com.javahelps.wisdom.query.tree.UpdateStatement;
 import com.javahelps.wisdom.query.tree.VariableDefinition;
 import com.javahelps.wisdom.query.tree.WindowStatement;
 import com.javahelps.wisdom.query.util.Utility;
@@ -55,7 +57,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         for (ParseTree tree : ctx.query()) {
             QueryNode queryNode = (QueryNode) visit(tree);
             Query query = wisdomApp.defineQuery(queryNode.getName());
-            queryNode.build(query);
+            queryNode.build(wisdomApp, query);
         }
 
         return wisdomApp;
@@ -110,7 +112,12 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         if (ctx.NAME() != null) {
             element.setKey(ctx.NAME().getText());
         }
-        element.setValue((Comparable) visit(ctx.wisdom_primitive()));
+        if (ctx.wisdom_primitive() != null) {
+            element.setValue((Comparable) visit(ctx.wisdom_primitive()));
+        } else if (ctx.variable_reference() != null) {
+            element.setValue((Comparable) visit(ctx.variable_reference()));
+            element.setVariable(true);
+        }
         return element;
     }
 
@@ -137,10 +144,19 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             statement.setType(ctx.type.getText());
         }
         for (ParseTree tree : ctx.optional_key_value_element()) {
-            KeyValueElement element = (KeyValueElement) visit(tree);
-            statement.addProperty(element.getKey(), element.getValue());
+            statement.addProperty((KeyValueElement) visit(tree));
         }
         return statement;
+    }
+
+    @Override
+    public Statement visitInsert_into_statement(WisdomQLParser.Insert_into_statementContext ctx) {
+        return new InsertIntoStatement(ctx.NAME().getText());
+    }
+
+    @Override
+    public Statement visitUpdate_statement(WisdomQLParser.Update_statementContext ctx) {
+        return new UpdateStatement(ctx.NAME().getText());
     }
 
     @Override
@@ -158,7 +174,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
     @Override
     public QueryNode visitQuery(WisdomQLParser.QueryContext ctx) {
-        QueryNode queryNode = new QueryNode(ctx.input.getText(), ctx.output.getText());
+        QueryNode queryNode = new QueryNode(ctx.input.getText());
         if (ctx.annotation() != null) {
             Annotation annotation = (Annotation) visit(ctx.annotation());
             Utility.verifyAnnotation(ctx.annotation(), annotation, QUERY_ANNOTATION, NAME);
@@ -166,6 +182,11 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         }
         for (ParseTree tree : ctx.query_statement()) {
             queryNode.addStatement((Statement) visit(tree));
+        }
+        if (ctx.insert_into_statement() != null) {
+            queryNode.addStatement((Statement) visit(ctx.insert_into_statement()));
+        } else if (ctx.update_statement() != null) {
+            queryNode.addStatement((Statement) visit(ctx.update_statement()));
         }
         return queryNode;
     }
@@ -258,7 +279,11 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         if (ctx.STRING() != null) {
             value = Utility.toString(ctx.STRING().getText());
         } else if (ctx.NUMBER() != null) {
-            value = Double.valueOf(ctx.NUMBER().getText());
+            try {
+                value = Long.parseLong(ctx.NUMBER().getText());
+            } catch (NumberFormatException ex) {
+                value = Double.valueOf(ctx.NUMBER().getText());
+            }
         } else if (ctx.TRUE() != null) {
             value = true;
         } else if (ctx.FALSE() != null) {
@@ -267,5 +292,10 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             throw new WisdomParserException(ctx, "invalid primitive data");
         }
         return value;
+    }
+
+    @Override
+    public Object visitVariable_reference(WisdomQLParser.Variable_referenceContext ctx) {
+        return ctx.NAME().getText();
     }
 }

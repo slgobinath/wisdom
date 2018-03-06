@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Window keeps n number of events.
  */
-public class LengthBatchWindow extends Window implements Variable.OnUpdateListener<Integer> {
+public class LengthBatchWindow extends Window implements Variable.OnUpdateListener<Number> {
 
     private List<Event> events;
     private int length;
@@ -21,8 +21,8 @@ public class LengthBatchWindow extends Window implements Variable.OnUpdateListen
         super(properties);
         Object val = this.getProperty("length", 0);
         if (val instanceof Variable) {
-            Variable<Integer> variable = (Variable<Integer>) val;
-            this.length = variable.get();
+            Variable<Number> variable = (Variable<Number>) val;
+            this.length = variable.get().intValue();
             variable.addOnUpdateListener(this);
         } else if (val instanceof Number) {
             this.length = ((Number) val).intValue();
@@ -61,10 +61,10 @@ public class LengthBatchWindow extends Window implements Variable.OnUpdateListen
     }
 
     @Override
-    public void update(Integer value) {
+    public void update(Number value) {
         try {
             this.lock.lock();
-            this.length = value;
+            this.length = value.intValue();
         } finally {
             this.lock.unlock();
         }

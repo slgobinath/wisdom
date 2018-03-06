@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * TimeBatchWindow depending on external timestamp.
  */
-public class ExternalTimeBatchWindow extends Window implements Variable.OnUpdateListener<Long> {
+public class ExternalTimeBatchWindow extends Window implements Variable.OnUpdateListener<Number> {
 
     private final String timestampKey;
     private long timeToKeep;
@@ -32,8 +32,8 @@ public class ExternalTimeBatchWindow extends Window implements Variable.OnUpdate
         if (durationVal instanceof Duration) {
             this.timeToKeep = ((Duration) durationVal).toMillis();
         } else if (durationVal instanceof Variable) {
-            Variable<Long> variable = (Variable<Long>) durationVal;
-            this.timeToKeep = variable.get();
+            Variable<Number> variable = (Variable<Number>) durationVal;
+            this.timeToKeep = variable.get().longValue();
             variable.addOnUpdateListener(this);
         } else {
             throw new WisdomAppValidationException("duration of ExternalTimeBatchWindow must be java.time.Duration but found %d", keyVal.getClass().getSimpleName());
@@ -96,11 +96,12 @@ public class ExternalTimeBatchWindow extends Window implements Variable.OnUpdate
     }
 
     @Override
-    public void update(Long value) {
+    public void update(Number value) {
         try {
             this.lock.lock();
-            this.endTime = this.endTime - this.timeToKeep + value;
-            this.timeToKeep = value;
+            long val = value.longValue();
+            this.endTime = this.endTime - this.timeToKeep + val;
+            this.timeToKeep = val;
         } finally {
             this.lock.unlock();
         }
