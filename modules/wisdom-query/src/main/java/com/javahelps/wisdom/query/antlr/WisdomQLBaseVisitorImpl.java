@@ -11,6 +11,9 @@ import com.javahelps.wisdom.query.util.Utility;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.function.Predicate;
 
 import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.*;
@@ -49,11 +52,11 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
-    public Object visitDefinition(WisdomQLParser.DefinitionContext ctx) {
+    public Definition visitDefinition(WisdomQLParser.DefinitionContext ctx) {
         if (ctx.def_stream() != null) {
-            return visit(ctx.def_stream());
+            return (Definition) visit(ctx.def_stream());
         } else if (ctx.def_variable() != null) {
-            return visit(ctx.def_variable());
+            return (Definition) visit(ctx.def_variable());
         } else {
             throw new WisdomParserException(ctx, "unknown definition");
         }
@@ -61,15 +64,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
     @Override
     public VariableDefinition visitDef_variable(WisdomQLParser.Def_variableContext ctx) {
-        VariableDefinition definition = new VariableDefinition(ctx.NAME().getText());
-        if (ctx.STRING() != null) {
-            definition.setValue(Utility.toString(ctx.STRING().getText()));
-        } else if (ctx.NUMBER() != null) {
-            definition.setValue(Double.parseDouble(ctx.NUMBER().getText()));
-        } else {
-            throw new WisdomParserException(ctx, "undefined variable");
-        }
-        return definition;
+        return new VariableDefinition(ctx.NAME().getText(), (Comparable) visit(ctx.wisdom_primitive()));
     }
 
     @Override
@@ -93,11 +88,19 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         if (ctx.NAME() != null) {
             element.setKey(ctx.NAME().getText());
         }
-        if (ctx.STRING() != null) {
-            element.setValue(Utility.toString(ctx.STRING().getText()));
-        } else if (ctx.NUMBER() != null) {
-            element.setValue(Double.parseDouble(ctx.NUMBER().getText()));
+        if (ctx.wisdom_primitive() != null) {
+            element.setValue((Comparable) visit(ctx.wisdom_primitive()));
         }
+        return element;
+    }
+
+    @Override
+    public KeyValueElement visitOptional_key_value_element(WisdomQLParser.Optional_key_value_elementContext ctx) {
+        KeyValueElement element = new KeyValueElement();
+        if (ctx.NAME() != null) {
+            element.setKey(ctx.NAME().getText());
+        }
+        element.setValue((Comparable) visit(ctx.wisdom_primitive()));
         return element;
     }
 
@@ -118,11 +121,26 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
+    public Statement visitWindow_statement(WisdomQLParser.Window_statementContext ctx) {
+        WindowStatement statement = new WindowStatement(ctx.name.getText());
+        if (ctx.type != null) {
+            statement.setType(ctx.type.getText());
+        }
+        for (ParseTree tree : ctx.optional_key_value_element()) {
+            KeyValueElement element = (KeyValueElement) visit(tree);
+            statement.addProperty(element.getKey(), element.getValue());
+        }
+        return statement;
+    }
+
+    @Override
     public Statement visitQuery_statement(WisdomQLParser.Query_statementContext ctx) {
         if (ctx.select_statement() != null) {
             return (Statement) visit(ctx.select_statement());
         } else if (ctx.filter_statement() != null) {
             return (Statement) visit(ctx.filter_statement());
+        } else if (ctx.window_statement() != null) {
+            return (Statement) visit(ctx.window_statement());
         } else {
             throw new WisdomParserException(ctx, "unknown query statement");
         }
@@ -182,24 +200,10 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
                 }
             } else if (ctx.EQUALS() != null) {
                 if (ctx.NAME().size() == 2) {
-                    predicate = Operator.EQUAL_ATTRIBUTES(ctx.left.getText(), ctx.right.getText());
+                    predicate = Operator.EQUAL_ATTRIBUTES(ctx.NAME(0).getText(), ctx.NAME(1).getText());
                 } else {
-                    if (ctx.NUMBER() != null) {
-                        if (ctx.right.getType() == ctx.NUMBER().getSymbol().getType()) {
-                            predicate = Operator.EQUALS(ctx.left.getText(), Double.parseDouble(ctx.right.getText()));
-                        } else if (ctx.left.getType() == ctx.NUMBER().getSymbol().getType()) {
-                            predicate = Operator.EQUALS(ctx.right.getText(), Double.parseDouble(ctx.left.getText()));
-                        }
-                    } else if (ctx.STRING() != null) {
-                        if (ctx.right.getType() == ctx.STRING().getSymbol().getType()) {
-                            predicate = Operator.EQUALS(ctx.left.getText(), Utility.toString(ctx.right.getText()));
-                        } else if (ctx.left.getType() == ctx.STRING().getSymbol().getType()) {
-                            predicate = Operator.EQUALS(ctx.right.getText(), Utility.toString(ctx.left.getText()));
-                        }
-                    } else if (ctx.TRUE() != null) {
-                        predicate = Operator.IS_TRUE(ctx.NAME(0).getText());
-                    } else if (ctx.FALSE() != null) {
-                        predicate = Operator.IS_FALSE(ctx.NAME(0).getText());
+                    if (ctx.wisdom_primitive() != null) {
+                        predicate = Operator.EQUALS(ctx.NAME(0).getText(), (Comparable) visit(ctx.wisdom_primitive()));
                     } else {
                         throw new WisdomParserException(ctx, "unknown operand for equality");
                     }
@@ -210,5 +214,48 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             throw new WisdomParserException(ctx, "unknown logical operator");
         }
         return predicate;
+    }
+
+    @Override
+    public Duration visitTime_duration(WisdomQLParser.Time_durationContext ctx) {
+        long value = Long.parseLong(ctx.INTEGER().getText());
+        TemporalUnit unit;
+        if (ctx.MICROSECOND() != null) {
+            unit = ChronoUnit.MICROS;
+        } else if (ctx.MILLISECOND() != null) {
+            unit = ChronoUnit.MILLIS;
+        } else if (ctx.SECOND() != null) {
+            unit = ChronoUnit.SECONDS;
+        } else if (ctx.MINUTE() != null) {
+            unit = ChronoUnit.MINUTES;
+        } else if (ctx.HOUR() != null) {
+            unit = ChronoUnit.HOURS;
+        } else if (ctx.DAY() != null) {
+            unit = ChronoUnit.DAYS;
+        } else if (ctx.MONTH() != null) {
+            unit = ChronoUnit.MONTHS;
+        } else if (ctx.YEAR() != null) {
+            unit = ChronoUnit.YEARS;
+        } else {
+            throw new WisdomParserException(ctx, "invalid time unit");
+        }
+        return Duration.of(value, unit);
+    }
+
+    @Override
+    public Comparable visitWisdom_primitive(WisdomQLParser.Wisdom_primitiveContext ctx) {
+        Comparable value;
+        if (ctx.STRING() != null) {
+            value = Utility.toString(ctx.STRING().getText());
+        } else if (ctx.NUMBER() != null) {
+            value = Double.valueOf(ctx.NUMBER().getText());
+        } else if (ctx.TRUE() != null) {
+            value = true;
+        } else if (ctx.FALSE() != null) {
+            value = false;
+        } else {
+            throw new WisdomParserException(ctx, "invalid primitive data");
+        }
+        return value;
     }
 }

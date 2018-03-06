@@ -1,7 +1,9 @@
 package com.javahelps.wisdom.extensions.unique.window;
 
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.processor.Processor;
+import com.javahelps.wisdom.core.variable.Variable;
 import com.javahelps.wisdom.core.window.Window;
 
 import java.time.Duration;
@@ -10,21 +12,40 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UniqueExternalTimeBatchWindow extends UniqueWindow {
+public class UniqueExternalTimeBatchWindow extends Window implements Variable.OnUpdateListener<Long> {
 
     private final Map<Comparable, Event> eventMap = new LinkedHashMap<>();
     private final String uniqueKey;
     private final String timestampKey;
-    private final Duration duration;
-    private final long timeToKeep;
+    private long timeToKeep;
     private long endTime = -1;
 
-    public UniqueExternalTimeBatchWindow(String uniqueKey, String timestampKey, Duration duration) {
 
-        this.uniqueKey = uniqueKey;
-        this.timestampKey = timestampKey;
-        this.duration = duration;
-        this.timeToKeep = duration.toMillis();
+    public UniqueExternalTimeBatchWindow(Map<String, ?> properties) {
+        super(properties);
+        Object uniqueKeyVal = this.getProperty("uniqueKey", 0);
+        Object timestampKeyVal = this.getProperty("timestampKey", 1);
+        Object durationVal = this.getProperty("duration", 2);
+
+        if (uniqueKeyVal instanceof String) {
+            this.uniqueKey = (String) uniqueKeyVal;
+        } else {
+            throw new WisdomAppValidationException("uniqueKey of UniqueExternalTimeBatchWindow must be java.lang.String but found %d", timestampKeyVal.getClass().getSimpleName());
+        }
+        if (timestampKeyVal instanceof String) {
+            this.timestampKey = (String) timestampKeyVal;
+        } else {
+            throw new WisdomAppValidationException("timestampKey of UniqueExternalTimeBatchWindow must be java.lang.String but found %d", timestampKeyVal.getClass().getSimpleName());
+        }
+        if (durationVal instanceof Duration) {
+            this.timeToKeep = ((Duration) durationVal).toMillis();
+        } else if (durationVal instanceof Variable) {
+            Variable<Long> variable = (Variable<Long>) durationVal;
+            this.timeToKeep = variable.get();
+            variable.addOnUpdateListener(this);
+        } else {
+            throw new WisdomAppValidationException("duration of UniqueExternalTimeBatchWindow must be java.time.Duration but found %d", timestampKeyVal.getClass().getSimpleName());
+        }
     }
 
     @Override
@@ -65,7 +86,7 @@ public class UniqueExternalTimeBatchWindow extends UniqueWindow {
     @Override
     public Window copy() {
 
-        Window window = new UniqueExternalTimeBatchWindow(this.uniqueKey, this.timestampKey, this.duration);
+        Window window = new UniqueExternalTimeBatchWindow(this.properties);
         return window;
     }
 
@@ -75,6 +96,17 @@ public class UniqueExternalTimeBatchWindow extends UniqueWindow {
             this.lock.lock();
             this.eventMap.clear();
             this.endTime = -1;
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    @Override
+    public void update(Long value) {
+        try {
+            this.lock.lock();
+            this.endTime = this.endTime - this.timeToKeep + value;
+            this.timeToKeep = value;
         } finally {
             this.lock.unlock();
         }

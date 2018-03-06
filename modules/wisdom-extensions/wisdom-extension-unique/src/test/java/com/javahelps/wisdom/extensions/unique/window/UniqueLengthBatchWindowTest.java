@@ -1,8 +1,10 @@
 package com.javahelps.wisdom.extensions.unique.window;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.extension.ImportsManager;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
+import com.javahelps.wisdom.core.window.Window;
 import com.javahelps.wisdom.dev.test.TestCallback;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -15,6 +17,10 @@ public class UniqueLengthBatchWindowTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(UniqueLengthBatchWindowTest.class);
     private TestCallback callbackUtil = new TestCallback(LOGGER);
 
+    static {
+        ImportsManager.INSTANCE.use("unique:lengthBatch", UniqueLengthBatchWindow.class);
+    }
+
     @Test
     public void testWindow1() {
         LOGGER.info("Test window 1 - OUT 3");
@@ -25,7 +31,7 @@ public class UniqueLengthBatchWindowTest {
 
         wisdomApp.defineQuery("query1")
                 .from("LoginEventStream")
-                .window(UniqueWindow.lengthBatch("ip", 3))
+                .window(Window.create("unique:lengthBatch", map("uniqueKey", "ip", "length", 3)))
                 .select("ip", "timestamp")
                 .insertInto("OutputStream");
 
@@ -59,7 +65,7 @@ public class UniqueLengthBatchWindowTest {
 
         wisdomApp.defineQuery("query1")
                 .from("LoginEventStream")
-                .window(UniqueWindow.lengthBatch("ip", 2))
+                .window(Window.create("unique:lengthBatch", map("uniqueKey", "ip", "length", 2)))
                 .select("ip", "timestamp")
                 .insertInto("OutputStream");
 

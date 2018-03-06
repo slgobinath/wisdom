@@ -102,7 +102,11 @@ annotation
     ;
 
 annotation_element
-    : (NAME ASSIGN)? (STRING|NUMBER)
+    : (NAME ASSIGN)? wisdom_primitive
+    ;
+
+optional_key_value_element
+    : (NAME ASSIGN)? wisdom_primitive
     ;
 
 definition
@@ -115,7 +119,7 @@ def_stream
     ;
 
 def_variable
-    : DEF VARIABLE NAME ASSIGN (STRING|NUMBER)
+    : DEF VARIABLE NAME ASSIGN wisdom_primitive
     ;
 
 query
@@ -125,6 +129,7 @@ query
 query_statement
     : select_statement
     | filter_statement
+    | window_statement
     ;
 
 select_statement
@@ -135,16 +140,36 @@ filter_statement
     : FILTER logical_operator
     ;
 
+window_statement
+    : WINDOW DOT name=NAME (COLON type=NAME)? OPEN_PAREN (optional_key_value_element (COMMA optional_key_value_element)*)? CLOSE_PAREN
+    ;
+
 logical_operator
     : OPEN_PAREN logical_operator CLOSE_PAREN
     | (left=NAME GREATER_THAN right=NUMBER) | (left=NUMBER GREATER_THAN right=NAME) | (left=NAME GREATER_THAN right=NAME)
     | (left=NAME GT_EQ right=NUMBER) | (left=NUMBER GT_EQ right=NAME) | (left=NAME GT_EQ right=NAME)
     | (left=NAME LESS_THAN right=NUMBER) | (left=NUMBER LESS_THAN right=NAME) | (left=NAME LESS_THAN right=NAME)
     | (left=NAME LT_EQ right=NUMBER) | (left=NUMBER LT_EQ right=NAME) | (left=NAME LT_EQ right=NAME)
-    | (left=NAME EQUALS right=(NUMBER|STRING|TRUE|FALSE)) | (left=(NUMBER|STRING|TRUE|FALSE) EQUALS right=NAME) | (left=NAME EQUALS right=NAME)
+    | (NAME EQUALS wisdom_primitive) | (wisdom_primitive EQUALS NAME) | (NAME EQUALS NAME)
     | NOT logical_operator
     | logical_operator AND logical_operator
     | logical_operator OR logical_operator
+    ;
+
+wisdom_operand
+    : wisdom_primitive
+    | time_duration
+    ;
+
+wisdom_primitive
+    : STRING
+    | NUMBER
+    | TRUE
+    | FALSE
+    ;
+
+time_duration
+    : INTEGER (MICROSECOND|MILLISECOND|SECOND|MINUTE|HOUR|DAY|MONTH|YEAR)
     ;
 
 /*
@@ -215,6 +240,15 @@ SELECT : 'select';
 INSERT : 'insert';
 INTO : 'into';
 FILTER : 'filter';
+WINDOW : 'window';
+MICROSECOND: 'micros' | 'microsecond' | 'microseconds';
+MILLISECOND: 'millis' | 'millisecond' | 'milliseconds';
+SECOND: 'sec' | 'second' | 'seconds';
+MINUTE: 'min' | 'minute' | 'minutes';
+HOUR: 'hour' | 'hours';
+DAY: 'day' | 'days';
+MONTH: 'month' | 'months';
+YEAR: 'month' | 'months';
 
 NEWLINE
  : ( {atStartOfInput()}?   SPACES

@@ -267,4 +267,38 @@ public class WisdomCompilerTest {
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
+
+    @Test
+    public void testWindowQuery() {
+
+        LOGGER.info("Test logical operator precedence query");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "window.length(3) " +
+                "select symbol, price " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "WSO2", "price", 10.0),
+                map("symbol", "WSO2", "price", 50.0),
+                map("symbol", "WSO2", "price", 60.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 10.0, "volume", 25.0));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 50.0, "volume", 10.0));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15.0));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 20.0, "volume", 25.0));
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
+    }
 }

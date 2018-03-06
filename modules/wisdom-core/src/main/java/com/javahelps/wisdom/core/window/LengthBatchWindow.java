@@ -1,29 +1,35 @@
 package com.javahelps.wisdom.core.window;
 
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.variable.Variable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Created by gobinath on 6/29/17.
+ * Window keeps n number of events.
  */
-class LengthBatchWindow extends Window implements Variable.OnUpdateListener<Integer> {
+public class LengthBatchWindow extends Window implements Variable.OnUpdateListener<Integer> {
 
     private List<Event> events;
     private int length;
-    private Variable<Integer> variable;
 
-    LengthBatchWindow(int length) {
-        this.length = length;
-        this.events = new ArrayList<>(length);
-    }
-
-    LengthBatchWindow(Variable<Integer> length) {
-        this(length.get());
-        length.addOnUpdateListener(this);
+    public LengthBatchWindow(Map<String, ?> properties) {
+        super(properties);
+        Object val = this.getProperty("length", 0);
+        if (val instanceof Variable) {
+            Variable<Integer> variable = (Variable<Integer>) val;
+            this.length = variable.get();
+            variable.addOnUpdateListener(this);
+        } else if (val instanceof Number) {
+            this.length = ((Number) val).intValue();
+        } else {
+            throw new WisdomAppValidationException("length of LengthBatchWindow must be java.lang.Integer but found %s", val.getClass().getCanonicalName());
+        }
+        this.events = new ArrayList<>(this.length);
     }
 
     public void process(Event event, Processor nextProcessor) {
@@ -48,12 +54,7 @@ class LengthBatchWindow extends Window implements Variable.OnUpdateListener<Inte
 
         try {
             this.lock.lock();
-            LengthBatchWindow window = new LengthBatchWindow(this.length);
-            if (this.variable != null) {
-                window.variable = this.variable;
-                variable.addOnUpdateListener(window);
-            }
-            return window;
+            return new LengthBatchWindow(this.properties);
         } finally {
             this.lock.unlock();
         }

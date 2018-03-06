@@ -1,9 +1,11 @@
 package com.javahelps.wisdom.extensions.unique.window;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.extension.ImportsManager;
 import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
+import com.javahelps.wisdom.core.window.Window;
 import com.javahelps.wisdom.dev.test.TestCallback;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -19,6 +21,10 @@ public class UniqueExternalTimeBatchWindowTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(UniqueExternalTimeBatchWindowTest.class);
     private TestCallback callbackUtil = new TestCallback(LOGGER);
 
+    static {
+        ImportsManager.INSTANCE.use("unique:externalTimeBatch", UniqueExternalTimeBatchWindow.class);
+    }
+
     @Test
     public void testWindow1() throws InterruptedException {
         LOGGER.info("Test window 1 - OUT 3");
@@ -29,7 +35,7 @@ public class UniqueExternalTimeBatchWindowTest {
 
         wisdomApp.defineQuery("query1")
                 .from("LoginEventStream")
-                .window(UniqueWindow.externalTimeBatch("ip", "timestamp", Duration.of(1, ChronoUnit.SECONDS)))
+                .window(Window.create("unique:externalTimeBatch", map("uniqueKey", "ip", "timestampKey", "timestamp", "duration", Duration.of(1, ChronoUnit.SECONDS))))
                 .aggregate(Operator.COUNT(), "count")
                 .select("ip", "timestamp", "count")
                 .insertInto("OutputStream");
@@ -66,7 +72,7 @@ public class UniqueExternalTimeBatchWindowTest {
 
         wisdomApp.defineQuery("query1")
                 .from("LoginEventStream")
-                .window(UniqueWindow.externalTimeBatch("ip", "timestamp", Duration.of(1, ChronoUnit.SECONDS)))
+                .window(Window.create("unique:externalTimeBatch", map("uniqueKey", "ip", "timestampKey", "timestamp", "duration", Duration.of(1, ChronoUnit.SECONDS))))
                 .aggregate(Operator.COUNT(), "count")
                 .select("ip", "timestamp", "count")
                 .insertInto("OutputStream");

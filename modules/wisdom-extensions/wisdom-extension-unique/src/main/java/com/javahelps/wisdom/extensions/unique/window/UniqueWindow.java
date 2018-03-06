@@ -1,19 +1,30 @@
 package com.javahelps.wisdom.extensions.unique.window;
 
+import com.javahelps.wisdom.core.extension.ImportsManager;
 import com.javahelps.wisdom.core.window.Window;
 
 import java.time.Duration;
 
-public abstract class UniqueWindow extends Window {
+import static com.javahelps.wisdom.core.util.Commons.map;
+
+public class UniqueWindow {
+
+    static {
+        ImportsManager.INSTANCE.use("unique:externalTimeBatch", UniqueExternalTimeBatchWindow.class);
+        ImportsManager.INSTANCE.use("unique:lengthBatch", UniqueLengthBatchWindow.class);
+    }
+
+    private UniqueWindow() {
+
+    }
 
     public static Window externalTimeBatch(String uniqueKey, String timestampKey, Duration duration) {
 
-        return new UniqueExternalTimeBatchWindow(uniqueKey, timestampKey, duration);
+        return Window.create("unique:externalTimeBatch", map("uniqueKey", uniqueKey, "timestampKey", timestampKey, "duration", duration));
     }
 
     public static Window lengthBatch(String uniqueKey, int length) {
-
-        return new UniqueLengthBatchWindow(uniqueKey, length);
+        return Window.create("unique:lengthBatch", map("uniqueKey", uniqueKey, "length", "timestamp", length));
     }
 
 }
