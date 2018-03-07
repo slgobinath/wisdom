@@ -7,12 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 /**
  * Wisdom variable which can be updated using a stream and used to dynamically
  * change the properties of other components at the runtime.
  */
-public class Variable<T> implements Processor {
+public class Variable<T> implements Processor, Supplier<T> {
 
     private final String id;
     private final ReadWriteLock lock;
@@ -31,6 +32,7 @@ public class Variable<T> implements Processor {
      *
      * @return the current value
      */
+    @Override
     public T get() {
         this.lock.readLock().lock();
         try {

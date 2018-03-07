@@ -1,21 +1,18 @@
 package com.javahelps.wisdom.query.tree;
 
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.query.Query;
-
-import java.util.function.Predicate;
 
 public class FilterStatement implements Statement {
 
-    private final Predicate<Event> predicate;
+    private final LogicalOperator operator;
 
-    public FilterStatement(Predicate<Event> predicate) {
-        this.predicate = predicate;
+    public FilterStatement(LogicalOperator operator) {
+        this.operator = operator;
     }
 
     @Override
     public void addTo(WisdomApp app, Query query) {
-        query.filter(this.predicate);
+        query.filter(this.operator.build(app, query));
     }
 }

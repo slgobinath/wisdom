@@ -123,7 +123,7 @@ def_variable
     ;
 
 query
-    : annotation? FROM input=NAME query_statement+ (insert_into_statement|update_statement)
+    : annotation? FROM input=NAME query_statement* (insert_into_statement|update_statement)
     ;
 
 query_statement
@@ -154,11 +154,16 @@ update_statement
 
 logical_operator
     : OPEN_PAREN logical_operator CLOSE_PAREN
-    | (left=NAME GREATER_THAN right=NUMBER) | (left=NUMBER GREATER_THAN right=NAME) | (left=NAME GREATER_THAN right=NAME)
-    | (left=NAME GT_EQ right=NUMBER) | (left=NUMBER GT_EQ right=NAME) | (left=NAME GT_EQ right=NAME)
-    | (left=NAME LESS_THAN right=NUMBER) | (left=NUMBER LESS_THAN right=NAME) | (left=NAME LESS_THAN right=NAME)
-    | (left=NAME LT_EQ right=NUMBER) | (left=NUMBER LT_EQ right=NAME) | (left=NAME LT_EQ right=NAME)
-    | (NAME EQUALS wisdom_primitive) | (wisdom_primitive EQUALS NAME) | (NAME EQUALS NAME)
+    | ((lft_name=NAME|lft_number=NUMBER|lft_var=variable_reference) GREATER_THAN
+                (rgt_name=NAME|rgt_number=NUMBER|rgt_var=variable_reference))
+    | ((lft_name=NAME|lft_number=NUMBER|lft_var=variable_reference) GT_EQ
+                (rgt_name=NAME|rgt_number=NUMBER|rgt_var=variable_reference))
+    | ((lft_name=NAME|lft_number=NUMBER|lft_var=variable_reference) LESS_THAN
+                (rgt_name=NAME|rgt_number=NUMBER|rgt_var=variable_reference))
+    | ((lft_name=NAME|lft_number=NUMBER|lft_var=variable_reference) LT_EQ
+                (rgt_name=NAME|rgt_number=NUMBER|rgt_var=variable_reference))
+    | ((lft_name=NAME|lft_pri=wisdom_primitive|lft_var=variable_reference) EQUALS
+                (rgt_name=NAME|rgt_pri=wisdom_primitive|lft_var=variable_reference))
     | NOT logical_operator
     | logical_operator AND logical_operator
     | logical_operator OR logical_operator

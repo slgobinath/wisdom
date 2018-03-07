@@ -1,8 +1,6 @@
 package com.javahelps.wisdom.query.antlr;
 
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.query.antlr4.WisdomQLBaseVisitor;
 import com.javahelps.wisdom.query.antlr4.WisdomQLParser;
@@ -12,6 +10,7 @@ import com.javahelps.wisdom.query.tree.Definition;
 import com.javahelps.wisdom.query.tree.FilterStatement;
 import com.javahelps.wisdom.query.tree.InsertIntoStatement;
 import com.javahelps.wisdom.query.tree.KeyValueElement;
+import com.javahelps.wisdom.query.tree.LogicalOperator;
 import com.javahelps.wisdom.query.tree.QueryNode;
 import com.javahelps.wisdom.query.tree.SelectStatement;
 import com.javahelps.wisdom.query.tree.Statement;
@@ -26,7 +25,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
-import java.util.function.Predicate;
 
 import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.*;
 
@@ -135,7 +133,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
     @Override
     public Statement visitFilter_statement(WisdomQLParser.Filter_statementContext ctx) {
-        return new FilterStatement((Predicate<Event>) visit(ctx.logical_operator()));
+        return new FilterStatement((LogicalOperator) visit(ctx.logical_operator()));
     }
 
     @Override
@@ -193,59 +191,59 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
-    public Predicate<Event> visitLogical_operator(WisdomQLParser.Logical_operatorContext ctx) {
-        Predicate<Event> predicate = null;
+    public LogicalOperator visitLogical_operator(WisdomQLParser.Logical_operatorContext ctx) {
+        LogicalOperator operator;
         int noOfLogicalOperators = ctx.logical_operator().size();
-        if (noOfLogicalOperators == 1) {
-            predicate = (Predicate<Event>) visit(ctx.logical_operator(0));
-            if (ctx.NOT() != null) {
-                predicate = predicate.negate();
-            }
-        } else if (noOfLogicalOperators == 2) {
-            Predicate<Event> left = (Predicate<Event>) visit(ctx.logical_operator(0));
-            Predicate<Event> right = (Predicate<Event>) visit(ctx.logical_operator(1));
-            if (ctx.AND() != null) {
-                predicate = left.and(right);
-            } else if (ctx.OR() != null) {
-                predicate = left.or(right);
-            }
-        } else if (noOfLogicalOperators == 0) {
-            if (ctx.GREATER_THAN() != null) {
-                if (ctx.NAME().size() == 2) {
-                    predicate = Operator.GREATER_THAN(ctx.left.getText(), ctx.right.getText());
-                } else {
-                    if (ctx.right.getType() == ctx.NUMBER().getSymbol().getType()) {
-                        predicate = Operator.GREATER_THAN(ctx.left.getText(), Double.parseDouble(ctx.right.getText()));
-                    } else if (ctx.left.getType() == ctx.NUMBER().getSymbol().getType()) {
-                        predicate = Operator.LESS_THAN(ctx.right.getText(), Double.parseDouble(ctx.left.getText()));
-                    }
-                }
-            } else if (ctx.LESS_THAN() != null) {
-                if (ctx.NAME().size() == 2) {
-                    predicate = Operator.LESS_THAN(ctx.left.getText(), ctx.right.getText());
-                } else {
-                    if (ctx.right.getType() == ctx.NUMBER().getSymbol().getType()) {
-                        predicate = Operator.LESS_THAN(ctx.left.getText(), Double.parseDouble(ctx.right.getText()));
-                    } else if (ctx.left.getType() == ctx.NUMBER().getSymbol().getType()) {
-                        predicate = Operator.GREATER_THAN(ctx.right.getText(), Double.parseDouble(ctx.left.getText()));
-                    }
-                }
-            } else if (ctx.EQUALS() != null) {
-                if (ctx.NAME().size() == 2) {
-                    predicate = Operator.EQUAL_ATTRIBUTES(ctx.NAME(0).getText(), ctx.NAME(1).getText());
-                } else {
-                    if (ctx.wisdom_primitive() != null) {
-                        predicate = Operator.EQUALS(ctx.NAME(0).getText(), (Comparable) visit(ctx.wisdom_primitive()));
-                    } else {
-                        throw new WisdomParserException(ctx, "unknown operand for equality");
-                    }
-                }
-            }
-        }
-        if (predicate == null) {
+
+        if (ctx.NOT() != null) {
+            operator = new LogicalOperator(LogicalOperator.Operation.NOT);
+        } else if (ctx.AND() != null) {
+            operator = new LogicalOperator(LogicalOperator.Operation.AND);
+        } else if (ctx.OR() != null) {
+            operator = new LogicalOperator(LogicalOperator.Operation.OR);
+        } else if (ctx.GREATER_THAN() != null) {
+            operator = new LogicalOperator(LogicalOperator.Operation.GT);
+        } else if (ctx.LESS_THAN() != null) {
+            operator = new LogicalOperator(LogicalOperator.Operation.LT);
+        } else if (ctx.GT_EQ() != null) {
+            operator = new LogicalOperator(LogicalOperator.Operation.GT_EQ);
+        } else if (ctx.LT_EQ() != null) {
+            operator = new LogicalOperator(LogicalOperator.Operation.LT_EQ);
+        } else if (ctx.EQUALS() != null) {
+            operator = new LogicalOperator(LogicalOperator.Operation.EQ);
+        } else if (noOfLogicalOperators == 1) {
+            operator = new LogicalOperator(LogicalOperator.Operation.IDENTICAL);
+        } else {
             throw new WisdomParserException(ctx, "unknown logical operator");
         }
-        return predicate;
+
+
+        if (noOfLogicalOperators == 1) {
+            operator.setLeftOperator((LogicalOperator) visit(ctx.logical_operator(0)));
+        } else if (noOfLogicalOperators == 2) {
+            operator.setLeftOperator((LogicalOperator) visit(ctx.logical_operator(0)));
+            operator.setRightOperator((LogicalOperator) visit(ctx.logical_operator(1)));
+        } else if (noOfLogicalOperators == 0) {
+            if (ctx.lft_name != null) {
+                operator.setLeftAttr(ctx.lft_name.getText());
+            } else if (ctx.lft_number != null) {
+                operator.setLeftComparable(Double.parseDouble(ctx.lft_number.getText()));
+            } else if (ctx.lft_pri != null) {
+                operator.setLeftComparable((Comparable) visit(ctx.lft_pri));
+            } else if (ctx.lft_var != null) {
+                operator.setLeftVar((String) visit(ctx.lft_var));
+            }
+            if (ctx.rgt_name != null) {
+                operator.setRightAttr(ctx.rgt_name.getText());
+            } else if (ctx.rgt_number != null) {
+                operator.setRightComparable(Double.parseDouble(ctx.rgt_number.getText()));
+            } else if (ctx.rgt_pri != null) {
+                operator.setRightComparable((Comparable) visit(ctx.rgt_pri));
+            } else if (ctx.rgt_var != null) {
+                operator.setRightVar((String) visit(ctx.rgt_var));
+            }
+        }
+        return operator;
     }
 
     @Override

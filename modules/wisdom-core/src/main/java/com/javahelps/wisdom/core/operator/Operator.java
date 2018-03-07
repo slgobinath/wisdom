@@ -153,32 +153,53 @@ public class Operator {
         }
     }
 
+    public static Predicate<Event> EQUALS(final Supplier<Comparable> supplier, final Comparable value) {
+
+        if (value instanceof Long || value instanceof Integer) {
+            final long longValue = ((Number) value).longValue();
+            return event -> ((Number) supplier.get()).longValue() == longValue;
+        } else if (value instanceof Double || value instanceof Float) {
+            final double doubleValue = ((Number) value).doubleValue();
+            return event -> ((Number) supplier.get()).doubleValue() == doubleValue;
+        } else {
+            return event -> Objects.equals(supplier.get(), value);
+        }
+    }
+
+    public static Predicate<Event> EQUALS(final String attribute, final Supplier<Comparable> right) {
+
+        return event -> Objects.equals(event.get(attribute), right.get());
+    }
+
+
+    public static Predicate<Event> EQUALS(final Supplier<Comparable> left, final Supplier<Comparable> right) {
+
+        return event -> Objects.equals(left.get(), right.get());
+    }
+
     public static Predicate<Event> EQUAL_ATTRIBUTES(final String attrOne, final String attrTwo) {
 
         return event -> Objects.equals(event.get(attrOne), event.get(attrTwo));
     }
 
-    public static Predicate<Event> IS_TRUE(final String attribute) {
+    public static Predicate<Event> GREATER_THAN(final String leftAttr, final String rightAttr) {
 
-        return event -> Objects.equals(event.get(attribute), true);
+        return event -> event.getAsDouble(leftAttr) > event.getAsDouble(rightAttr);
     }
 
-    public static Predicate<Event> IS_FALSE(final String attribute) {
+    public static Predicate<Event> GREATER_THAN(final String attribute, final Supplier<Comparable> right) {
 
-        return event -> Objects.equals(event.get(attribute), false);
+        return event -> event.getAsDouble(attribute) > ((Number) right.get()).doubleValue();
     }
 
-    public static Predicate<Event> GREATER_THAN(final String attributeOne, final String attributeTwo) {
+    public static Predicate<Event> GREATER_THAN(final Supplier<Comparable> left, final Supplier<Comparable> right) {
 
-        return event -> {
-            boolean result = event.get(attributeOne).compareTo(event.get(attributeTwo)) > 0;
-            return result;
-        };
+        return event -> ((Number) left.get()).doubleValue() > ((Number) right.get()).doubleValue();
     }
 
-    public static Predicate<Event> GREATER_THAN(final String attribute, final Supplier<Comparable> supplier) {
+    public static Predicate<Event> GREATER_THAN(final Supplier<Comparable> left, final double value) {
 
-        return event -> event.get(attribute).compareTo(supplier.get()) > 0;
+        return event -> ((Number) left.get()).doubleValue() > value;
     }
 
     public static Predicate<Event> GREATER_THAN(final String attribute, final double value) {
@@ -186,9 +207,47 @@ public class Operator {
         return event -> event.getAsDouble(attribute) > value;
     }
 
+
+    public static Predicate<Event> GREATER_THAN_OR_EQUAL(final String leftAttr, final String rightAttr) {
+
+        return event -> event.getAsDouble(leftAttr) >= event.getAsDouble(rightAttr);
+    }
+
+    public static Predicate<Event> GREATER_THAN_OR_EQUAL(final String attribute, final Supplier<Comparable> right) {
+
+        return event -> event.getAsDouble(attribute) >= ((Number) right.get()).doubleValue();
+    }
+
+    public static Predicate<Event> GREATER_THAN_OR_EQUAL(final Supplier<Comparable> left, final Supplier<Comparable>
+            right) {
+
+        return event -> ((Number) left.get()).doubleValue() >= ((Number) right.get()).doubleValue();
+    }
+
+    public static Predicate<Event> GREATER_THAN_OR_EQUAL(final Supplier<Comparable> left, final double value) {
+
+        return event -> ((Number) left.get()).doubleValue() >= value;
+    }
+
     public static Predicate<Event> GREATER_THAN_OR_EQUAL(final String attribute, final double value) {
 
         return event -> event.getAsDouble(attribute) >= value;
+    }
+
+
+    public static Predicate<Event> LESS_THAN(final String leftAttr, final String rightAttr) {
+
+        return event -> event.getAsDouble(leftAttr) < event.getAsDouble(rightAttr);
+    }
+
+    public static Predicate<Event> LESS_THAN(final String attribute, final Supplier<Comparable> right) {
+
+        return event -> event.getAsDouble(attribute) < ((Number) right.get()).doubleValue();
+    }
+
+    public static Predicate<Event> LESS_THAN(final Supplier<Comparable> left, final Supplier<Comparable> right) {
+
+        return event -> ((Number) left.get()).doubleValue() < ((Number) right.get()).doubleValue();
     }
 
     public static Predicate<Event> LESS_THAN(final String attribute, final double value) {
@@ -196,17 +255,36 @@ public class Operator {
         return event -> event.getAsDouble(attribute) < value;
     }
 
-    public static Predicate<Event> LESS_THAN(final String attributeOne, final String attributeTwo) {
+    public static Predicate<Event> LESS_THAN(final Supplier<Comparable> left, final double value) {
 
-        return event -> {
-            boolean result = event.get(attributeOne).compareTo(event.get(attributeTwo)) < 0;
-            return result;
-        };
+        return event -> ((Number) left.get()).doubleValue() < value;
+    }
+
+
+    public static Predicate<Event> LESS_THAN_OR_EQUAL(final String leftAttr, final String rightAttr) {
+
+        return event -> event.getAsDouble(leftAttr) <= event.getAsDouble(rightAttr);
+    }
+
+    public static Predicate<Event> LESS_THAN_OR_EQUAL(final String attribute, final Supplier<Comparable> right) {
+
+        return event -> event.getAsDouble(attribute) <= ((Number) right.get()).doubleValue();
+    }
+
+    public static Predicate<Event> LESS_THAN_OR_EQUAL(final Supplier<Comparable> left, final Supplier<Comparable>
+            right) {
+
+        return event -> ((Number) left.get()).doubleValue() <= ((Number) right.get()).doubleValue();
     }
 
     public static Predicate<Event> LESS_THAN_OR_EQUAL(final String attribute, final double value) {
 
         return event -> event.getAsDouble(attribute) <= value;
+    }
+
+    public static Predicate<Event> LESS_THAN_OR_EQUAL(final Supplier<Comparable> left, final double value) {
+
+        return event -> ((Number) left.get()).doubleValue() <= value;
     }
 
     public static Predicate<Event> STRING_MATCHES(final String attribute, final String regex) {
