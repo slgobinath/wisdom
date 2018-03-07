@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.javahelps.wisdom.query.TestUtil.map;
@@ -518,5 +517,38 @@ public class WisdomCompilerTest {
         wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
+    }
+
+    @Test
+    public void testPartition() throws InterruptedException {
+        LOGGER.info("Test partition - OUT 2");
+
+        String query = "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "partition by symbol " +
+                "window.lengthBatch(2) " +
+                "aggregate sum(price) as price " +
+                "select symbol, price " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "IBM", "price", 110.0),
+                map("symbol", "ORACLE", "price", 150.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 80.0, "volume", 25));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
 }

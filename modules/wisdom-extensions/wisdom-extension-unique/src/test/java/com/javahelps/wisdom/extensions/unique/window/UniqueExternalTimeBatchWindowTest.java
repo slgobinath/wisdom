@@ -36,7 +36,7 @@ public class UniqueExternalTimeBatchWindowTest {
         wisdomApp.defineQuery("query1")
                 .from("LoginEventStream")
                 .window(Window.create("unique:externalTimeBatch", map("uniqueKey", "ip", "timestampKey", "timestamp", "duration", Duration.of(1, ChronoUnit.SECONDS))))
-                .aggregate(Operator.COUNT(), "count")
+                .aggregate(Operator.COUNT("count"))
                 .select("ip", "timestamp", "count")
                 .insertInto("OutputStream");
 
@@ -73,7 +73,7 @@ public class UniqueExternalTimeBatchWindowTest {
         wisdomApp.defineQuery("query1")
                 .from("LoginEventStream")
                 .window(Window.create("unique:externalTimeBatch", map("uniqueKey", "ip", "timestampKey", "timestamp", "duration", Duration.of(1, ChronoUnit.SECONDS))))
-                .aggregate(Operator.COUNT(), "count")
+                .aggregate(Operator.COUNT("count"))
                 .select("ip", "timestamp", "count")
                 .insertInto("OutputStream");
 

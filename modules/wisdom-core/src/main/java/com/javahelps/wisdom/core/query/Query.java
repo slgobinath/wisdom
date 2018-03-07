@@ -4,6 +4,7 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.event.Index;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.operator.AggregateOperator;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.processor.AggregateProcessor;
 import com.javahelps.wisdom.core.processor.AttributeSelectProcessor;
@@ -138,9 +139,9 @@ public class Query implements Stateful {
         return this;
     }
 
-    public Query aggregate(Function<Event, Comparable> function, String setAs) {
+    public Query aggregate(AggregateOperator... operators) {
 
-        AggregateProcessor aggregateProcessor = new AggregateProcessor(generateId(), function, setAs);
+        AggregateProcessor aggregateProcessor = new AggregateProcessor(generateId(), operators);
         if (this.lastStreamProcessor == null) {
             this.inputStream.addProcessor(aggregateProcessor);
         } else {

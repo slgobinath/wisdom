@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 /**
  * {@link Attribute} provides some built-in operations on the given attribute of an {@link Event} at the runtime.
- * {@link Attribute} modifies the attributes of the {@link Event} which is passed as the parameter of the
+ * {@link Attribute} modifies the attributes of the {@link Event} which is passed newName the parameter of the
  * {@link Function}.
  *
  * @see AttributeSelectProcessor

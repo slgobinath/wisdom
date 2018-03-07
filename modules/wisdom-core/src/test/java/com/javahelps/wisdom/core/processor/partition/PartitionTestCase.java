@@ -32,7 +32,7 @@ public class PartitionTestCase {
                 .from("StockStream")
                 .partitionBy("symbol")
                 .window(Window.lengthBatch(2))
-                .aggregate(Operator.SUM("price"), "price")
+                .aggregate(Operator.SUM("price", "price"))
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
@@ -65,7 +65,7 @@ public class PartitionTestCase {
                 .from("StockStream")
                 .partitionBy("symbol", "volume")
                 .window(Window.lengthBatch(2))
-                .aggregate(Operator.SUM("price"), "price")
+                .aggregate(Operator.SUM("price", "price"))
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
@@ -128,7 +128,7 @@ public class PartitionTestCase {
                 .from("StockStream")
                 .filter(Operator.LESS_THAN("price", 700.0))
                 .partitionBy("symbol")
-                .aggregate(Operator.SUM("price"), "price")
+                .aggregate(Operator.SUM("price", "price"))
                 .select("symbol", "price", "volume")
                 .insertInto("OutputStream");
 
@@ -191,7 +191,7 @@ public class PartitionTestCase {
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream StockStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream , symbol of StockStream1) begin @info(name = 'query1') " +
-                "from cseEventStream[700>price] select symbol,sum(price) as price,volume insert into OutStockStream ;" +
+                "from cseEventStream[700>price] select symbol,sum(price) newName price,volume insert into OutStockStream ;" +
                 "  end ";
 
 

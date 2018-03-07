@@ -12,5 +12,17 @@
 
     <artifactId>wisdom-manager</artifactId>
 
+    <properties>
+        <wisdom.version>1.0-SNAPSHOT</wisdom.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.javahelps.wisdom</groupId>
+            <artifactId>wisdom-query</artifactId>
+            <version>${wisdom.version}</version>
+        </dependency>
+    </dependencies>
+
 
 </project>

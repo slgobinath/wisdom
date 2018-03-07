@@ -2,7 +2,6 @@ package com.javahelps.wisdom.core.state;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.operator.Operator;
-import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.core.util.EventPrinter;
 import com.javahelps.wisdom.core.window.Window;
@@ -17,13 +16,13 @@ public class WisdomStateTest {
     public void testStream1() {
 
         WisdomApp wisdomApp = new WisdomApp();
-        Stream stockStream = wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("StockStream");
         wisdomApp.defineStream("OutputStream");
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
                 .window(Window.lengthBatch(3))
-                .aggregate(Operator.SUM("volume"), "sum")
+                .aggregate(Operator.SUM("volume", "sum"))
                 .select("symbol", "sum")
                 .insertInto("OutputStream");
 

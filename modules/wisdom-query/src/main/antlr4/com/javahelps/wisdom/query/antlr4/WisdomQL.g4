@@ -130,6 +130,8 @@ query_statement
     : select_statement
     | filter_statement
     | window_statement
+    | partition_statement
+    | aggregate_statement
     ;
 
 select_statement
@@ -138,6 +140,42 @@ select_statement
 
 filter_statement
     : FILTER logical_operator END_OF_STATEMENT?
+    ;
+
+partition_statement
+    : PARTITION BY NAME (COMMA NAME)* END_OF_STATEMENT?
+    ;
+
+aggregate_statement
+    : AGGREGATE aggregate_operator (COMMA aggregate_operator)* END_OF_STATEMENT?
+    ;
+
+aggregate_operator
+    : sum_operator
+    | avg_operator
+    | max_operator
+    | min_operator
+    | count_operator
+    ;
+
+sum_operator
+    : SUM OPEN_PAREN NAME CLOSE_PAREN AS NAME
+    ;
+
+avg_operator
+    : AVG OPEN_PAREN NAME CLOSE_PAREN AS NAME
+    ;
+
+max_operator
+    : MAX OPEN_PAREN NAME CLOSE_PAREN AS NAME
+    ;
+
+min_operator
+    : MIN OPEN_PAREN NAME CLOSE_PAREN AS NAME
+    ;
+
+count_operator
+    : COUNT OPEN_PAREN CLOSE_PAREN AS NAME
     ;
 
 window_statement
@@ -258,6 +296,14 @@ INSERT : 'insert';
 UPDATE : 'update';
 INTO : 'into';
 FILTER : 'filter';
+PARTITION : 'partition';
+AGGREGATE : 'aggregate';
+BY : 'by';
+SUM : 'sum';
+AVG : 'avg';
+MAX : 'max';
+MIN : 'min';
+COUNT : 'count';
 WINDOW : 'window';
 MICROSECOND: 'micros' | 'microsecond' | 'microseconds';
 MILLISECOND: 'millis' | 'millisecond' | 'milliseconds';
@@ -286,7 +332,7 @@ YEAR: 'month' | 'months';
 //       int indent = getIndentationCount(spaces);
 //       int previous = indents.isEmpty() ? 0 : indents.peek();
 //       if (indent == previous) {
-//         // skip indents of the same size as the present indent-size
+//         // skip indents of the same size newName the present indent-size
 //         skip();
 //       }
 //       else if (indent > previous) {

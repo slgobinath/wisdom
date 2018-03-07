@@ -40,7 +40,6 @@ public class AttributeSelectProcessor extends StreamProcessor {
     @Override
     public void process(List<Event> events) {
         if (!selectAll) {
-            // Do nothing
             for (Event event : events) {
                 event.getData().keySet().retainAll(attributes);
             }

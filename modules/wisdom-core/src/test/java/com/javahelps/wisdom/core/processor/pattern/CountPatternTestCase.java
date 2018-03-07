@@ -473,8 +473,8 @@ public class CountPatternTestCase {
 //                "@info(name = 'query1') " +
 //                "from every e1 = EventStream -> " +
 //                "     e2 = EventStream [e1.symbol==e2.symbol]<4:6> " +
-//                "select e1.volume as volume1, e2[0].volume as volume2, e2[1].volume as volume3, e2[2].volume as " +
-//                "volume4, e2[3].volume as volume5, e2[4].volume as volume6, e2[5].volume as volume7 " +
+//                "select e1.volume newName volume1, e2[0].volume newName volume2, e2[1].volume newName volume3, e2[2].volume newName " +
+//                "volume4, e2[3].volume newName volume5, e2[4].volume newName volume6, e2[5].volume newName volume7 " +
 //                "insert into StockQuote;";
 //
 //        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
@@ -560,7 +560,7 @@ public class CountPatternTestCase {
 //        String query = "" +
 //                "@info(name = 'query1') " +
 //                "from e1=Stream1[price>20] <0:5> -> e2=Stream2[price>e1[0].price] " +
-//                "select e1[0].price as price1_0, e1[1].price as price1_1, e1[2].price as price1_2, e2.price as
+//                "select e1[0].price newName price1_0, e1[1].price newName price1_1, e1[2].price newName price1_2, e2.price newName
 // price2" +
 //                " " +
 //                "having instanceOfFloat(e1[1].price) and not instanceOfFloat(e1[2].price) and instanceOfFloat" +

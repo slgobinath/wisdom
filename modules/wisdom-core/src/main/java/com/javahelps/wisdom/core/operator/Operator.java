@@ -1,13 +1,9 @@
 package com.javahelps.wisdom.core.operator;
 
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.operand.WisdomDouble;
 import com.javahelps.wisdom.core.operand.WisdomLong;
-import com.javahelps.wisdom.core.operand.WisdomReference;
 import com.javahelps.wisdom.core.processor.AttributeSelectProcessor;
-import com.javahelps.wisdom.core.util.WisdomConfig;
 
-import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -18,7 +14,7 @@ import java.util.regex.Pattern;
 /**
  * {@link Operator} provides some built-in operations on the given attribute of an {@link Event} at the
  * runtime.
- * {@link Operator} modifies the attributes of the {@link Event} which is passed as the parameter of the
+ * {@link Operator} modifies the attributes of the {@link Event} which is passed newName the parameter of the
  * {@link Function}.
  *
  * @see AttributeSelectProcessor
@@ -57,87 +53,30 @@ public class Operator {
 //
 //
 
-    public static Function<Event, Comparable> SUM(final String attribute) {
 
-        final WisdomDouble sum = new WisdomDouble();
-        Function<Event, Comparable> function = event -> {
-            Double value;
-            synchronized (sum) {
-                if (event.isReset()) {
-                    value = sum.set(0);
-                } else {
-                    value = sum.addAndGet(event.getAsDouble(attribute));
-                }
-            }
-            return value;
-        };
-        return function;
+    public static AggregateOperator SUM(final String attribute, final String as) {
 
+        return new SumOperator(attribute, as);
     }
 
-    public static Function<Event, Comparable> MIN(final String attribute) {
+    public static AggregateOperator AVG(final String attribute, final String as) {
 
-        final WisdomReference<Comparable> min = new WisdomReference<>();
-        final Comparator<Comparable> naturalOrder = Comparator.naturalOrder();
-        final Comparator<Comparable> comparator = Comparator.nullsLast(naturalOrder);
-        Function<Event, Comparable> function = event -> {
-            Comparable value;
-            synchronized (min) {
-                if (event.isReset()) {
-                    value = min.set(null);
-                } else {
-                    value = min.setIfLess(comparator, event.get(attribute));
-                }
-            }
-            return value;
-        };
-        return function;
+        return new AvgOperator(attribute, as);
     }
 
-    public static Function<Event, Comparable> MAX(final String attribute) {
+    public static AggregateOperator MIN(final String attribute, final String as) {
 
-        final WisdomReference<Comparable> max = new WisdomReference<>();
-        final Comparator<Comparable> naturalOrder = Comparator.naturalOrder();
-        final Comparator<Comparable> comparator = Comparator.nullsFirst(naturalOrder);
-        Function<Event, Comparable> function = event -> {
-            Comparable value;
-            synchronized (max) {
-                if (event.isReset()) {
-                    value = max.set(null);
-                } else {
-                    value = max.setIfGreater(comparator, event.get(attribute));
-                }
-            }
-            return value;
-        };
-
-        return function;
+        return new MinOperator(attribute, as);
     }
 
-    public static Function<Event, Comparable> AVG(final String attribute) {
+    public static AggregateOperator MAX(final String attribute, final String as) {
 
-        final WisdomDouble sum = new WisdomDouble();
-        final WisdomLong count = new WisdomLong();
-        Function<Event, Comparable> function = event -> {
-            Double value;
-            synchronized (sum) {
-                if (event.isReset()) {
-                    sum.set(0);
-                    count.set(0);
-                    value = 0.0;
-                } else {
-                    double total = sum.addAndGet(event.getAsDouble(attribute));
-                    long noOfEvents = count.incrementAndGet();
-                    double avg = total / noOfEvents;
-                    if (avg != Double.NaN) {
-                        avg = Math.round(avg * 10_000.0) / WisdomConfig.DOUBLE_PRECISION;
-                    }
-                    value = avg;
-                }
-            }
-            return value;
-        };
-        return function;
+        return new MaxOperator(attribute, as);
+    }
+
+    public static AggregateOperator COUNT(String as) {
+
+        return new CountOperator(as);
     }
 
     public static Predicate<Event> EQUALS(final String attribute, final Comparable value) {
@@ -300,22 +239,5 @@ public class Operator {
                 return matcher.find();
             }
         };
-    }
-
-    public static final Function<Event, Comparable> COUNT() {
-
-        final WisdomLong count = new WisdomLong();
-        Function<Event, Comparable> function = event -> {
-            long value;
-            synchronized (count) {
-                if (event.isReset()) {
-                    value = count.set(0);
-                } else {
-                    value = count.incrementAndGet();
-                }
-            }
-            return value;
-        };
-        return function;
     }
 }

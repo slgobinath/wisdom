@@ -20,8 +20,8 @@ import static com.javahelps.wisdom.core.util.WisdomConstants.ASYNC;
 import static com.javahelps.wisdom.core.util.WisdomConstants.BUFFER;
 
 /**
- * {@link Stream} is the fundamental data-structure of the event processor. At the runtime, it acts as the entry point
- * and manager of all the queries starting with this as the input stream.
+ * {@link Stream} is the fundamental data-structure of the event processor. At the runtime, it acts newName the entry point
+ * and manager of all the queries starting with this newName the input stream.
  */
 public class Stream implements Processor {
 
