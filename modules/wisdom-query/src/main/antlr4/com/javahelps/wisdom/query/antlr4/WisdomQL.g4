@@ -106,7 +106,7 @@ annotation_element
     ;
 
 optional_key_value_element
-    : (NAME ASSIGN)? (wisdom_primitive|variable_reference)
+    : (NAME ASSIGN)? (wisdom_primitive|variable_reference|time_duration)
     ;
 
 definition
@@ -225,7 +225,7 @@ variable_reference
     ;
 
 time_duration
-    : INTEGER (MICROSECOND|MILLISECOND|SECOND|MINUTE|HOUR|DAY|MONTH|YEAR)
+    : TIME DOT (MICROSECOND|MILLISECOND|SECOND|MINUTE|HOUR|DAY|MONTH|YEAR) OPEN_PAREN NUMBER CLOSE_PAREN
     ;
 
 /*
@@ -313,6 +313,7 @@ HOUR: 'hour' | 'hours';
 DAY: 'day' | 'days';
 MONTH: 'month' | 'months';
 YEAR: 'month' | 'months';
+TIME: 'time';
 
 //NEWLINE
 // : ( {atStartOfInput()}?   SPACES

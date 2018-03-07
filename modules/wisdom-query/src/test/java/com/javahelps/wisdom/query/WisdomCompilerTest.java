@@ -349,7 +349,7 @@ public class WisdomCompilerTest {
     }
 
     @Test
-    public void testWindowQuery() {
+    public void testLengthWindowQuery() {
 
         LOGGER.info("Test length window");
 
@@ -380,6 +380,37 @@ public class WisdomCompilerTest {
         wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
+    }
+
+    @Test
+    public void testExternalTimeBatchWindowQuery() throws InterruptedException {
+        LOGGER.info("Test external time batch window");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "window.externalTimeBatch('timestamp', time.second(1)) " +
+                "select symbol, price " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "IBM", "price", 50.0),
+                map("symbol", "WSO2", "price", 60.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "timestamp", 1000L));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "timestamp", 1500L));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "timestamp", 2000L));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
 
     @Test

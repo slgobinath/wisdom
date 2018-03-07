@@ -120,6 +120,8 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         } else if (ctx.variable_reference() != null) {
             element.setValue((Comparable) visit(ctx.variable_reference()));
             element.setVariable(true);
+        } else if (ctx.time_duration() != null) {
+            element.setValue((Comparable) visit(ctx.time_duration()));
         }
         return element;
     }
@@ -316,7 +318,12 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
     @Override
     public Duration visitTime_duration(WisdomQLParser.Time_durationContext ctx) {
-        long value = Long.parseLong(ctx.INTEGER().getText());
+        long value;
+        try {
+            value = Long.parseLong(ctx.NUMBER().getText());
+        } catch (NumberFormatException ex) {
+            throw new WisdomParserException(ctx, "time duration must be integer");
+        }
         TemporalUnit unit;
         if (ctx.MICROSECOND() != null) {
             unit = ChronoUnit.MICROS;

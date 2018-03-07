@@ -22,6 +22,12 @@
             <artifactId>wisdom-query</artifactId>
             <version>${wisdom.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.javahelps.wisdom</groupId>
+            <artifactId>wisdom-extension-unique</artifactId>
+            <version>${wisdom.version}</version>
+        </dependency>
     </dependencies>
 
 
