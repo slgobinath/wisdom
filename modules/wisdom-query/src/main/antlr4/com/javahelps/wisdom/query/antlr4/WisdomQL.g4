@@ -98,7 +98,7 @@ wisdom_app
     ;
 
 annotation
-    : AT NAME (OPEN_PAREN (annotation_element) (COMMA (annotation_element) )* CLOSE_PAREN )?
+    : AT NAME (OPEN_PAREN (annotation_element) (COMMA (annotation_element) )* CLOSE_PAREN )? END_OF_STATEMENT?
     ;
 
 annotation_element
@@ -115,15 +115,15 @@ definition
     ;
 
 def_stream
-    : annotation? DEF STREAM NAME
+    : annotation? DEF STREAM NAME END_OF_STATEMENT?
     ;
 
 def_variable
-    : DEF VARIABLE NAME ASSIGN wisdom_primitive
+    : DEF VARIABLE NAME ASSIGN wisdom_primitive END_OF_STATEMENT?
     ;
 
 query
-    : annotation? FROM input=NAME query_statement* (insert_into_statement|update_statement)
+    : annotation? FROM input=NAME END_OF_STATEMENT? query_statement* (insert_into_statement|update_statement) END_OF_STATEMENT?
     ;
 
 query_statement
@@ -133,15 +133,16 @@ query_statement
     ;
 
 select_statement
-    : SELECT (STAR | (NAME (COMMA NAME)*))
+    : SELECT (STAR | (NAME (COMMA NAME)*)) END_OF_STATEMENT?
     ;
 
 filter_statement
-    : FILTER logical_operator
+    : FILTER logical_operator END_OF_STATEMENT?
     ;
 
 window_statement
-    : WINDOW DOT name=NAME (COLON type=NAME)? OPEN_PAREN (optional_key_value_element (COMMA optional_key_value_element)*)? CLOSE_PAREN
+    : WINDOW DOT name=NAME (COLON type=NAME)? OPEN_PAREN (optional_key_value_element (COMMA
+    optional_key_value_element)*)? CLOSE_PAREN END_OF_STATEMENT?
     ;
 
 insert_into_statement
@@ -195,7 +196,7 @@ time_duration
 
 END_OF_STATEMENT
     : SEMI_COLON
-    | NEWLINE
+    | NEWLINE+
     ;
 
 STRING
@@ -267,41 +268,45 @@ DAY: 'day' | 'days';
 MONTH: 'month' | 'months';
 YEAR: 'month' | 'months';
 
+//NEWLINE
+// : ( {atStartOfInput()}?   SPACES
+//   | ( '\r'? '\n' | '\r' | '\f' ) SPACES?
+//   )
+//   {
+//     String newLine = getText().replaceAll("[^\r\n\f]+", "");
+//     String spaces = getText().replaceAll("[\r\n\f]+", "");
+//     int next = _input.LA(1);
+//     if (opened > 0 || next == '\r' || next == '\n' || next == '\f' || next == '#') {
+//       // If we're inside a list or on a blank line, ignore all indents,
+//       // dedents and line breaks.
+//       skip();
+//     }
+//     else {
+//       emit(commonToken(NEWLINE, newLine));
+//       int indent = getIndentationCount(spaces);
+//       int previous = indents.isEmpty() ? 0 : indents.peek();
+//       if (indent == previous) {
+//         // skip indents of the same size as the present indent-size
+//         skip();
+//       }
+//       else if (indent > previous) {
+//         indents.push(indent);
+//         emit(commonToken(WisdomQLParser.INDENT, spaces));
+//       }
+//       else {
+//         // Possibly emit more than 1 DEDENT token.
+//         while(!indents.isEmpty() && indents.peek() > indent) {
+//           this.emit(createDedent());
+//           indents.pop();
+//         }
+//       }
+//     }
+//   }
+// ;
+
 NEWLINE
- : ( {atStartOfInput()}?   SPACES
-   | ( '\r'? '\n' | '\r' | '\f' ) SPACES?
-   )
-   {
-     String newLine = getText().replaceAll("[^\r\n\f]+", "");
-     String spaces = getText().replaceAll("[\r\n\f]+", "");
-     int next = _input.LA(1);
-     if (opened > 0 || next == '\r' || next == '\n' || next == '\f' || next == '#') {
-       // If we're inside a list or on a blank line, ignore all indents,
-       // dedents and line breaks.
-       skip();
-     }
-     else {
-       emit(commonToken(NEWLINE, newLine));
-       int indent = getIndentationCount(spaces);
-       int previous = indents.isEmpty() ? 0 : indents.peek();
-       if (indent == previous) {
-         // skip indents of the same size as the present indent-size
-         skip();
-       }
-       else if (indent > previous) {
-         indents.push(indent);
-         emit(commonToken(WisdomQLParser.INDENT, spaces));
-       }
-       else {
-         // Possibly emit more than 1 DEDENT token.
-         while(!indents.isEmpty() && indents.peek() > indent) {
-           this.emit(createDedent());
-           indents.pop();
-         }
-       }
-     }
-   }
- ;
+    : ( '\r'? '\n' | '\r' | '\f') SPACES?
+    ;
 
 /// identifier   ::=  id_start id_continue*
 NAME

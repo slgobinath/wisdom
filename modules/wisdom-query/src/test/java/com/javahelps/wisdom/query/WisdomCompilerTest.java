@@ -8,6 +8,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import static com.javahelps.wisdom.query.TestUtil.map;
 
 public class WisdomCompilerTest {
@@ -490,5 +495,28 @@ public class WisdomCompilerTest {
         wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
+    @Test
+    public void testCompileFromFile() throws URISyntaxException, IOException {
+
+        LOGGER.info("Test query file");
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(
+                Paths.get(ClassLoader.getSystemClassLoader().getResource("wisdom_app.wisdomql").toURI()));
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "WSO2", "price", 60.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 25));
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 }

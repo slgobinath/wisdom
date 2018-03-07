@@ -1,0 +1,9 @@
+@app(name='WisdomApp', version='1.0.0')
+def stream StockStream;
+def stream OutputStream;
+
+@query(name='FilterQuery')
+from StockStream
+filter symbol == 'WSO2'
+select symbol, price
+insert into OutputStream;
