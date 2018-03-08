@@ -5,7 +5,6 @@ import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.variable.Variable;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,14 +28,15 @@ public class ExternalTimeBatchWindow extends Window implements Variable.OnUpdate
         } else {
             throw new WisdomAppValidationException("timestampKey of ExternalTimeBatchWindow must be java.lang.String but found %d", keyVal.getClass().getSimpleName());
         }
-        if (durationVal instanceof Duration) {
-            this.timeToKeep = ((Duration) durationVal).toMillis();
+        if (durationVal instanceof Number) {
+            this.timeToKeep = ((Number) durationVal).longValue();
         } else if (durationVal instanceof Variable) {
             Variable<Number> variable = (Variable<Number>) durationVal;
             this.timeToKeep = variable.get().longValue();
             variable.addOnUpdateListener(this);
         } else {
-            throw new WisdomAppValidationException("duration of ExternalTimeBatchWindow must be java.time.Duration but found %d", keyVal.getClass().getSimpleName());
+            throw new WisdomAppValidationException("duration of ExternalTimeBatchWindow must be long but found %d",
+                    keyVal.getClass().getSimpleName());
         }
     }
 

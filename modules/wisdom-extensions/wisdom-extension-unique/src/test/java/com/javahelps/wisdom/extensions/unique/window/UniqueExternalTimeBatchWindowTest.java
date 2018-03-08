@@ -11,9 +11,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-
 import static com.javahelps.wisdom.dev.util.EventUtil.map;
 
 public class UniqueExternalTimeBatchWindowTest {
@@ -35,7 +32,8 @@ public class UniqueExternalTimeBatchWindowTest {
 
         wisdomApp.defineQuery("query1")
                 .from("LoginEventStream")
-                .window(Window.create("unique:externalTimeBatch", map("uniqueKey", "ip", "timestampKey", "timestamp", "duration", Duration.of(1, ChronoUnit.SECONDS))))
+                .window(Window.create("unique:externalTimeBatch", map("uniqueKey", "ip", "timestampKey",
+                        "timestamp", "duration", 1000L)))
                 .aggregate(Operator.COUNT("count"))
                 .select("ip", "timestamp", "count")
                 .insertInto("OutputStream");
@@ -72,7 +70,8 @@ public class UniqueExternalTimeBatchWindowTest {
 
         wisdomApp.defineQuery("query1")
                 .from("LoginEventStream")
-                .window(Window.create("unique:externalTimeBatch", map("uniqueKey", "ip", "timestampKey", "timestamp", "duration", Duration.of(1, ChronoUnit.SECONDS))))
+                .window(Window.create("unique:externalTimeBatch", map("uniqueKey", "ip", "timestampKey",
+                        "timestamp", "duration", 1000L)))
                 .aggregate(Operator.COUNT("count"))
                 .select("ip", "timestamp", "count")
                 .insertInto("OutputStream");

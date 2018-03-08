@@ -106,7 +106,7 @@ annotation_element
     ;
 
 optional_key_value_element
-    : (NAME ASSIGN)? (wisdom_primitive|variable_reference|time_duration)
+    : (NAME ASSIGN)? (wisdom_primitive|variable_reference)
     ;
 
 definition
@@ -208,16 +208,12 @@ logical_operator
     | logical_operator OR logical_operator
     ;
 
-wisdom_operand
-    : wisdom_primitive
-    | time_duration
-    ;
-
 wisdom_primitive
     : STRING
     | NUMBER
     | TRUE
     | FALSE
+    | time_duration
     ;
 
 variable_reference

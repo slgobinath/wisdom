@@ -6,7 +6,6 @@ import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.variable.Variable;
 import com.javahelps.wisdom.core.window.Window;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,14 +36,14 @@ public class UniqueExternalTimeBatchWindow extends Window implements Variable.On
         } else {
             throw new WisdomAppValidationException("timestampKey of UniqueExternalTimeBatchWindow must be java.lang.String but found %d", timestampKeyVal.getClass().getSimpleName());
         }
-        if (durationVal instanceof Duration) {
-            this.timeToKeep = ((Duration) durationVal).toMillis();
+        if (durationVal instanceof Number) {
+            this.timeToKeep = ((Number) durationVal).longValue();
         } else if (durationVal instanceof Variable) {
             Variable<Long> variable = (Variable<Long>) durationVal;
             this.timeToKeep = variable.get();
             variable.addOnUpdateListener(this);
         } else {
-            throw new WisdomAppValidationException("duration of UniqueExternalTimeBatchWindow must be java.time.Duration but found %d", timestampKeyVal.getClass().getSimpleName());
+            throw new WisdomAppValidationException("duration of UniqueExternalTimeBatchWindow must be long but found %d", timestampKeyVal.getClass().getSimpleName());
         }
     }
 

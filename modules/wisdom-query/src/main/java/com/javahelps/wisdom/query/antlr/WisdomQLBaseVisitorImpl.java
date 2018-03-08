@@ -120,8 +120,6 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         } else if (ctx.variable_reference() != null) {
             element.setValue((Comparable) visit(ctx.variable_reference()));
             element.setVariable(true);
-        } else if (ctx.time_duration() != null) {
-            element.setValue((Comparable) visit(ctx.time_duration()));
         }
         return element;
     }
@@ -317,7 +315,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
-    public Duration visitTime_duration(WisdomQLParser.Time_durationContext ctx) {
+    public Long visitTime_duration(WisdomQLParser.Time_durationContext ctx) {
         long value;
         try {
             value = Long.parseLong(ctx.NUMBER().getText());
@@ -344,7 +342,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         } else {
             throw new WisdomParserException(ctx, "invalid time unit");
         }
-        return Duration.of(value, unit);
+        return Duration.of(value, unit).toMillis();
     }
 
     @Override
@@ -362,6 +360,8 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             value = true;
         } else if (ctx.FALSE() != null) {
             value = false;
+        } else if (ctx.time_duration() != null) {
+            value = (Comparable) visit(ctx.time_duration());
         } else {
             throw new WisdomParserException(ctx, "invalid primitive data");
         }
