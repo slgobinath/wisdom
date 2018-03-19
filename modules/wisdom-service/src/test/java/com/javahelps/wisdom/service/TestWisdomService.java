@@ -71,15 +71,15 @@ public class TestWisdomService {
 
         Thread.sleep(testServerWaitingTime);
 
+        wisdomService.stop();
+        client.close();
+
         List<String> lines = Files.readAllLines(Paths.get("test_server_output.log"));
         lines.removeIf(line -> line.startsWith("INFO"));
 
         Assert.assertTrue(lines.get(0).contains("IBM"));
         Assert.assertTrue(lines.get(1).contains("WSO2"));
         Assert.assertTrue(lines.get(2).contains("ORACLE"));
-
-        wisdomService.stop();
-        client.close();
     }
 
     @Test

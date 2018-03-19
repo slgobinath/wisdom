@@ -1,5 +1,6 @@
 package com.javahelps.wisdom.service.client;
 
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -20,10 +21,15 @@ public class WisdomAdminClient {
 
     public void stop() throws IOException {
 
-        HttpPost post = new HttpPost(this.endpoint + "shutdown");
-        CloseableHttpResponse httpResponse = client.execute(post);
-        httpResponse.close();
-        this.close();
+        try {
+            HttpPost post = new HttpPost(this.endpoint + "shutdown");
+            CloseableHttpResponse httpResponse = client.execute(post);
+            httpResponse.close();
+        } catch (NoHttpResponseException ex) {
+            // Do nothing
+        } finally {
+            this.close();
+        }
     }
 
     public void close() throws IOException {

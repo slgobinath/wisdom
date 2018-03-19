@@ -8,9 +8,10 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.Map;
+
+import static com.javahelps.wisdom.service.Constant.MEDIA_APPLICATION_JSON;
 
 public class WisdomHTTPClient extends WisdomClient {
 
@@ -27,7 +28,7 @@ public class WisdomHTTPClient extends WisdomClient {
 
         HttpPost post = new HttpPost(this.endpoint + streamId);
         StringEntity input = new StringEntity(Utility.toJson(data));
-        input.setContentType(MediaType.APPLICATION_JSON);
+        input.setContentType(MEDIA_APPLICATION_JSON);
         post.setEntity(input);
 
         CloseableHttpResponse httpResponse = client.execute(post);
