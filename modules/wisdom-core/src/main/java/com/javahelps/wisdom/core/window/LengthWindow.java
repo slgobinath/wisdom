@@ -2,6 +2,7 @@ package com.javahelps.wisdom.core.window;
 
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.variable.Variable;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 /**
  * Window keeps n number of events.
  */
+@WisdomExtension("length")
 public class LengthWindow extends Window implements Variable.OnUpdateListener<Number> {
 
     private List<Event> events;

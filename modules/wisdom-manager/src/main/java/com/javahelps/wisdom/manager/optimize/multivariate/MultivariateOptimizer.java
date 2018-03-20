@@ -129,7 +129,7 @@ public class MultivariateOptimizer {
             double maxLimit = constraints[i].getHigh();
             double newError = error;
             double step = this.steps[i];
-            while (newError <= error && currentPoint[i] > minLimit && currentPoint[i] < maxLimit) {
+            while (newError <= error && currentPoint[i] >= minLimit && currentPoint[i] <= maxLimit) {
                 optimizedPoints[i] = currentPoint[i];
                 currentPoint[i] += step;
                 newError = this.function.apply(point) - 0;

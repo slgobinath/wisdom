@@ -18,7 +18,7 @@ public class UniqueLengthBatchWindowTest {
     private TestCallback callbackUtil = new TestCallback(LOGGER);
 
     static {
-        ImportsManager.INSTANCE.use("unique:lengthBatch", UniqueLengthBatchWindow.class);
+        ImportsManager.INSTANCE.use(UniqueLengthBatchWindow.class);
     }
 
     @Test

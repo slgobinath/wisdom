@@ -19,7 +19,7 @@ public class UniqueExternalTimeBatchWindowTest {
     private TestCallback callbackUtil = new TestCallback(LOGGER);
 
     static {
-        ImportsManager.INSTANCE.use("unique:externalTimeBatch", UniqueExternalTimeBatchWindow.class);
+        ImportsManager.INSTANCE.use(UniqueExternalTimeBatchWindow.class);
     }
 
     @Test

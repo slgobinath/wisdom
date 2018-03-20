@@ -2,6 +2,7 @@ package com.javahelps.wisdom.extensions.unique.window;
 
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.variable.Variable;
 import com.javahelps.wisdom.core.window.Window;
@@ -11,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@WisdomExtension("unique:externalTimeBatch")
 public class UniqueExternalTimeBatchWindow extends Window implements Variable.OnUpdateListener<Long> {
 
     private final Map<Comparable, Event> eventMap = new LinkedHashMap<>();

@@ -28,9 +28,7 @@ public abstract class Window implements Partitionable, Stateful {
     }
 
     static {
-        ImportsManager.INSTANCE.use("length", LengthWindow.class);
-        ImportsManager.INSTANCE.use("lengthBatch", LengthBatchWindow.class);
-        ImportsManager.INSTANCE.use("externalTimeBatch", ExternalTimeBatchWindow.class);
+        ImportsManager.INSTANCE.use(Window.class.getPackageName());
     }
 
     public static Window create(String namespace, Map<String, ?> properties) {

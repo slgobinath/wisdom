@@ -28,7 +28,7 @@ public class WisdomOptimizerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomOptimizerTest.class);
 
     static {
-        ImportsManager.INSTANCE.use("unique:externalTimeBatch", UniqueExternalTimeBatchWindow.class);
+        ImportsManager.INSTANCE.use(UniqueExternalTimeBatchWindow.class);
     }
 
     @Test

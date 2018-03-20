@@ -10,8 +10,7 @@ import static com.javahelps.wisdom.core.util.Commons.map;
 public class UniqueWindow {
 
     static {
-        ImportsManager.INSTANCE.use("unique:externalTimeBatch", UniqueExternalTimeBatchWindow.class);
-        ImportsManager.INSTANCE.use("unique:lengthBatch", UniqueLengthBatchWindow.class);
+        ImportsManager.INSTANCE.use(UniqueWindow.class.getPackageName());
     }
 
     private UniqueWindow() {
