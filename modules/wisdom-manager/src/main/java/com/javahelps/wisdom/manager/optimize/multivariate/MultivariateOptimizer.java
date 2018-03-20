@@ -1,4 +1,4 @@
-package com.javahelps.wisdom.manager.optmize.multivariate;
+package com.javahelps.wisdom.manager.optimize.multivariate;
 
 import com.javahelps.wisdom.manager.util.Utility;
 import org.slf4j.Logger;
@@ -125,10 +125,11 @@ public class MultivariateOptimizer {
         for (int i = 0; i < DIMENSION; i++) {
             Point point = new Point(globalBestPoint.getCoordinates(), constraints);
             double[] currentPoint = point.getCoordinates();
+            double minLimit = constraints[i].getLow();
             double maxLimit = constraints[i].getHigh();
             double newError = error;
             double step = this.steps[i];
-            while (newError <= error && currentPoint[i] < maxLimit) {
+            while (newError <= error && currentPoint[i] > minLimit && currentPoint[i] < maxLimit) {
                 optimizedPoints[i] = currentPoint[i];
                 currentPoint[i] += step;
                 newError = this.function.apply(point) - 0;

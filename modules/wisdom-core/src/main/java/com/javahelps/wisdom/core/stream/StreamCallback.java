@@ -8,5 +8,5 @@ import com.javahelps.wisdom.core.event.Event;
 @FunctionalInterface
 public interface StreamCallback {
 
-    void receive(Event... event);
+    void receive(Event... events);
 }

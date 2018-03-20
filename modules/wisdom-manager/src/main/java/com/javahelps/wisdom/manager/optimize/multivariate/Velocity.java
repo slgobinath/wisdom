@@ -1,4 +1,4 @@
-package com.javahelps.wisdom.manager.optmize.multivariate;
+package com.javahelps.wisdom.manager.optimize.multivariate;
 
 class Velocity {
     private double[] velocity;

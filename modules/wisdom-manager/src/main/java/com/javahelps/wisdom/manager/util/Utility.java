@@ -1,6 +1,6 @@
 package com.javahelps.wisdom.manager.util;
 
-import com.javahelps.wisdom.manager.optmize.multivariate.Constraint;
+import com.javahelps.wisdom.manager.optimize.multivariate.Constraint;
 
 public class Utility {
     public static int getMinPos(double[] list) {

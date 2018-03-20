@@ -2,7 +2,7 @@
 def stream PacketStream;
 def stream IPSweepStream;
 def variable time_threshold = 1000;
-def variable count_threshold = 5;
+def variable count_threshold = 50;
 
 @query(name='IPSweepQuery')
 from PacketStream
@@ -11,5 +11,5 @@ from PacketStream
     window.unique:externalTimeBatch('destIp', 'timestamp', $time_threshold)
     aggregate count() as no_of_packets
     filter no_of_packets > $count_threshold
-    select srcIp, srcPort, destIp, no_of_packets, timestamp
+    select srcIp, destIp, no_of_packets, timestamp
 insert into IPSweepStream;

@@ -7,11 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class PartitionProcessor extends StreamProcessor {
+public class PartitionProcessor extends StreamProcessor implements Stateful {
 
     private final String[] attributes;
     private final Map<String, Processor> processorMap = new HashMap<>();
+    private final Lock lock = new ReentrantLock();
 
     public PartitionProcessor(String id, String... attributes) {
         super(id);
@@ -39,12 +42,17 @@ public class PartitionProcessor extends StreamProcessor {
 
     private Processor getNexProcessor(Event event) {
         String key = this.calculateKey(event);
-        Processor nextProcessor = this.processorMap.get(key);
-        if (nextProcessor == null) {
-            nextProcessor = getNextProcessor().copy();
-            this.processorMap.putIfAbsent(key, nextProcessor);
+        try {
+            this.lock.lock();
+            Processor nextProcessor = this.processorMap.get(key);
+            if (nextProcessor == null) {
+                nextProcessor = getNextProcessor().copy();
+                this.processorMap.putIfAbsent(key, nextProcessor);
+            }
+            return nextProcessor;
+        } finally {
+            this.lock.unlock();
         }
-        return nextProcessor;
     }
 
     private String calculateKey(Event event) {
@@ -63,5 +71,15 @@ public class PartitionProcessor extends StreamProcessor {
     @Override
     public Processor copy() {
         return null;
+    }
+
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.processorMap.clear();
+        } finally {
+            this.lock.unlock();
+        }
     }
 }
