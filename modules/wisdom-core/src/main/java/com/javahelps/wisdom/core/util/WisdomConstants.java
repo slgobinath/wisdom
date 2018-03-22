@@ -20,6 +20,10 @@ public class WisdomConstants {
 
     public static final String BUFFER = "buffer";
 
+    public static final String STATISTICS = "stats";
+
+    public static final String STATISTICS_REPORT_FREQUENCY = "stats_freq";
+
     private WisdomConstants() {
     }
 }

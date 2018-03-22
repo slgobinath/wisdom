@@ -15,12 +15,10 @@ import com.javahelps.wisdom.core.variable.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
+import static com.javahelps.wisdom.core.util.WisdomConfig.WISDOM_APP_NAME;
+import static com.javahelps.wisdom.core.util.WisdomConfig.WISDOM_APP_VERSION;
 import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 
 /**
@@ -32,39 +30,42 @@ public class WisdomApp implements Stateful {
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomApp.class);
     private final String name;
     private final String version;
-    private final boolean async;
+
     private final int bufferSize;
     private final Map<String, Stream> streamMap = new HashMap<>();
     private final Map<String, Variable> variableMap = new HashMap<>();
     private final Map<String, Query> queryMap = new HashMap<>();
     private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
     private final WisdomContext wisdomContext;
+    private final ThreadBarrier threadBarrier;
 
     public WisdomApp() {
-        this("WisdomApp", "1.0.0");
+        this(WISDOM_APP_NAME, WISDOM_APP_VERSION);
     }
 
     public WisdomApp(String name, String version) {
         this.name = name;
         this.version = version;
-        this.async = WisdomConfig.ASYNC_ENABLED;
         this.bufferSize = WisdomConfig.EVENT_BUFFER_SIZE;
-        this.wisdomContext = new WisdomContext();
+        this.wisdomContext = new WisdomContext(new Properties());
+        this.threadBarrier = this.wisdomContext.getThreadBarrier();
     }
 
     public WisdomApp(Properties properties) {
-        this.name = properties.getProperty(NAME);
-        this.version = properties.getProperty(VERSION);
-        this.async = (boolean) properties.getOrDefault(ASYNC, false);
+        this.name = properties.getProperty(NAME, WISDOM_APP_NAME);
+        this.version = properties.getProperty(VERSION, WISDOM_APP_VERSION);
         this.bufferSize = ((Number) properties.getOrDefault(BUFFER, WisdomConfig.EVENT_BUFFER_SIZE)).intValue();
-        this.wisdomContext = new WisdomContext();
+        this.wisdomContext = new WisdomContext(properties);
+        this.threadBarrier = this.wisdomContext.getThreadBarrier();
     }
 
-    public WisdomContext getWisdomContext() {
+    public WisdomContext getContext() {
         return wisdomContext;
     }
 
     public void start() {
+        this.wisdomContext.init(this);
+        this.wisdomContext.start();
         this.queryMap.values().forEach(Query::init);
         this.streamMap.values().forEach(Processor::start);
     }
@@ -228,18 +229,16 @@ public class WisdomApp implements Stateful {
         return version;
     }
 
-    public boolean isAsync() {
-        return async;
-    }
-
     public int getBufferSize() {
         return bufferSize;
     }
 
     @Override
     public void clear() {
+        this.threadBarrier.lock();
         this.streamMap.values().forEach(Stream::disable);
         this.queryMap.values().forEach(Query::clear);
         this.streamMap.values().forEach(Stream::enable);
+        this.threadBarrier.unlock();
     }
 }

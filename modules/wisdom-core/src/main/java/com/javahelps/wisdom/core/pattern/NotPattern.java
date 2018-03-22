@@ -59,7 +59,7 @@ class NotPattern extends CustomPattern implements EmptiablePattern {
     public void init(WisdomApp wisdomApp) {
 
         this.pattern.init(wisdomApp);
-        this.scheduler = wisdomApp.getWisdomContext().getScheduler();
+        this.scheduler = wisdomApp.getContext().getScheduler();
     }
 
     @Override

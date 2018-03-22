@@ -6,11 +6,7 @@ import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.service.Utility;
-import org.apache.kafka.clients.consumer.CommitFailedException;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +36,7 @@ public class KafkaSource implements Source {
 
     @Override
     public void start() {
-        this.wisdomApp.getWisdomContext().getExecutorService().execute(this.consumerThread);
+        this.wisdomApp.getContext().getExecutorService().execute(this.consumerThread);
     }
 
     @Override

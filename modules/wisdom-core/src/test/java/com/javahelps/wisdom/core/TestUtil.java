@@ -24,10 +24,10 @@ public class TestUtil {
         return map;
     }
 
-    public static TestCallback addStreamCallback(Logger logger, WisdomApp wisdomApp, String query, Map<String,
+    public static TestCallback addStreamCallback(Logger logger, WisdomApp wisdomApp, String stream, Map<String,
             Comparable>... expectedEvents) {
         TestCallback testCallback = new TestCallback(logger);
-        testCallback.addCallback(wisdomApp, "OutputStream", expectedEvents);
+        testCallback.addCallback(wisdomApp, stream, expectedEvents);
         return testCallback;
     }
 

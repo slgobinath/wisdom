@@ -1,9 +1,11 @@
 package com.javahelps.wisdom.core.stream;
 
+import com.javahelps.wisdom.core.ThreadBarrier;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.processor.Processor;
+import com.javahelps.wisdom.core.statistics.StreamTracker;
 import com.javahelps.wisdom.core.stream.async.EventHolder;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.YieldingWaitStrategy;
@@ -16,8 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static com.javahelps.wisdom.core.util.WisdomConstants.ASYNC;
-import static com.javahelps.wisdom.core.util.WisdomConstants.BUFFER;
+import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 
 /**
  * {@link Stream} is the fundamental data-structure of the event processor. At the runtime, it acts newName the entry point
@@ -35,6 +36,8 @@ public class Stream implements Processor {
     private Disruptor<EventHolder> disruptor;
     private RingBuffer<EventHolder> ringBuffer;
     private boolean disabled = false;
+    private StreamTracker tracker;
+    private ThreadBarrier threadBarrier;
 
 
     public Stream(WisdomApp wisdomApp, String id) {
@@ -44,13 +47,15 @@ public class Stream implements Processor {
     public Stream(WisdomApp wisdomApp, String id, Properties properties) {
         this.id = id;
         this.wisdomApp = wisdomApp;
-        final boolean async = ((Boolean) properties.getOrDefault(ASYNC, wisdomApp.isAsync()));
+        this.threadBarrier = wisdomApp.getContext().getThreadBarrier();
+        final boolean async = ((Boolean) properties.getOrDefault(ASYNC, wisdomApp.getContext().isAsync()));
         final int bufferSize = ((Number) properties.getOrDefault(BUFFER, wisdomApp.getBufferSize())).intValue();
+        boolean statisticsEnabled = (boolean) properties.getOrDefault(STATISTICS, wisdomApp.getContext().isStatisticsEnabled());
 
         // Create disruptor if async mode is enables
         if (async) {
             this.disruptor = new Disruptor<>(EventHolder::new, bufferSize,
-                    wisdomApp.getWisdomContext().getThreadFactory(),
+                    wisdomApp.getContext().getThreadFactory(),
                     ProducerType.MULTI, new YieldingWaitStrategy());
 
             // Connect the handler
@@ -58,6 +63,11 @@ public class Stream implements Processor {
 
             // Get the ring buffer from the Disruptor to be used for publishing.
             this.ringBuffer = disruptor.getRingBuffer();
+        }
+
+        // Get stream tracker
+        if (statisticsEnabled) {
+            this.tracker = wisdomApp.getContext().getStatisticsManager().createStreamTracker(this.id);
         }
     }
 
@@ -86,11 +96,15 @@ public class Stream implements Processor {
         if (this.disabled) {
             return;
         }
+        Event newEvent = this.convertEvent(event);
+        if (this.tracker != null) {
+            this.tracker.inEvent();
+        }
         if (this.disruptor == null) {
-            this.sendToProcessors(event);
+            this.sendToProcessors(newEvent);
         } else {
             // Async enabled
-            this.ringBuffer.publishEvent((eventHolder, sequence, buffer) -> eventHolder.set(event));
+            this.ringBuffer.publishEvent((eventHolder, sequence, buffer) -> eventHolder.set(newEvent));
         }
     }
 
@@ -100,27 +114,34 @@ public class Stream implements Processor {
         if (this.disabled) {
             return;
         }
-        if (this.noOfProcessors == 1) {
-            this.processors[0].process(events);
-        } else {
+        List<Event> newEvents = this.convertEvent(events);
+        if (this.tracker != null) {
+            this.tracker.inEvent(newEvents.size());
+        }
+        if (this.disruptor == null) {
             for (Processor processor : this.processors) {
-                List<Event> newEvents = this.convertEvent(events);
-                processor.process(newEvents);
+                try {
+                    this.threadBarrier.pass();
+                    processor.process(newEvents);
+                } catch (WisdomAppRuntimeException ex) {
+                    this.wisdomApp.handleException(ex);
+                }
+            }
+        } else {
+            // Async enabled
+            for (Event event : newEvents) {
+                this.ringBuffer.publishEvent((eventHolder, sequence, buffer) -> eventHolder.set(event));
             }
         }
     }
 
     private void sendToProcessors(Event event) {
-        Event newEvent = this.convertEvent(event);
-        if (this.noOfProcessors == 1) {
-            this.processors[0].process(newEvent);
-        } else {
-            for (Processor processor : this.processors) {
-                try {
-                    processor.process(newEvent);
-                } catch (WisdomAppRuntimeException ex) {
-                    this.wisdomApp.handleException(ex);
-                }
+        for (Processor processor : this.processors) {
+            try {
+                this.threadBarrier.pass();
+                processor.process(event);
+            } catch (WisdomAppRuntimeException ex) {
+                this.wisdomApp.handleException(ex);
             }
         }
     }
@@ -173,5 +194,9 @@ public class Stream implements Processor {
 
     public void disable() {
         this.disabled = true;
+    }
+
+    public void setTracker(StreamTracker tracker) {
+        this.tracker = tracker;
     }
 }

@@ -117,7 +117,7 @@ public class Pattern extends StreamProcessor implements Stateful {
 
     public void init(WisdomApp wisdomApp) {
 
-        this.timestampGenerator = wisdomApp.getWisdomContext().getTimestampGenerator();
+        this.timestampGenerator = wisdomApp.getContext().getTimestampGenerator();
         this.streamIds.forEach(streamId -> wisdomApp.getStream(streamId).addProcessor(this));
     }
 
