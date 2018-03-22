@@ -3,6 +3,7 @@ package com.javahelps.wisdom.service;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.extension.ImportsManager;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.stream.output.Sink;
@@ -10,6 +11,8 @@ import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.service.exception.JsonSyntaxExceptionHandler;
 import com.javahelps.wisdom.service.exception.WisdomServiceException;
 import com.javahelps.wisdom.service.exception.WisdomServiceExceptionHandler;
+import com.javahelps.wisdom.service.sink.HTTPSink;
+import com.javahelps.wisdom.service.sink.KafkaSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -25,6 +28,11 @@ import static com.javahelps.wisdom.service.Constant.HTTP_ACCEPTED;
 import static com.javahelps.wisdom.service.Constant.MEDIA_APPLICATION_JSON;
 
 public class WisdomService {
+
+    static {
+        ImportsManager.INSTANCE.use(HTTPSink.class);
+        ImportsManager.INSTANCE.use(KafkaSink.class);
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomService.class);
 

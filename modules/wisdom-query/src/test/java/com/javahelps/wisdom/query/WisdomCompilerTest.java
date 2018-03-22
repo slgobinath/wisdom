@@ -8,7 +8,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
@@ -581,5 +583,39 @@ public class WisdomCompilerTest {
         Thread.sleep(100);
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
+    @Test
+    public void testConsoleSink() {
+
+        LOGGER.info("Test console sink annotation");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "@sink(type='console')" +
+                "@sink(type='console')" +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "select symbol, price " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        wisdomApp.start();
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        PrintStream originalStream = System.out;
+        System.setOut(new PrintStream(bos));
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+
+        System.setOut(originalStream);
+
+        wisdomApp.shutdown();
+
+        Assert.assertTrue("Incorrect number of events", bos.toString().contains("{symbol=IBM, price=50.0}"));
     }
 }

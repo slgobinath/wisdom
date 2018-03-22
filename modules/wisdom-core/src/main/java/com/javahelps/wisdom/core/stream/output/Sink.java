@@ -2,17 +2,31 @@ package com.javahelps.wisdom.core.stream.output;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.extension.ImportsManager;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
-public interface Sink {
+public abstract class Sink {
 
-    void start();
+    static {
+        ImportsManager.INSTANCE.use(ConsoleSink.class);
+    }
 
-    void init(WisdomApp wisdomApp, String streamId);
+    public Sink(Map<String, ?> properties) {
 
-    void publish(List<Event> events) throws IOException;
+    }
 
-    void stop();
+    public static Sink create(String namespace, Map<String, ?> properties) {
+        return ImportsManager.INSTANCE.createSink(namespace, properties);
+    }
+
+    public abstract void start();
+
+    public abstract void init(WisdomApp wisdomApp, String streamId);
+
+    public abstract void publish(List<Event> events) throws IOException;
+
+    public abstract void stop();
 }

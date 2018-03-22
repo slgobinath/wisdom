@@ -2,6 +2,8 @@ package com.javahelps.wisdom.service.sink;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.stream.output.Sink;
 import com.javahelps.wisdom.service.Utility;
 import com.javahelps.wisdom.service.exception.WisdomServiceException;
@@ -14,10 +16,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-public class KafkaSink implements Sink {
+import static com.javahelps.wisdom.service.Constant.*;
+import static java.util.Map.entry;
+
+@WisdomExtension("kafka")
+public class KafkaSink extends Sink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSink.class);
 
@@ -33,9 +40,21 @@ public class KafkaSink implements Sink {
     }
 
     public KafkaSink(String bootstrapServers, String topic, boolean batch) {
-        this.bootstrapServers = bootstrapServers;
-        this.topic = topic;
-        this.batch = batch;
+        this(Map.ofEntries(entry(BOOTSTRAP, bootstrapServers), entry(TOPIC, topic), entry(BATCH, batch)));
+    }
+
+    public KafkaSink(Map<String, Comparable> properties) {
+        super(properties);
+        this.bootstrapServers = (String) properties.get(BOOTSTRAP);
+        this.topic = (String) properties.get(TOPIC);
+        this.batch = (boolean) properties.getOrDefault(BATCH, false);
+
+        if (this.bootstrapServers == null) {
+            throw new WisdomAppValidationException("Required property %s for Kafka sink not found", BOOTSTRAP);
+        }
+        if (this.topic == null) {
+            throw new WisdomAppValidationException("Required property %s for Kafka sink not found", TOPIC);
+        }
 
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);

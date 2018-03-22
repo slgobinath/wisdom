@@ -6,22 +6,7 @@ import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.query.antlr4.WisdomQLBaseVisitor;
 import com.javahelps.wisdom.query.antlr4.WisdomQLParser;
-import com.javahelps.wisdom.query.tree.AggregateStatement;
-import com.javahelps.wisdom.query.tree.Annotation;
-import com.javahelps.wisdom.query.tree.AnnotationElement;
-import com.javahelps.wisdom.query.tree.Definition;
-import com.javahelps.wisdom.query.tree.FilterStatement;
-import com.javahelps.wisdom.query.tree.InsertIntoStatement;
-import com.javahelps.wisdom.query.tree.KeyValueElement;
-import com.javahelps.wisdom.query.tree.LogicalOperator;
-import com.javahelps.wisdom.query.tree.PartitionStatement;
-import com.javahelps.wisdom.query.tree.QueryNode;
-import com.javahelps.wisdom.query.tree.SelectStatement;
-import com.javahelps.wisdom.query.tree.Statement;
-import com.javahelps.wisdom.query.tree.StreamDefinition;
-import com.javahelps.wisdom.query.tree.UpdateStatement;
-import com.javahelps.wisdom.query.tree.VariableDefinition;
-import com.javahelps.wisdom.query.tree.WindowStatement;
+import com.javahelps.wisdom.query.tree.*;
 import com.javahelps.wisdom.query.util.Utility;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -79,10 +64,9 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     @Override
     public StreamDefinition visitDef_stream(WisdomQLParser.Def_streamContext ctx) {
         StreamDefinition definition = new StreamDefinition(ctx.NAME().getText());
-        if (ctx.annotation() != null) {
-            Annotation annotation = (Annotation) visit(ctx.annotation());
-            Utility.verifyAnnotation(ctx.annotation(), annotation, CONFIG_ANNOTATION);
-            definition.setAnnotation(annotation);
+        for (ParseTree tree : ctx.annotation()) {
+            Annotation annotation = (Annotation) visit(tree);
+            definition.addAnnotation(ctx, annotation);
         }
         return definition;
     }

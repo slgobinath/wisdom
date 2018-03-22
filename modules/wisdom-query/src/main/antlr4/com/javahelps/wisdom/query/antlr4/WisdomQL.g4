@@ -115,7 +115,7 @@ definition
     ;
 
 def_stream
-    : annotation? DEF STREAM NAME END_OF_STATEMENT?
+    : annotation* DEF STREAM NAME END_OF_STATEMENT?
     ;
 
 def_variable

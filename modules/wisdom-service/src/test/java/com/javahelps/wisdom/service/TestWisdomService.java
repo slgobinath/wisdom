@@ -1,10 +1,10 @@
 package com.javahelps.wisdom.service;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.stream.output.Sink;
 import com.javahelps.wisdom.service.client.WisdomAdminClient;
 import com.javahelps.wisdom.service.client.WisdomClient;
 import com.javahelps.wisdom.service.client.WisdomHTTPClient;
-import com.javahelps.wisdom.service.sink.HTTPSink;
 import com.javahelps.wisdom.service.util.TestUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class TestWisdomService {
         // Create a WisdomService
         WisdomService wisdomService = new WisdomService(wisdomApp, 8080);
         wisdomService.addSource("StockStream");
-        wisdomService.addSink("OutputStream", new HTTPSink("http://localhost:9999/streamReceiver"));
+        wisdomService.addSink("OutputStream", Sink.create("http", map("endpoint", "http://localhost:9999/streamReceiver")));
         wisdomService.start();
 
         // Let the server to start

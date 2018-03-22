@@ -1,6 +1,7 @@
 package com.javahelps.wisdom.core.extension;
 
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.stream.output.Sink;
 import com.javahelps.wisdom.core.window.Window;
 import org.reflections.Reflections;
 
@@ -15,6 +16,7 @@ public enum ImportsManager {
     INSTANCE;
 
     private final Map<String, Constructor> windows = new HashMap();
+    private final Map<String, Constructor> sinks = new HashMap();
 
     public void use(Class<?> clazz) {
 
@@ -27,6 +29,13 @@ public enum ImportsManager {
         if (Window.class.isAssignableFrom(clazz)) {
             try {
                 this.windows.put(namespace, clazz.getConstructor(Map.class));
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+                throw new WisdomAppValidationException("<init>(java.util.Map<String, ?>) not found in %s", clazz.getCanonicalName());
+            }
+        } else if (Sink.class.isAssignableFrom(clazz)) {
+            try {
+                this.sinks.put(namespace, clazz.getConstructor(Map.class));
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
                 throw new WisdomAppValidationException("<init>(java.util.Map<String, ?>) not found in %s", clazz.getCanonicalName());
@@ -51,8 +60,19 @@ public enum ImportsManager {
         try {
             return (Window) constructor.newInstance(properties);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-            throw new WisdomAppValidationException("Failed to create %s window instance", namespace);
+            throw new WisdomAppValidationException(e.getCause(), "Failed to create %s window instance", namespace);
+        }
+    }
+
+    public Sink createSink(String namespace, Map<String, ?> properties) {
+        Constructor constructor = this.sinks.get(namespace);
+        if (constructor == null) {
+            throw new WisdomAppValidationException("Class to create %s sink was not imported", namespace);
+        }
+        try {
+            return (Sink) constructor.newInstance(properties);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new WisdomAppValidationException(e.getCause(), "Failed to create %s sink instance", namespace);
         }
     }
 }

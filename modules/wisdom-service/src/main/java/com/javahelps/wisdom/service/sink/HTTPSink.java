@@ -2,6 +2,8 @@ package com.javahelps.wisdom.service.sink;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.stream.output.Sink;
 import com.javahelps.wisdom.service.Utility;
 import com.javahelps.wisdom.service.exception.WisdomServiceException;
@@ -15,10 +17,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
-import static com.javahelps.wisdom.service.Constant.MEDIA_APPLICATION_JSON;
+import static com.javahelps.wisdom.service.Constant.*;
+import static java.util.Map.entry;
 
-public class HTTPSink implements Sink {
+@WisdomExtension("http")
+public class HTTPSink extends Sink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HTTPSink.class);
 
@@ -31,8 +36,16 @@ public class HTTPSink implements Sink {
     }
 
     public HTTPSink(String endpoint, boolean batch) {
-        this.endpoint = endpoint;
-        this.batch = batch;
+        this(Map.ofEntries(entry(ENDPOINT, endpoint), entry(BATCH, batch)));
+    }
+
+    public HTTPSink(Map<String, Comparable> properties) {
+        super(properties);
+        this.endpoint = (String) properties.get(ENDPOINT);
+        if (this.endpoint == null) {
+            throw new WisdomAppValidationException("Required property %s for HTTP sink not found", ENDPOINT);
+        }
+        this.batch = (boolean) properties.getOrDefault(BATCH, false);
     }
 
     @Override

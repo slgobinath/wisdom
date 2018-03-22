@@ -35,6 +35,7 @@ public class WisdomApp implements Stateful {
     private final Map<String, Stream> streamMap = new HashMap<>();
     private final Map<String, Variable> variableMap = new HashMap<>();
     private final Map<String, Query> queryMap = new HashMap<>();
+    private final List<Sink> sinks = new ArrayList<>();
     private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
     private final WisdomContext wisdomContext;
     private final ThreadBarrier threadBarrier;
@@ -68,6 +69,7 @@ public class WisdomApp implements Stateful {
         this.wisdomContext.start();
         this.queryMap.values().forEach(Query::init);
         this.streamMap.values().forEach(Processor::start);
+        this.sinks.forEach(Sink::start);
     }
 
     public void shutdown() {
@@ -75,6 +77,7 @@ public class WisdomApp implements Stateful {
         for (Stream stream : this.streamMap.values()) {
             stream.stop();
         }
+        this.sinks.forEach(Sink::stop);
         this.wisdomContext.shutdown();
     }
 
@@ -184,6 +187,7 @@ public class WisdomApp implements Stateful {
         if (stream == null) {
             throw new WisdomAppValidationException("Stream id %s is not defined", streamId);
         }
+        this.sinks.add(sink);
         sink.init(this, streamId);
         stream.addProcessor(new Processor() {
             @Override

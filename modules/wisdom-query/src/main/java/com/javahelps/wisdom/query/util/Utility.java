@@ -4,6 +4,10 @@ import com.javahelps.wisdom.query.antlr.WisdomParserException;
 import com.javahelps.wisdom.query.tree.Annotation;
 import org.antlr.v4.runtime.ParserRuleContext;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 public class Utility {
 
     private Utility() {
@@ -30,5 +34,13 @@ public class Utility {
             str = str.replaceAll("^'|'$", "");
         }
         return str;
+    }
+
+    public static Map<String, Comparable> toMap(Properties properties) {
+        Map<String, Comparable> map = new HashMap<String, Comparable>();
+        for (String key : properties.stringPropertyNames()) {
+            map.put(key, (Comparable) properties.get(key));
+        }
+        return map;
     }
 }
