@@ -45,7 +45,9 @@ public class WisdomContext {
     }
 
     public void init(WisdomApp app) {
-        this.statisticsManager.init(app);
+        if (this.statisticsManager != null) {
+            this.statisticsManager.init(app);
+        }
     }
 
     public TimestampGenerator getTimestampGenerator() {
@@ -77,12 +79,17 @@ public class WisdomContext {
     }
 
     public void start() {
-        this.statisticsManager.start();
+        if (this.statisticsManager != null) {
+            this.statisticsManager.start();
+        }
     }
 
     public void shutdown() {
         this.scheduledExecutorService.shutdown();
         this.executorService.shutdown();
+        if (this.statisticsManager != null) {
+            this.statisticsManager.stop();
+        }
     }
 
     public boolean isAsync() {
