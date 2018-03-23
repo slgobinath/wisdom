@@ -27,6 +27,7 @@
         <disruptor.version>3.3.7</disruptor.version>
         <reflections.version>0.9.11</reflections.version>
         <spark.java.version>2.7.2</spark.java.version>
+        <argparse4j.version>0.8.1</argparse4j.version>
         <logback.version>1.2.3</logback.version>
         <apache.httpcomponents.version>4.5.3</apache.httpcomponents.version>
         <antlr.build.plugin.version>4.7.1</antlr.build.plugin.version>
@@ -82,6 +83,13 @@
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
                 <version>${antlr.version}</version>
+            </dependency>
+
+            <!-- Argparse4J -->
+            <dependency>
+                <groupId>net.sourceforge.argparse4j</groupId>
+                <artifactId>argparse4j</artifactId>
+                <version>${argparse4j.version}</version>
             </dependency>
 
             <!-- SLF4J -->

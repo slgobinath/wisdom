@@ -2,6 +2,8 @@ package com.javahelps.wisdom.service.source;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.util.EventGenerator;
@@ -12,11 +14,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class KafkaSource implements Source {
+import static com.javahelps.wisdom.service.Constant.BOOTSTRAP;
+import static java.util.Map.entry;
+
+@WisdomExtension("kafka")
+public class KafkaSource extends Source {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSource.class);
 
@@ -25,13 +32,21 @@ public class KafkaSource implements Source {
     private WisdomApp wisdomApp;
 
     public KafkaSource(String bootstrapServers) {
-        this.bootstrapServers = bootstrapServers;
+        this(Map.ofEntries(entry(BOOTSTRAP, bootstrapServers)));
+    }
+
+    public KafkaSource(Map<String, ?> properties) {
+        super(properties);
+        this.bootstrapServers = (String) properties.get(BOOTSTRAP);
+        if (this.bootstrapServers == null) {
+            throw new WisdomAppValidationException("Required property %s for Kafka source not found", BOOTSTRAP);
+        }
     }
 
     @Override
-    public void init(WisdomApp wisdomApp, String streamId, InputHandler inputHandler) {
+    public void init(WisdomApp wisdomApp, String streamId) {
         this.wisdomApp = wisdomApp;
-        this.consumerThread = new KafkaConsumerThread(this.bootstrapServers, wisdomApp.getName(), streamId, inputHandler);
+        this.consumerThread = new KafkaConsumerThread(this.bootstrapServers, wisdomApp.getName(), streamId, wisdomApp.getInputHandler(streamId));
     }
 
     @Override

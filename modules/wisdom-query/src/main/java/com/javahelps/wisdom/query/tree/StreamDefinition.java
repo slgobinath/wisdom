@@ -1,6 +1,7 @@
 package com.javahelps.wisdom.query.tree;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.stream.output.Sink;
 import com.javahelps.wisdom.query.antlr.WisdomParserException;
 import com.javahelps.wisdom.query.util.Utility;
@@ -31,6 +32,8 @@ public class StreamDefinition extends Definition {
         } else {
             if (SINK_ANNOTATION.equals(annotation.getName())) {
                 Utility.verifyAnnotation(ctx, annotation, SINK_ANNOTATION, TYPE);
+            } else if (SOURCE_ANNOTATION.equals(annotation.getName())) {
+                Utility.verifyAnnotation(ctx, annotation, SOURCE_ANNOTATION, TYPE);
             }
             this.annotations.add(annotation);
         }
@@ -46,6 +49,8 @@ public class StreamDefinition extends Definition {
         for (Annotation annotation : this.annotations) {
             if (SINK_ANNOTATION.equals(annotation.getName())) {
                 app.addSink(getName(), Sink.create(annotation.getProperty(TYPE), Utility.toMap(annotation.getProperties())));
+            } else if (SOURCE_ANNOTATION.equals(annotation.getName())) {
+                app.addSource(getName(), Source.create(annotation.getProperty(TYPE), Utility.toMap(annotation.getProperties())));
             }
         }
     }

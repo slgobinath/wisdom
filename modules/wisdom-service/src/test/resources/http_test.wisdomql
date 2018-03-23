@@ -1,0 +1,13 @@
+@app(name='WisdomApp', version='1.0.0')
+
+@source(type='http', mapping='json')
+def stream StockStream;
+
+@sink(type='http', endpoint='http://localhost:9999/streamReceiver')
+def stream OutputStream;
+
+@query(name='FilterQuery')
+from StockStream
+filter symbol == 'WSO2'
+select symbol, price
+insert into OutputStream;

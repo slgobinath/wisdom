@@ -2,6 +2,7 @@ package com.javahelps.wisdom.service;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.extension.ImportsManager;
 import com.javahelps.wisdom.service.client.WisdomClient;
 import com.javahelps.wisdom.service.client.WisdomKafkaClient;
 import com.javahelps.wisdom.service.sink.KafkaSink;
@@ -12,20 +13,20 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static com.javahelps.wisdom.service.util.TestUtil.map;
 
 public class TestKafkaSupport {
+
+    static {
+        ImportsManager.INSTANCE.use(KafkaSource.class);
+        ImportsManager.INSTANCE.use(KafkaSink.class);
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestKafkaSupport.class);
 
@@ -47,11 +48,11 @@ public class TestKafkaSupport {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
+        wisdomApp.addSource("StockStream", new KafkaSource(bootstrapServer));
         wisdomApp.addCallback("OutputStream", events -> receivedEvents.add(events[0]));
 
         // Create a WisdomService
         WisdomService wisdomService = new WisdomService(wisdomApp, 8080);
-        wisdomService.addSource("StockStream", new KafkaSource(bootstrapServer));
         wisdomService.start();
 
         // Let the server to start
@@ -102,10 +103,11 @@ public class TestKafkaSupport {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
+        wisdomApp.addSource("StockStream", new KafkaSource(bootstrapServer));
+        wisdomApp.addSink("OutputStream", new KafkaSink(bootstrapServer, topic));
+
         // Create a WisdomService
         WisdomService wisdomService = new WisdomService(wisdomApp, 8080);
-        wisdomService.addSource("StockStream", new KafkaSource(bootstrapServer));
-        wisdomService.addSink("OutputStream", new KafkaSink(bootstrapServer, topic));
         wisdomService.start();
 
         // Let the server to start

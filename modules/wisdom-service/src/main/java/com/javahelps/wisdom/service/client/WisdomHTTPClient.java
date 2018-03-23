@@ -10,17 +10,18 @@ import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.javahelps.wisdom.service.Constant.MEDIA_APPLICATION_JSON;
 
 public class WisdomHTTPClient extends WisdomClient {
 
-    private final String endpoint;
-    private final CloseableHttpClient client;
+    protected final String endpoint;
+    protected final CloseableHttpClient client;
 
     public WisdomHTTPClient(String host, int port) {
         this.endpoint = String.format("http://%s:%d/WisdomApp/", host, port);
-        this.client = HttpClientBuilder.create().build();
+        this.client = HttpClientBuilder.create().setConnectionTimeToLive(0, TimeUnit.MILLISECONDS).build();
     }
 
     @Override

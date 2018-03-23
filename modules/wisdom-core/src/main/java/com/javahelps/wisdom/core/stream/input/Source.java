@@ -1,13 +1,23 @@
 package com.javahelps.wisdom.core.stream.input;
 
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.stream.InputHandler;
+import com.javahelps.wisdom.core.extension.ImportsManager;
 
-public interface Source {
+import java.util.Map;
 
-    void init(WisdomApp wisdomApp, String streamId, InputHandler inputHandler);
+public abstract class Source {
 
-    void start();
+    public Source(Map<String, ?> properties) {
 
-    void stop();
+    }
+
+    public static Source create(String namespace, Map<String, ?> properties) {
+        return ImportsManager.INSTANCE.createSource(namespace, properties);
+    }
+
+    public abstract void init(WisdomApp wisdomApp, String streamId);
+
+    public abstract void start();
+
+    public abstract void stop();
 }

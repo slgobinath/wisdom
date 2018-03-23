@@ -9,6 +9,7 @@ import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.stream.StreamCallback;
+import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.stream.output.Sink;
 import com.javahelps.wisdom.core.util.WisdomConfig;
 import com.javahelps.wisdom.core.variable.Variable;
@@ -36,6 +37,7 @@ public class WisdomApp implements Stateful {
     private final Map<String, Variable> variableMap = new HashMap<>();
     private final Map<String, Query> queryMap = new HashMap<>();
     private final List<Sink> sinks = new ArrayList<>();
+    private final List<Source> sources = new ArrayList<>();
     private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
     private final WisdomContext wisdomContext;
     private final ThreadBarrier threadBarrier;
@@ -70,9 +72,13 @@ public class WisdomApp implements Stateful {
         this.queryMap.values().forEach(Query::init);
         this.streamMap.values().forEach(Processor::start);
         this.sinks.forEach(Sink::start);
+        // Start sources at last
+        this.sources.forEach(Source::start);
     }
 
     public void shutdown() {
+        // Stop sources first
+        this.sources.forEach(Source::stop);
         // Stop all streams
         for (Stream stream : this.streamMap.values()) {
             stream.stop();
@@ -223,6 +229,15 @@ public class WisdomApp implements Stateful {
                 return this;
             }
         });
+    }
+
+    public void addSource(String streamId, Source source) {
+        Stream stream = this.streamMap.get(streamId);
+        if (stream == null) {
+            throw new WisdomAppValidationException("Stream id %s is not defined", streamId);
+        }
+        this.sources.add(source);
+        source.init(this, streamId);
     }
 
     public String getName() {

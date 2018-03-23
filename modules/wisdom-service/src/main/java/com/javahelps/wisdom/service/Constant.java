@@ -12,6 +12,10 @@ public class Constant {
 
     public static final String ENDPOINT = "endpoint";
 
+    public static final String MAPPING = "mapping";
+
+    public static final String JSON = "json";
+
     public static final String BATCH = "batch";
 
     public static final String BOOTSTRAP = "bootstrap";

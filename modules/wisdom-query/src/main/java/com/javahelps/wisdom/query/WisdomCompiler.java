@@ -17,6 +17,10 @@ import java.nio.file.Path;
 
 public class WisdomCompiler {
 
+    private WisdomCompiler() {
+
+    }
+
     public static WisdomApp parse(String source) {
 
         CodePointCharStream input = CharStreams.fromString(source);

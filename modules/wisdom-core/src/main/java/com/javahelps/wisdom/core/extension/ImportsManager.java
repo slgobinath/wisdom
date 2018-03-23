@@ -1,6 +1,7 @@
 package com.javahelps.wisdom.core.extension;
 
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.stream.output.Sink;
 import com.javahelps.wisdom.core.window.Window;
 import org.reflections.Reflections;
@@ -17,6 +18,7 @@ public enum ImportsManager {
 
     private final Map<String, Constructor> windows = new HashMap();
     private final Map<String, Constructor> sinks = new HashMap();
+    private final Map<String, Constructor> sources = new HashMap();
 
     public void use(Class<?> clazz) {
 
@@ -30,14 +32,18 @@ public enum ImportsManager {
             try {
                 this.windows.put(namespace, clazz.getConstructor(Map.class));
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
                 throw new WisdomAppValidationException("<init>(java.util.Map<String, ?>) not found in %s", clazz.getCanonicalName());
             }
         } else if (Sink.class.isAssignableFrom(clazz)) {
             try {
                 this.sinks.put(namespace, clazz.getConstructor(Map.class));
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
+                throw new WisdomAppValidationException("<init>(java.util.Map<String, ?>) not found in %s", clazz.getCanonicalName());
+            }
+        } else if (Source.class.isAssignableFrom(clazz)) {
+            try {
+                this.sources.put(namespace, clazz.getConstructor(Map.class));
+            } catch (NoSuchMethodException e) {
                 throw new WisdomAppValidationException("<init>(java.util.Map<String, ?>) not found in %s", clazz.getCanonicalName());
             }
         }
@@ -73,6 +79,18 @@ public enum ImportsManager {
             return (Sink) constructor.newInstance(properties);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new WisdomAppValidationException(e.getCause(), "Failed to create %s sink instance", namespace);
+        }
+    }
+
+    public Source createSource(String namespace, Map<String, ?> properties) {
+        Constructor constructor = this.sources.get(namespace);
+        if (constructor == null) {
+            throw new WisdomAppValidationException("Class to create %s source was not imported", namespace);
+        }
+        try {
+            return (Source) constructor.newInstance(properties);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new WisdomAppValidationException(e.getCause(), "Failed to create %s source instance", namespace);
         }
     }
 }
