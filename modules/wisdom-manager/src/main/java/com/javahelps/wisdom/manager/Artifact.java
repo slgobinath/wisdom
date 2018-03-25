@@ -10,7 +10,9 @@ public class Artifact {
     }
 
     private int port;
+    private long pid = -1L;
     private String file;
+    private String host = "127.0.0.1";
     private Priority priority;
     private Map<String, Map<String, Comparable>> init = new HashMap<>();
 
@@ -21,8 +23,26 @@ public class Artifact {
     public Artifact(Map<String, Object> map) {
         this.port = (int) map.get("port");
         this.file = (String) map.get("file");
+        this.host = (String) map.get("host");
         this.priority = Priority.valueOf((String) map.get("priority"));
+        this.pid = (long) map.getOrDefault("pid", -1L);
         this.init = (Map<String, Map<String, Comparable>>) map.getOrDefault("init", this.init);
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public long getPid() {
+        return pid;
+    }
+
+    public void setPid(long pid) {
+        this.pid = pid;
     }
 
     public int getPort() {

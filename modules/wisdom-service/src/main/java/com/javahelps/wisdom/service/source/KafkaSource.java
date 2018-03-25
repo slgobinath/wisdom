@@ -15,11 +15,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.javahelps.wisdom.service.Constant.BOOTSTRAP;
+import static com.javahelps.wisdom.service.Constant.TOPIC;
 import static java.util.Map.entry;
 
 @WisdomExtension("kafka")
@@ -27,9 +29,10 @@ public class KafkaSource extends Source {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSource.class);
 
+    private WisdomApp wisdomApp;
+    private final String topic;
     private final String bootstrapServers;
     private KafkaConsumerThread consumerThread;
-    private WisdomApp wisdomApp;
 
     public KafkaSource(String bootstrapServers) {
         this(Map.ofEntries(entry(BOOTSTRAP, bootstrapServers)));
@@ -38,6 +41,7 @@ public class KafkaSource extends Source {
     public KafkaSource(Map<String, ?> properties) {
         super(properties);
         this.bootstrapServers = (String) properties.get(BOOTSTRAP);
+        this.topic = (String) properties.get(TOPIC);
         if (this.bootstrapServers == null) {
             throw new WisdomAppValidationException("Required property %s for Kafka source not found", BOOTSTRAP);
         }
@@ -45,8 +49,10 @@ public class KafkaSource extends Source {
 
     @Override
     public void init(WisdomApp wisdomApp, String streamId) {
+        String appName = wisdomApp.getName();
+        String topic = Objects.requireNonNullElse(this.topic, appName + "." + streamId);
         this.wisdomApp = wisdomApp;
-        this.consumerThread = new KafkaConsumerThread(this.bootstrapServers, wisdomApp.getName(), streamId, wisdomApp.getInputHandler(streamId));
+        this.consumerThread = new KafkaConsumerThread(this.bootstrapServers, appName, topic, wisdomApp.getInputHandler(streamId));
     }
 
     @Override
@@ -63,16 +69,16 @@ public class KafkaSource extends Source {
 
         private final String bootstrapServers;
         private final String groupId;
-        private final String streamId;
+        private final String topic;
         private final InputHandler inputHandler;
         private final Lock lock = new ReentrantLock();
         private transient boolean active = true;
         private Consumer<String, String> consumer;
 
-        private KafkaConsumerThread(String bootstrapServers, String groupId, String streamId, InputHandler inputHandler) {
+        private KafkaConsumerThread(String bootstrapServers, String groupId, String topic, InputHandler inputHandler) {
             this.bootstrapServers = bootstrapServers;
             this.groupId = groupId;
-            this.streamId = streamId;
+            this.topic = topic;
             this.inputHandler = inputHandler;
 
             final Properties props = new Properties();
@@ -86,7 +92,7 @@ public class KafkaSource extends Source {
             this.consumer = new KafkaConsumer<>(props);
 
             // Subscribe to the topic.
-            this.consumer.subscribe(Collections.singletonList(this.streamId));
+            this.consumer.subscribe(Collections.singletonList(this.topic));
         }
 
 
@@ -99,7 +105,7 @@ public class KafkaSource extends Source {
                     lock.lock();
                     records = this.consumer.poll(1000);
                 } catch (CommitFailedException e) {
-                    LOGGER.error("Kafka commit failed for topic " + this.streamId, e);
+                    LOGGER.error("Kafka commit failed for topic " + this.topic, e);
                 } finally {
                     lock.unlock();
                 }
@@ -117,7 +123,7 @@ public class KafkaSource extends Source {
                             this.consumer.commitAsync();
                         }
                     } catch (CommitFailedException e) {
-                        LOGGER.error("Kafka commit failed for topic " + this.streamId, e);
+                        LOGGER.error("Kafka commit failed for topic " + this.topic, e);
                     } finally {
                         lock.unlock();
                     }
@@ -131,7 +137,7 @@ public class KafkaSource extends Source {
                 lock.lock();
                 this.consumer.close();
             } catch (CommitFailedException e) {
-                LOGGER.error("Kafka commit failed for topic " + this.streamId, e);
+                LOGGER.error("Kafka commit failed for topic " + this.topic, e);
             } finally {
                 lock.unlock();
             }

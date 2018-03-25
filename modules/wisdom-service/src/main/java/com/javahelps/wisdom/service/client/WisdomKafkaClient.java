@@ -29,15 +29,14 @@ public class WisdomKafkaClient extends WisdomClient {
     @Override
     public Response send(String streamId, Map<String, Comparable> data) {
 
+        String topic = this.wisdomAppName + "." + streamId;
         try {
-            final ProducerRecord<String, String> record = new ProducerRecord<>(streamId, this.wisdomAppName,
-                    Utility.toJson(data));
 
+            ProducerRecord<String, String> record = new ProducerRecord<>(topic, this.wisdomAppName, Utility.toJson(data));
             RecordMetadata metadata = (RecordMetadata) producer.send(record).get();
 
-            System.out.printf("Sent record(key=%s value=%s) meta(partition=%d, offset=%d)\n", record.key(), record
-                            .value(), metadata.partition(),
-                    metadata.offset());
+            System.out.printf("Sent record(key=%s value=%s) meta(partition=%d, offset=%d)\n",
+                    record.key(), record.value(), metadata.partition(), metadata.offset());
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();

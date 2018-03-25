@@ -73,7 +73,7 @@ public class StatisticsManager {
         for (StreamTracker tracker : this.streamTrackers) {
             double duration = (currentTime - tracker.getStartTime()) / 1000;
             double throughput = tracker.getCount() / duration;
-            Event event = EventGenerator.generate("name", tracker.getStreamId(), "throughput", throughput, "timestamp", currentTime);
+            Event event = EventGenerator.generate("app", this.app.getName(), "name", tracker.getStreamId(), "throughput", throughput, "timestamp", currentTime);
             tracker.reset();
             tracker.setStartTime(currentTime);
             this.inputHandler.send(event);

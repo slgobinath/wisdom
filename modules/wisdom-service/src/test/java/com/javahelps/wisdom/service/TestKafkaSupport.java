@@ -13,6 +13,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.Assert;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ public class TestKafkaSupport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestKafkaSupport.class);
 
-    //    @Test
+//    @Test
     public void testKafkaSource() throws IOException, InterruptedException {
 
         LOGGER.info("Test Kafka source");
@@ -76,7 +77,7 @@ public class TestKafkaSupport {
         Assert.assertEquals("First event was not received", "ORACLE", receivedEvents.get(2).get("symbol"));
     }
 
-    //    @Test
+//    @Test
     public void testKafkaSink() throws IOException, InterruptedException {
 
         LOGGER.info("Test Kafka sink");
@@ -118,6 +119,8 @@ public class TestKafkaSupport {
         client.send("StockStream", map("symbol", "IBM", "price", 50.0, "volume", 10));
         client.send("StockStream", map("symbol", "WSO2", "price", 60.0, "volume", 15));
         client.send("StockStream", map("symbol", "ORACLE", "price", 70.0, "volume", 20));
+
+        Thread.sleep(1000L);
 
         // Create the consumer using props.
         ConsumerRecords<String, String> records = consumer.poll(1000);
