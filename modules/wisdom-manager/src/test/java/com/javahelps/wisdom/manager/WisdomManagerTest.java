@@ -70,14 +70,13 @@ public class WisdomManagerTest {
         WisdomManager manager = new WisdomManager(properties);
         manager.deploy(Paths.get(ClassLoader.getSystemClassLoader().getResource("artifacts/ip_sweep.wisdomql").toURI()), 8080);
 
-        Map<String, Artifact> artifactMap = null;
+        Map<String, Map<String, Object>> artifactMap;
         try (BufferedReader reader = Files.newBufferedReader(Paths.get("conf/artifacts.yaml"))) {
             artifactMap = yaml.load(reader);
         }
         System.out.println(artifactMap);
 
         Assert.assertTrue("Failed to copy the query file", Files.exists(Paths.get("artifacts/ip_sweep.wisdomql")));
-        // TODO: 24/03/18 fix this
-        //        Assert.assertEquals("Invalid file name", "ip_sweep.wisdomql", artifactMap.get("IPSweepDetector").getFile());
+        Assert.assertEquals("Invalid file name", "ip_sweep.wisdomql", artifactMap.get("IPSweepDetector").get("file"));
     }
 }

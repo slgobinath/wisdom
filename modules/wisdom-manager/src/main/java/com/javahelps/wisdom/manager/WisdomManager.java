@@ -76,9 +76,14 @@ public class WisdomManager {
         if (!Files.exists(this.artifactsConfigFile)) {
             Files.createFile(this.artifactsConfigFile);
         }
-        Map<String, Artifact> artifactMap = null;
+        Map<String, Artifact> artifactMap = new HashMap<>();
         try (BufferedReader reader = Files.newBufferedReader(this.artifactsConfigFile)) {
-            artifactMap = this.yaml.load(reader);
+            Map<String, Map<String, Object>> config = this.yaml.load(reader);
+            if (config != null) {
+                for (Map.Entry<String, Map<String, Object>> entry : config.entrySet()) {
+                    artifactMap.put(entry.getKey(), new Artifact(entry.getValue()));
+                }
+            }
         }
         return artifactMap;
     }
@@ -93,6 +98,5 @@ public class WisdomManager {
         } catch (IOException e) {
             Files.deleteIfExists(target);
         }
-
     }
 }

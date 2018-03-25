@@ -14,6 +14,17 @@ public class Artifact {
     private Priority priority;
     private Map<String, Map<String, Comparable>> init = new HashMap<>();
 
+    public Artifact() {
+
+    }
+
+    public Artifact(Map<String, Object> map) {
+        this.port = (int) map.get("port");
+        this.file = (String) map.get("file");
+        this.priority = Priority.valueOf((String) map.get("priority"));
+        this.init = (Map<String, Map<String, Comparable>>) map.getOrDefault("init", this.init);
+    }
+
     public int getPort() {
         return port;
     }
