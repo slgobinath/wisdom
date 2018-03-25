@@ -22,10 +22,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Properties;
-
-import static com.javahelps.wisdom.manager.util.Constants.ARTIFACTS_DIR;
-import static com.javahelps.wisdom.manager.util.Constants.CONF_DIR;
 
 public class WisdomManagerTest {
 
@@ -63,11 +59,7 @@ public class WisdomManagerTest {
 
         LOGGER.info("Test query file");
 
-        Properties properties = new Properties();
-        properties.setProperty(ARTIFACTS_DIR, "artifacts");
-        properties.setProperty(CONF_DIR, "conf");
-
-        WisdomManager manager = new WisdomManager(properties);
+        WisdomManager manager = new WisdomManager(".");
         manager.deploy(Paths.get(ClassLoader.getSystemClassLoader().getResource("artifacts/ip_sweep.wisdomql").toURI()), 8080);
 
         Map<String, Map<String, Object>> artifactMap;

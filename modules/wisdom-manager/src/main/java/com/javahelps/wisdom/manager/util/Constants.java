@@ -15,4 +15,6 @@ public class Constants {
     public static final String CONF_DIR = "conf";
 
     public static final String ARTIFACTS_CONFIG_FILE = "artifacts.yaml";
+
+    public static final String WISDOM_HOME = "WISDOM_HOME";
 }

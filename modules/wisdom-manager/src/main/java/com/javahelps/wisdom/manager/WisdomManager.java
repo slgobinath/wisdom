@@ -1,6 +1,7 @@
 package com.javahelps.wisdom.manager;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.variable.Variable;
 import com.javahelps.wisdom.query.WisdomCompiler;
 import org.yaml.snakeyaml.Yaml;
@@ -17,7 +18,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import static com.javahelps.wisdom.core.util.WisdomConstants.THRESHOLD_STREAM;
 import static com.javahelps.wisdom.manager.util.Constants.*;
@@ -28,13 +28,24 @@ public class WisdomManager {
     private final Path artifactsDirectory;
     private final Path configDirectory;
     private final Path artifactsConfigFile;
+    private final Path WISDOM_HOME_PATH;
 
-    public WisdomManager(Properties properties) throws IOException {
+    public WisdomManager() throws IOException {
+        this(System.getenv(WISDOM_HOME));
+    }
+
+    public WisdomManager(String wisdomHome) throws IOException {
+
+        if (wisdomHome == null) {
+            throw new WisdomAppRuntimeException("%s environment variable not set", WISDOM_HOME);
+        }
+        this.WISDOM_HOME_PATH = Paths.get(wisdomHome);
+
         Representer representer = new Representer();
         representer.addClassTag(Artifact.class, Tag.MAP);
         this.yaml = new Yaml(representer);
-        this.artifactsDirectory = Paths.get(properties.getProperty(ARTIFACTS_DIR));
-        this.configDirectory = Paths.get(properties.getProperty(CONF_DIR));
+        this.artifactsDirectory = WISDOM_HOME_PATH.resolve(Paths.get(ARTIFACTS_DIR));
+        this.configDirectory = WISDOM_HOME_PATH.resolve(Paths.get(CONF_DIR));
         this.artifactsConfigFile = this.configDirectory.resolve(ARTIFACTS_CONFIG_FILE);
         if (!Files.exists(this.artifactsDirectory)) {
             Files.createDirectories(this.artifactsDirectory);
@@ -66,6 +77,10 @@ public class WisdomManager {
 
         System.out.println(this.yaml.dumpAsMap(artifact));
         this.deploy(path, artifactMap);
+    }
+
+    public void start(Artifact artifact) {
+
     }
 
     public void deploy(Path path, int port) throws IOException {

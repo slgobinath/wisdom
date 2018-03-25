@@ -13,6 +13,10 @@ public class WisdomAppRuntimeException extends RuntimeException {
         super(message, throwable);
     }
 
+    public WisdomAppRuntimeException(String message, Object... args) {
+        this(String.format(message, args));
+    }
+
     public WisdomAppRuntimeException(Throwable throwable) {
         super(throwable);
     }
