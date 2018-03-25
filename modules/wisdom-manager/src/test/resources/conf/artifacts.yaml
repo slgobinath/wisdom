@@ -1,0 +1,16 @@
+IPSweepDetector:
+  file: ip_sweep.wisdomql
+  port: 8080
+  priority: low
+  init:
+    ThresholdStream:
+      TimeThreshold: 1000
+      CountThreshold: 5
+
+PortScanDetector:
+  file: port_scan.wisdomql
+  port: 8081
+  init:
+    ThresholdStream:
+      TimeThreshold: 1000
+      CountThreshold: 5

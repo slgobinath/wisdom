@@ -22,6 +22,8 @@ public class Constants {
 
         public static final String SOURCE_ANNOTATION = "source";
 
+        public static final String SOURCE_TRAINABLE = "trainable";
+
         public static final String TYPE = "type";
 
         public static final String NAME = "name";

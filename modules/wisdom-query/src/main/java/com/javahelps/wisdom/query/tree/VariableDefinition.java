@@ -1,6 +1,8 @@
 package com.javahelps.wisdom.query.tree;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.query.antlr.WisdomParserException;
+import org.antlr.v4.runtime.ParserRuleContext;
 
 public class VariableDefinition extends Definition {
 
@@ -16,7 +18,16 @@ public class VariableDefinition extends Definition {
     }
 
     @Override
+    protected void verifyAnnotation(ParserRuleContext ctx, Annotation annotation) {
+        throw new WisdomParserException(ctx, String.format("@%s is not supported for Variable", annotation.getName()));
+    }
+
+    @Override
     public void define(WisdomApp app) {
-        app.defineVariable(this.getName(), this.value);
+        if (this.configuration == null) {
+            app.defineVariable(this.getName(), this.value);
+        } else {
+            app.defineVariable(this.getName(), this.value, this.configuration);
+        }
     }
 }

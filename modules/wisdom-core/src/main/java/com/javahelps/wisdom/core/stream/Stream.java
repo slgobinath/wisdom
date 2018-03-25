@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import static com.javahelps.wisdom.core.util.WisdomConfig.EMPTY_PROPERTIES;
 import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 
 /**
@@ -41,7 +42,7 @@ public class Stream implements Processor {
 
 
     public Stream(WisdomApp wisdomApp, String id) {
-        this(wisdomApp, id, new Properties());
+        this(wisdomApp, id, EMPTY_PROPERTIES);
     }
 
     public Stream(WisdomApp wisdomApp, String id, Properties properties) {

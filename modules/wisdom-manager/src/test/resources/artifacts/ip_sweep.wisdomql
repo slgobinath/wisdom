@@ -1,0 +1,21 @@
+@app(name='IPSweepDetector', version='1.0.0')
+
+@config(trainable=true)
+def variable durationThreshold = time.sec(2);
+
+@config(trainable=true)
+def variable countThreshold = 50;
+
+@source(type='kafka', bootstrap='localhost:9092')
+def stream PacketStream;
+
+@sink(type='console')
+def stream IPSweepStream;
+
+from PacketStream
+filter protocol == 'icmp'
+partition by srcIp
+window.unique:externalTimeBatch('destIp', 'timestamp', $durationThreshold)
+aggregate count() as packet_count
+filter packet_count > $countThreshold
+insert into IPSweepStream;

@@ -1,7 +1,6 @@
 package com.javahelps.wisdom.core.processor;
 
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.operand.Checkpoint;
 import com.javahelps.wisdom.core.partition.Partitionable;
 
 import java.io.Serializable;
@@ -22,7 +21,4 @@ public interface Processor extends Partitionable, Serializable {
 
     Processor copy();
 
-//    Checkpoint checkpoint(boolean includeEvents);
-//
-//    void restore(Checkpoint checkpoint);
 }

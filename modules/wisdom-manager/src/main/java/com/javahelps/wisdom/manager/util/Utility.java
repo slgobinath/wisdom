@@ -3,6 +3,11 @@ package com.javahelps.wisdom.manager.util;
 import com.javahelps.wisdom.manager.optimize.multivariate.Constraint;
 
 public class Utility {
+
+    private Utility() {
+
+    }
+
     public static int getMinPos(double[] list) {
         int pos = 0;
         double minValue = list[0];

@@ -5,9 +5,12 @@ import com.javahelps.wisdom.core.processor.Processor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
+
+import static com.javahelps.wisdom.core.util.WisdomConfig.EMPTY_PROPERTIES;
 
 /**
  * Wisdom variable which can be updated using a stream and used to dynamically
@@ -21,10 +24,18 @@ public class Variable<T> implements Processor, Supplier<T> {
     private T value;
 
     public Variable(String id, T value) {
+        this(id, value, EMPTY_PROPERTIES);
+    }
+
+    public Variable(String id, T value, Properties properties) {
         this.id = id;
         this.lock = new ReentrantReadWriteLock();
         this.listeners = new ArrayList<>();
         this.value = value;
+    }
+
+    public String getId() {
+        return id;
     }
 
     /**

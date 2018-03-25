@@ -17,9 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Consumer;
 
-import static com.javahelps.wisdom.core.util.WisdomConfig.WISDOM_APP_NAME;
-import static com.javahelps.wisdom.core.util.WisdomConfig.WISDOM_APP_VERSION;
+import static com.javahelps.wisdom.core.util.WisdomConfig.*;
 import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 
 /**
@@ -33,14 +33,16 @@ public class WisdomApp implements Stateful {
     private final String version;
 
     private final int bufferSize;
-    private final Map<String, Stream> streamMap = new HashMap<>();
-    private final Map<String, Variable> variableMap = new HashMap<>();
-    private final Map<String, Query> queryMap = new HashMap<>();
-    private final List<Sink> sinks = new ArrayList<>();
-    private final List<Source> sources = new ArrayList<>();
-    private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
     private final WisdomContext wisdomContext;
     private final ThreadBarrier threadBarrier;
+    private final List<Sink> sinks = new ArrayList<>();
+    private final List<Source> sources = new ArrayList<>();
+    private final List<Variable> trainable = new ArrayList<>();
+    private final Map<String, Query> queryMap = new HashMap<>();
+    private final Map<String, Stream> streamMap = new HashMap<>();
+    private final Map<String, Variable> variableMap = new HashMap<>();
+    private final List<Consumer<WisdomApp>> initializers = new ArrayList<>();
+    private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
 
     public WisdomApp() {
         this(WISDOM_APP_NAME, WISDOM_APP_VERSION);
@@ -50,7 +52,7 @@ public class WisdomApp implements Stateful {
         this.name = name;
         this.version = version;
         this.bufferSize = WisdomConfig.EVENT_BUFFER_SIZE;
-        this.wisdomContext = new WisdomContext(new Properties());
+        this.wisdomContext = new WisdomContext(EMPTY_PROPERTIES);
         this.threadBarrier = this.wisdomContext.getThreadBarrier();
     }
 
@@ -67,7 +69,11 @@ public class WisdomApp implements Stateful {
     }
 
     public void start() {
+        // Initialize components
         this.wisdomContext.init(this);
+        for (Consumer<WisdomApp> consumer : this.initializers) {
+            consumer.accept(this);
+        }
         this.wisdomContext.start();
         this.queryMap.values().forEach(Query::init);
         this.streamMap.values().forEach(Processor::start);
@@ -100,8 +106,29 @@ public class WisdomApp implements Stateful {
     }
 
     public <T> Variable<T> defineVariable(String id, T defaultValue) {
+        return this.defineVariable(id, defaultValue, EMPTY_PROPERTIES);
+    }
+
+    public <T> Variable<T> defineVariable(String id, T defaultValue, Properties properties) {
+
         Variable<T> variable = new Variable(id, defaultValue);
         this.variableMap.put(id, variable);
+
+        // Trainable variable
+        boolean isTrainable = (boolean) properties.getOrDefault(TRAINABLE, false);
+        if (isTrainable) {
+            this.trainable.add(variable);
+
+            // Create THRESHOLD_STREAM if not exist
+            if (!this.streamMap.containsKey(THRESHOLD_STREAM)) {
+                this.defineStream(THRESHOLD_STREAM);
+            }
+
+            // Define query to update the variable
+            this.defineQuery(String.format("_Train_%s", id))
+                    .from(THRESHOLD_STREAM)
+                    .update(id);
+        }
         return variable;
     }
 
@@ -194,7 +221,7 @@ public class WisdomApp implements Stateful {
             throw new WisdomAppValidationException("Stream id %s is not defined", streamId);
         }
         this.sinks.add(sink);
-        sink.init(this, streamId);
+        this.initializers.add(app -> sink.init(app, streamId));
         stream.addProcessor(new Processor() {
             @Override
             public void start() {
@@ -237,7 +264,7 @@ public class WisdomApp implements Stateful {
             throw new WisdomAppValidationException("Stream id %s is not defined", streamId);
         }
         this.sources.add(source);
-        source.init(this, streamId);
+        this.initializers.add(app -> source.init(app, streamId));
     }
 
     public String getName() {
@@ -250,6 +277,10 @@ public class WisdomApp implements Stateful {
 
     public int getBufferSize() {
         return bufferSize;
+    }
+
+    public List<Variable> getTrainable() {
+        return trainable;
     }
 
     @Override

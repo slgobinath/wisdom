@@ -58,7 +58,12 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
     @Override
     public VariableDefinition visitDef_variable(WisdomQLParser.Def_variableContext ctx) {
-        return new VariableDefinition(ctx.NAME().getText(), (Comparable) visit(ctx.wisdom_primitive()));
+        VariableDefinition definition = new VariableDefinition(ctx.NAME().getText(), (Comparable) visit(ctx.wisdom_primitive()));
+        for (ParseTree tree : ctx.annotation()) {
+            Annotation annotation = (Annotation) visit(tree);
+            definition.addAnnotation(ctx, annotation);
+        }
+        return definition;
     }
 
     @Override

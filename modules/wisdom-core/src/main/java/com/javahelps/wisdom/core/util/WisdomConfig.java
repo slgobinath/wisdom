@@ -1,5 +1,7 @@
 package com.javahelps.wisdom.core.util;
 
+import java.util.Properties;
+
 public class WisdomConfig {
 
     public static final double DOUBLE_PRECISION = 10_000.0;
@@ -13,6 +15,8 @@ public class WisdomConfig {
     public static final String WISDOM_APP_NAME = "WisdomApp";
 
     public static final String WISDOM_APP_VERSION = "1.0.0";
+
+    public static final Properties EMPTY_PROPERTIES = new Properties();
 
     private WisdomConfig() {
 

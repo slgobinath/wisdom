@@ -119,7 +119,7 @@ def_stream
     ;
 
 def_variable
-    : DEF VARIABLE NAME ASSIGN wisdom_primitive END_OF_STATEMENT?
+    : annotation* DEF VARIABLE NAME ASSIGN wisdom_primitive END_OF_STATEMENT?
     ;
 
 query

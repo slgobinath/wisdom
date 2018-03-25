@@ -3,6 +3,7 @@ package com.javahelps.wisdom.query;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
+import com.javahelps.wisdom.core.variable.Variable;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static com.javahelps.wisdom.query.TestUtil.map;
 
@@ -617,5 +619,33 @@ public class WisdomCompilerTest {
         wisdomApp.shutdown();
 
         Assert.assertTrue("Incorrect number of events", bos.toString().contains("{symbol=IBM, price=50.0}"));
+    }
+
+    @Test
+    public void testTrainableVariable() {
+
+        LOGGER.info("Test trainable annotation");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "def stream ThresholdStream; " +
+                "@config(trainable=true) " +
+                "def variable threshold = 20; " +
+                "" +
+                "from StockStream " +
+                "filter volume >= $threshold " +
+                "select symbol, price " +
+                "insert into OutputStream; " +
+                "" +
+                "from ThresholdStream " +
+                "update threshold;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        List<Variable> trainableVariables = wisdomApp.getTrainable();
+
+        Assert.assertEquals("Incorrect number of trainable variables", 1, trainableVariables.size());
+        Assert.assertEquals("Incorrect variable", "threshold", trainableVariables.get(0).getId());
     }
 }
