@@ -31,7 +31,10 @@
         <argparse4j.version>0.8.1</argparse4j.version>
         <logback.version>1.2.3</logback.version>
         <apache.httpcomponents.version>4.5.3</apache.httpcomponents.version>
-        <antlr.build.plugin.version>4.7.1</antlr.build.plugin.version>
+
+        <!-- Plugins -->
+        <compiler.plugin.version>3.7.0</compiler.plugin.version>
+        <antlr.plugin.version>4.7.1</antlr.plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -136,20 +139,22 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- compiler plugin configuration -->
+                <!-- Compiler plugin configuration -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.7.0</version>
+                    <version>${compiler.plugin.version}</version>
                     <configuration>
                         <source>1.9</source>
                         <target>1.9</target>
                     </configuration>
                 </plugin>
+
+                <!-- ANTLR plugin -->
                 <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-maven-plugin</artifactId>
-                    <version>${antlr.build.plugin.version}</version>
+                    <version>${antlr.plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
