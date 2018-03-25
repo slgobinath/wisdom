@@ -8,6 +8,10 @@ import com.javahelps.wisdom.manager.optimize.multivariate.Point;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+
+import static com.javahelps.wisdom.manager.util.Constants.*;
 
 public class WisdomOptimizer {
 
@@ -19,6 +23,15 @@ public class WisdomOptimizer {
 
     public WisdomOptimizer(WisdomApp app) {
         this.app = app;
+        List<Variable> trainable = app.getTrainable();
+        for (Variable variable : trainable) {
+            Properties properties = variable.getProperties();
+            Number min = (Number) properties.get(MINIMUM);
+            Number max = (Number) properties.get(MAXIMUM);
+            Number step = (Number) properties.get(STEP);
+            Constraint constraint = new Constraint(min.doubleValue(), max.doubleValue());
+            this.addTrainable(variable.getId(), constraint, step.doubleValue());
+        }
     }
 
     public void addTrainable(String varName, Constraint constraint, double step) {
@@ -72,5 +85,19 @@ public class WisdomOptimizer {
         MultivariateOptimizer optimizer = new MultivariateOptimizer(this::objectiveFunction, constraints, steps);
         Point point = optimizer.execute();
         return point;
+    }
+
+    public static Callable<Point> callable(WisdomApp app, QueryTrainer... trainers) {
+        WisdomOptimizer optimizer = new WisdomOptimizer(app);
+        for (QueryTrainer trainer : trainers) {
+            optimizer.addQueryTrainer(trainer);
+        }
+        Callable<Point> callable = () -> {
+            app.start();
+            Point point = optimizer.optimize();
+            app.shutdown();
+            return point;
+        };
+        return callable;
     }
 }

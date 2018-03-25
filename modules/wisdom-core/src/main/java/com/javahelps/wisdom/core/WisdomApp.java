@@ -111,7 +111,7 @@ public class WisdomApp implements Stateful {
 
     public <T> Variable<T> defineVariable(String id, T defaultValue, Properties properties) {
 
-        Variable<T> variable = new Variable(id, defaultValue);
+        Variable<T> variable = new Variable(id, defaultValue, properties);
         this.variableMap.put(id, variable);
 
         // Trainable variable

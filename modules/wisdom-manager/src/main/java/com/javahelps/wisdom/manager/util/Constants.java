@@ -17,4 +17,10 @@ public class Constants {
     public static final String ARTIFACTS_CONFIG_FILE = "artifacts.yaml";
 
     public static final String WISDOM_HOME = "WISDOM_HOME";
+
+    public static final String MINIMUM = "minimum";
+
+    public static final String MAXIMUM = "maximum";
+
+    public static final String STEP = "step";
 }

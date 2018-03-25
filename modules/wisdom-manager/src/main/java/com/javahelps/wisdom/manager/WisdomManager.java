@@ -3,6 +3,9 @@ package com.javahelps.wisdom.manager;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.variable.Variable;
+import com.javahelps.wisdom.manager.optimize.multivariate.Point;
+import com.javahelps.wisdom.manager.optimize.wisdom.QueryTrainer;
+import com.javahelps.wisdom.manager.optimize.wisdom.WisdomOptimizer;
 import com.javahelps.wisdom.query.WisdomCompiler;
 import com.javahelps.wisdom.service.client.WisdomAdminClient;
 import org.slf4j.Logger;
@@ -21,6 +24,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 
 import static com.javahelps.wisdom.core.util.WisdomConstants.THRESHOLD_STREAM;
 import static com.javahelps.wisdom.manager.util.Constants.*;
@@ -35,6 +39,8 @@ public class WisdomManager {
     private final Path ARTIFACTS_CONFIG_PATH;
     private final Map<String, Artifact> DEPLOYED_ARTIFACTS = new HashMap<>();
     private final Path WISDOM_HOME_PATH;
+    private final ScheduledExecutorService scheduledExecutorService;
+    private final ExecutorService executorService;
 
     public WisdomManager() throws IOException {
         this(System.getenv(WISDOM_HOME));
@@ -60,6 +66,12 @@ public class WisdomManager {
             Files.createDirectories(this.CONFIG_DIR_PATH);
         }
         this.loadArtifactsConfig();
+        this.scheduledExecutorService = Executors.newScheduledThreadPool(4);
+        this.executorService = Executors.newCachedThreadPool();
+    }
+
+    public void deploy(Path path, int port) throws IOException {
+        this.deploy(path, port, Artifact.Priority.HIGH);
     }
 
     public void deploy(Path path, int port, Artifact.Priority priority) throws IOException {
@@ -112,8 +124,16 @@ public class WisdomManager {
         this.saveArtifactsConfig();
     }
 
-    public void deploy(Path path, int port) throws IOException {
-        this.deploy(path, port, Artifact.Priority.HIGH);
+    public void optimize(String appName, QueryTrainer... queryTrainers) throws IOException {
+
+        Artifact artifact = DEPLOYED_ARTIFACTS.get(appName);
+        if (artifact == null) {
+            LOGGER.error("Wisdom app: {} not found in deployed applications", appName);
+            return;
+        }
+        WisdomApp app = WisdomCompiler.parse(this.ARTIFACTS_PATH.resolve(Paths.get(artifact.getFile())));
+        Callable<Point> callable = WisdomOptimizer.callable(app, queryTrainers);
+        Future<Point> future = this.executorService.submit(callable);
     }
 
     private void loadArtifactsConfig() throws IOException {

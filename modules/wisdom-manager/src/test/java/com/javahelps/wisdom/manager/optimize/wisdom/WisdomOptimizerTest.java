@@ -8,7 +8,6 @@ import com.javahelps.wisdom.core.stream.StreamCallback;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.core.util.EventPrinter;
 import com.javahelps.wisdom.extensions.unique.window.UniqueExternalTimeBatchWindow;
-import com.javahelps.wisdom.manager.optimize.multivariate.Constraint;
 import com.javahelps.wisdom.manager.optimize.multivariate.Point;
 import com.javahelps.wisdom.query.WisdomCompiler;
 import org.junit.Assert;
@@ -38,14 +37,13 @@ public class WisdomOptimizerTest {
         Path path = Paths.get(WisdomOptimizer.class.getClassLoader().getResource("ip_sweep.wisdomql").getPath());
         WisdomApp app = WisdomCompiler.parse(path);
         WisdomOptimizer manager = new WisdomOptimizer(app);
-        manager.addTrainable("time_threshold", new Constraint(100L, 5000L), -1);
-        manager.addTrainable("count_threshold", new Constraint(5L, 1000L), 1);
 
         IPSweepTrainer trainer = new IPSweepTrainer();
         manager.addQueryTrainer(trainer);
 
         app.start();
         Point point = manager.optimize();
+        app.shutdown();
 
         long timestamp = (long) point.getCoordinates()[0];
         long count = (long) point.getCoordinates()[1];
@@ -54,7 +52,6 @@ public class WisdomOptimizerTest {
 
 
         Assert.assertEquals("Query is not fully optimized", 0.0, trainer.loss(), 0.0);
-        app.shutdown();
     }
 
     static class IPSweepTrainer implements QueryTrainer, StreamCallback {

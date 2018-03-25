@@ -22,6 +22,7 @@ public class Variable<T> implements Processor, Supplier<T> {
     private final ReadWriteLock lock;
     private final List<OnUpdateListener<T>> listeners;
     private T value;
+    private final Properties properties;
 
     public Variable(String id, T value) {
         this(id, value, EMPTY_PROPERTIES);
@@ -32,6 +33,7 @@ public class Variable<T> implements Processor, Supplier<T> {
         this.lock = new ReentrantReadWriteLock();
         this.listeners = new ArrayList<>();
         this.value = value;
+        this.properties = properties;
     }
 
     public String getId() {
@@ -127,4 +129,7 @@ public class Variable<T> implements Processor, Supplier<T> {
         void update(T value);
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
 }
