@@ -19,7 +19,7 @@ public class UniqueWindow {
 
     public static Window externalTimeBatch(String uniqueKey, String timestampKey, Duration duration) {
 
-        return Window.create("unique:externalTimeBatch", map("uniqueKey", uniqueKey, "timestampKey", timestampKey, "duration", duration));
+        return Window.create("unique:externalTimeBatch", map("uniqueKey", uniqueKey, "timestampKey", timestampKey, "duration", duration.toMillis()));
     }
 
     public static Window lengthBatch(String uniqueKey, int length) {
