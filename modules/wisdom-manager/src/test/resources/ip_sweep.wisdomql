@@ -1,4 +1,4 @@
-@app(name='WisdomApp', version='1.0.0')
+@app(name='WisdomApp', version='1.0.0', priority=10)
 def stream PacketStream;
 def stream IPSweepStream;
 

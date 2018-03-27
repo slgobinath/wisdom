@@ -1,19 +1,15 @@
-package com.javahelps.wisdom.manager;
+package com.javahelps.wisdom.manager.entity;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Artifact {
 
-    enum Priority {
-        LOW, HIGH
-    }
-
     private int port;
     private long pid = -1L;
     private String file;
     private String host = "127.0.0.1";
-    private Priority priority;
+    private int priority = 10;
     private Map<String, Map<String, Comparable>> init = new HashMap<>();
 
     public Artifact() {
@@ -24,8 +20,8 @@ public class Artifact {
         this.port = (int) map.get("port");
         this.file = (String) map.get("file");
         this.host = (String) map.get("host");
-        this.priority = Priority.valueOf((String) map.get("priority"));
-        this.pid = (long) map.getOrDefault("pid", -1L);
+        this.priority = (int) map.get("priority");
+        this.pid = ((Number) map.getOrDefault("pid", -1L)).longValue();
         this.init = (Map<String, Map<String, Comparable>>) map.getOrDefault("init", this.init);
     }
 
@@ -61,11 +57,16 @@ public class Artifact {
         this.file = file;
     }
 
-    public Priority getPriority() {
+    public int getPriority() {
         return priority;
     }
 
-    public void setPriority(Priority priority) {
+    public void setPriority(int priority) {
+        if (priority < 0) {
+            priority = 0;
+        } else if (priority > 10) {
+            priority = 10;
+        }
         this.priority = priority;
     }
 

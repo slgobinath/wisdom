@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static com.javahelps.wisdom.core.util.Commons.toProperties;
 import static com.javahelps.wisdom.core.util.WisdomConfig.*;
 import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 
@@ -33,6 +34,7 @@ public class WisdomApp implements Stateful {
     private final String version;
 
     private final int bufferSize;
+    private final Properties properties;
     private final WisdomContext wisdomContext;
     private final ThreadBarrier threadBarrier;
     private final List<Sink> sinks = new ArrayList<>();
@@ -49,11 +51,7 @@ public class WisdomApp implements Stateful {
     }
 
     public WisdomApp(String name, String version) {
-        this.name = name;
-        this.version = version;
-        this.bufferSize = WisdomConfig.EVENT_BUFFER_SIZE;
-        this.wisdomContext = new WisdomContext(EMPTY_PROPERTIES);
-        this.threadBarrier = this.wisdomContext.getThreadBarrier();
+        this(toProperties(NAME, name, VERSION, version));
     }
 
     public WisdomApp(Properties properties) {
@@ -62,6 +60,7 @@ public class WisdomApp implements Stateful {
         this.bufferSize = ((Number) properties.getOrDefault(BUFFER, WisdomConfig.EVENT_BUFFER_SIZE)).intValue();
         this.wisdomContext = new WisdomContext(properties);
         this.threadBarrier = this.wisdomContext.getThreadBarrier();
+        this.properties = properties;
     }
 
     public WisdomContext getContext() {
@@ -290,5 +289,9 @@ public class WisdomApp implements Stateful {
         this.queryMap.values().forEach(Query::clear);
         this.streamMap.values().forEach(Stream::enable);
         this.threadBarrier.unlock();
+    }
+
+    public Properties getProperties() {
+        return properties;
     }
 }

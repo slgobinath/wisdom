@@ -1,5 +1,6 @@
 package com.javahelps.wisdom.service;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.extension.ImportsManager;
@@ -10,10 +11,6 @@ import com.javahelps.wisdom.query.WisdomCompiler;
 import com.javahelps.wisdom.service.exception.JsonSyntaxExceptionHandler;
 import com.javahelps.wisdom.service.exception.WisdomServiceException;
 import com.javahelps.wisdom.service.exception.WisdomServiceExceptionHandler;
-import com.javahelps.wisdom.service.sink.HTTPSink;
-import com.javahelps.wisdom.service.sink.KafkaSink;
-import com.javahelps.wisdom.service.source.HTTPSource;
-import com.javahelps.wisdom.service.source.KafkaSource;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
@@ -22,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,12 +34,7 @@ import static com.javahelps.wisdom.service.Constant.MAPPING;
 public class WisdomService {
 
     static {
-        // Supported sources
-        ImportsManager.INSTANCE.use(HTTPSource.class);
-        ImportsManager.INSTANCE.use(KafkaSource.class);
-        // Supported sinks
-        ImportsManager.INSTANCE.use(HTTPSink.class);
-        ImportsManager.INSTANCE.use(KafkaSink.class);
+        ImportsManager.INSTANCE.scanClassPath();
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomService.class);
@@ -49,6 +43,7 @@ public class WisdomService {
     private final int wisdomPort;
     private Map<String, InputHandler> inputHandlerMap = new HashMap<>();
     private boolean running;
+    private final Gson gson = new Gson();
 
 
     public WisdomService(WisdomApp wisdomApp, int port) {
@@ -69,6 +64,7 @@ public class WisdomService {
             this.stop();
             return null;
         });
+        Spark.get("/WisdomApp/admin/info", (request, response) -> this.info(), gson::toJson);
         this.wisdomApp.start();
     }
 
@@ -83,6 +79,15 @@ public class WisdomService {
         return this.running;
     }
 
+    public Map<String, Comparable> info() {
+        RuntimeMXBean rb = ManagementFactory.getRuntimeMXBean();
+        return Commons.map("running", this.running,
+                "name", this.wisdomApp.getName(),
+                "version", this.wisdomApp.getVersion(),
+                "port", this.wisdomPort,
+                "uptime", rb.getUptime());
+    }
+
     public static void main(String[] args) {
         // Define arguments
         ArgumentParser parser = ArgumentParsers.newFor("wisdom-service")
@@ -93,7 +98,7 @@ public class WisdomService {
                 .build();
         parser.addArgument("--port")
                 .required(false)
-                .setDefault(8080)
+                .setDefault(8888)
                 .type(Integer.class)
                 .dest("port")
                 .help("port number for Wisdom service");

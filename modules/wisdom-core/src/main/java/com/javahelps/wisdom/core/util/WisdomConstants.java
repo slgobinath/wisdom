@@ -24,6 +24,8 @@ public class WisdomConstants {
 
     public static final String TRAINABLE = "trainable";
 
+    public static final String PRIORITY = "priority";
+
     public static final String STATISTICS_REPORT_FREQUENCY = "stats_freq";
 
     public static final String THRESHOLD_STREAM = "_ThresholdStream";

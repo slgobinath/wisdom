@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 import static com.javahelps.wisdom.service.util.TestUtil.map;
 
@@ -141,6 +142,46 @@ public class TestWisdomService {
         Thread.sleep(100);
 
         Assert.assertFalse("WisdomService has not been shutdown", wisdomService.isRunning());
+
+    }
+
+    @Test
+    public void testInfo() throws IOException, InterruptedException {
+
+        LOGGER.info("Test the shutdown REST API");
+
+        // Create a WisdomApp
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream");
+
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .select("symbol", "price")
+                .insertInto("OutputStream");
+
+        wisdomApp.addSource("StockStream", Source.create("http", map("mapping", "json")));
+        wisdomApp.addCallback("OutputStream", events -> System.out.println(events[0]));
+
+        // Create a WisdomService
+        WisdomService wisdomService = new WisdomService(wisdomApp, 8081);
+
+        wisdomService.start();
+
+        // Let the server to start
+        Thread.sleep(100);
+
+        Assert.assertTrue("WisdomService is not running", wisdomService.isRunning());
+
+        // Stop the server
+        WisdomAdminClient client = new WisdomAdminClient("localhost", 8081);
+        Map<String, Comparable> info = client.info();
+        client.stop();
+
+        LOGGER.info("Received {}", info);
+
+        Assert.assertEquals("Failed to retrieve information from Wisdom service", "WisdomApp", info.get("name"));
+        Assert.assertTrue("Failed to retrieve information from Wisdom service", (Boolean) info.get("running"));
 
     }
 

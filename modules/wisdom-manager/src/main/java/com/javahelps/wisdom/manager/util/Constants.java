@@ -23,4 +23,6 @@ public class Constants {
     public static final String MAXIMUM = "maximum";
 
     public static final String STEP = "step";
+
+    public static final int HTTP_CREATED = 201;
 }

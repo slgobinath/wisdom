@@ -32,10 +32,17 @@ public class WisdomHTTPClient extends WisdomClient {
         input.setContentType(MEDIA_APPLICATION_JSON);
         post.setEntity(input);
 
-        CloseableHttpResponse httpResponse = client.execute(post);
-        StatusLine statusLine = httpResponse.getStatusLine();
-        WisdomClient.Response response = new WisdomClient.Response(statusLine.getStatusCode(), statusLine.getReasonPhrase());
-        httpResponse.close();
+        CloseableHttpResponse httpResponse = null;
+        WisdomClient.Response response;
+        try {
+            httpResponse = client.execute(post);
+            StatusLine statusLine = httpResponse.getStatusLine();
+            response = new WisdomClient.Response(statusLine.getStatusCode(), statusLine.getReasonPhrase());
+        } finally {
+            if (httpResponse != null) {
+                httpResponse.close();
+            }
+        }
         return response;
     }
 

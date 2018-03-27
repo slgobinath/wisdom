@@ -18,6 +18,8 @@
         </encoder>
     </appender>
 
+    <logger name="org.reflections.Reflections" level="OFF"/>
+
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <!--<appender-ref ref="FILE"/>-->

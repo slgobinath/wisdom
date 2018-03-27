@@ -1,11 +1,6 @@
 package com.javahelps.wisdom.manager;
 
-import com.javahelps.wisdom.core.extension.ImportsManager;
-import com.javahelps.wisdom.extensions.unique.window.UniqueExternalTimeBatchWindow;
-import com.javahelps.wisdom.service.sink.HTTPSink;
-import com.javahelps.wisdom.service.sink.KafkaSink;
-import com.javahelps.wisdom.service.source.HTTPSource;
-import com.javahelps.wisdom.service.source.KafkaSource;
+import com.javahelps.wisdom.manager.entity.Artifact;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -25,31 +20,23 @@ import java.util.Map;
 
 public class WisdomManagerTest {
 
-    static {
-        // Supported sources
-        ImportsManager.INSTANCE.use(HTTPSource.class);
-        ImportsManager.INSTANCE.use(KafkaSource.class);
-        // Supported sinks
-        ImportsManager.INSTANCE.use(HTTPSink.class);
-        ImportsManager.INSTANCE.use(KafkaSink.class);
-
-        ImportsManager.INSTANCE.use(UniqueExternalTimeBatchWindow.class);
-    }
-
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomManagerTest.class);
     private static Yaml yaml;
 
     @BeforeClass
-    public static void init() {
+    public static void init() throws IOException, URISyntaxException {
         Representer representer = new Representer();
         representer.addClassTag(Artifact.class, Tag.MAP);
         yaml = new Yaml(representer);
+        Files.createDirectory(Paths.get("conf"));
+        Files.copy(Paths.get(ClassLoader.getSystemClassLoader().getResource("conf/config.yaml").toURI()), Paths.get("conf/config.yaml"));
     }
 
     @AfterClass
     public static void clean() throws IOException {
-        Files.deleteIfExists(Paths.get("artifacts/ip_sweep.wisdomql"));
+        Files.deleteIfExists(Paths.get("artifacts/IPSweepDetector.wisdomql"));
         Files.deleteIfExists(Paths.get("conf/artifacts.yaml"));
+        Files.deleteIfExists(Paths.get("conf/config.yaml"));
         Files.deleteIfExists(Paths.get("artifacts"));
         Files.deleteIfExists(Paths.get("conf"));
     }
@@ -60,7 +47,7 @@ public class WisdomManagerTest {
         LOGGER.info("Test query file");
 
         WisdomManager manager = new WisdomManager(".");
-        manager.deploy(Paths.get(ClassLoader.getSystemClassLoader().getResource("artifacts/ip_sweep.wisdomql").toURI()), 8080);
+        manager.deploy(new String(Files.readAllBytes(Paths.get(ClassLoader.getSystemClassLoader().getResource("artifacts/ip_sweep.wisdomql").toURI()))), 8889);
 
         Map<String, Map<String, Object>> artifactMap;
         try (BufferedReader reader = Files.newBufferedReader(Paths.get("conf/artifacts.yaml"))) {
@@ -68,7 +55,7 @@ public class WisdomManagerTest {
         }
         System.out.println(artifactMap);
 
-        Assert.assertTrue("Failed to copy the query file", Files.exists(Paths.get("artifacts/ip_sweep.wisdomql")));
-        Assert.assertEquals("Invalid file name", "ip_sweep.wisdomql", artifactMap.get("IPSweepDetector").get("file"));
+        Assert.assertTrue("Failed to deploy the query", Files.exists(Paths.get("artifacts/IPSweepDetector.wisdomql")));
+        Assert.assertEquals("Invalid file name", "IPSweepDetector.wisdomql", artifactMap.get("IPSweepDetector").get("file"));
     }
 }

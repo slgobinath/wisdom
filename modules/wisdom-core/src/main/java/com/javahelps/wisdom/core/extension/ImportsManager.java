@@ -5,6 +5,10 @@ import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.stream.output.Sink;
 import com.javahelps.wisdom.core.window.Window;
 import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -91,6 +95,18 @@ public enum ImportsManager {
             return (Source) constructor.newInstance(properties);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new WisdomAppValidationException(e.getCause(), "Failed to create %s source instance", namespace);
+        }
+    }
+
+    public void scanClassPath() {
+        ConfigurationBuilder builder = new ConfigurationBuilder()
+                .addUrls(ClasspathHelper.forJavaClassPath())
+                .setScanners(new TypeAnnotationsScanner(), new SubTypesScanner());
+        Reflections reflections = new Reflections(builder);
+
+        Set<Class<?>> extensions = reflections.getTypesAnnotatedWith(WisdomExtension.class);
+        for (Class<?> clazz : extensions) {
+            this.use(clazz);
         }
     }
 }

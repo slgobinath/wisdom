@@ -24,5 +24,7 @@ public class Constant {
 
     public static final int HTTP_ACCEPTED = 202;
 
+    public static final int HTTP_OK = 200;
+
     public static final int HTTP_BAD_REQUEST = 400;
 }
