@@ -28,7 +28,7 @@ public class TestUtil {
     public static TestCallback addStreamCallback(Logger logger, WisdomApp wisdomApp, String query, Map<String,
             Comparable>... expectedEvents) {
         TestCallback testCallback = new TestCallback(logger);
-        testCallback.addCallback(wisdomApp, "OutputStream", expectedEvents);
+        testCallback.addCallback(wisdomApp, query, expectedEvents);
         return testCallback;
     }
 

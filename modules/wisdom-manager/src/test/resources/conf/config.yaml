@@ -1,3 +1,6 @@
 wisdom_service:
     min_port: 8888
     max_port: 9999
+
+kafka_bootstrap: localhost:9092
+statistics_topic:  _Statistics

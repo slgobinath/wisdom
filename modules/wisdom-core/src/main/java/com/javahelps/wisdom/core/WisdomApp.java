@@ -6,6 +6,7 @@ import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.processor.Stateful;
 import com.javahelps.wisdom.core.query.Query;
+import com.javahelps.wisdom.core.statistics.StatisticsManager;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.stream.StreamCallback;
@@ -22,6 +23,7 @@ import java.util.function.Consumer;
 import static com.javahelps.wisdom.core.util.Commons.toProperties;
 import static com.javahelps.wisdom.core.util.WisdomConfig.*;
 import static com.javahelps.wisdom.core.util.WisdomConstants.*;
+import static com.javahelps.wisdom.core.util.WisdomConstants.STATISTICS_REPORT_FREQUENCY;
 
 /**
  * {@link WisdomApp} is the event processing application which lets the users to create stream processing components
@@ -34,16 +36,19 @@ public class WisdomApp implements Stateful {
     private final String version;
 
     private final int bufferSize;
+    private long reportFrequency;
+    private String statisticStream;
     private final Properties properties;
     private final WisdomContext wisdomContext;
     private final ThreadBarrier threadBarrier;
+    private StatisticsManager statisticsManager;
     private final List<Sink> sinks = new ArrayList<>();
     private final List<Source> sources = new ArrayList<>();
     private final List<Variable> trainable = new ArrayList<>();
     private final Map<String, Query> queryMap = new HashMap<>();
     private final Map<String, Stream> streamMap = new HashMap<>();
     private final Map<String, Variable> variableMap = new HashMap<>();
-    private final List<Consumer<WisdomApp>> initializers = new ArrayList<>();
+    private final List<Consumer<WisdomApp>> initConsumers = new ArrayList<>();
     private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
 
     public WisdomApp() {
@@ -61,6 +66,13 @@ public class WisdomApp implements Stateful {
         this.wisdomContext = new WisdomContext(properties);
         this.threadBarrier = this.wisdomContext.getThreadBarrier();
         this.properties = properties;
+
+        // Check if statistics enabled
+        String statisticStream = properties.getProperty(STATISTICS);
+        if (statisticStream != null) {
+            long freq = ((Number) properties.getOrDefault(STATISTICS_REPORT_FREQUENCY, WisdomConfig.STATISTICS_REPORT_FREQUENCY)).longValue();
+            this.enableStatistics(statisticStream, freq);
+        }
     }
 
     public WisdomContext getContext() {
@@ -69,14 +81,16 @@ public class WisdomApp implements Stateful {
 
     public void start() {
         // Initialize components
-        this.wisdomContext.init(this);
-        for (Consumer<WisdomApp> consumer : this.initializers) {
+        for (Consumer<WisdomApp> consumer : this.initConsumers) {
             consumer.accept(this);
         }
         this.wisdomContext.start();
         this.queryMap.values().forEach(Query::init);
         this.streamMap.values().forEach(Processor::start);
         this.sinks.forEach(Sink::start);
+        if (this.statisticsManager != null) {
+            this.statisticsManager.start();
+        }
         // Start sources at last
         this.sources.forEach(Source::start);
     }
@@ -84,6 +98,9 @@ public class WisdomApp implements Stateful {
     public void shutdown() {
         // Stop sources first
         this.sources.forEach(Source::stop);
+        if (this.statisticsManager != null) {
+            this.statisticsManager.stop();
+        }
         // Stop all streams
         for (Stream stream : this.streamMap.values()) {
             stream.stop();
@@ -220,7 +237,7 @@ public class WisdomApp implements Stateful {
             throw new WisdomAppValidationException("Stream id %s is not defined", streamId);
         }
         this.sinks.add(sink);
-        this.initializers.add(app -> sink.init(app, streamId));
+        this.initConsumers.add(app -> sink.init(app, streamId));
         stream.addProcessor(new Processor() {
             @Override
             public void start() {
@@ -263,7 +280,23 @@ public class WisdomApp implements Stateful {
             throw new WisdomAppValidationException("Stream id %s is not defined", streamId);
         }
         this.sources.add(source);
-        this.initializers.add(app -> source.init(app, streamId));
+        this.initConsumers.add(app -> source.init(app, streamId));
+    }
+
+    public StatisticsManager enableStatistics(String statisticStream, long reportFrequency) {
+        Objects.requireNonNull(statisticStream, "Statistic streamId cannot be null");
+        if (this.statisticsManager != null) {
+            return this.statisticsManager;
+        }
+        this.statisticStream = statisticStream;
+        this.reportFrequency = reportFrequency;
+        this.statisticsManager = new StatisticsManager(this.statisticStream, this.reportFrequency);
+        this.initConsumers.add(this.statisticsManager::init);
+        return this.statisticsManager;
+    }
+
+    public StatisticsManager getStatisticsManager() {
+        return statisticsManager;
     }
 
     public String getName() {

@@ -4,7 +4,9 @@ import com.javahelps.wisdom.core.ThreadBarrier;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
+import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.processor.Processor;
+import com.javahelps.wisdom.core.statistics.StatisticsManager;
 import com.javahelps.wisdom.core.statistics.StreamTracker;
 import com.javahelps.wisdom.core.stream.async.EventHolder;
 import com.lmax.disruptor.RingBuffer;
@@ -33,7 +35,6 @@ public class Stream implements Processor {
     private WisdomApp wisdomApp;
     private List<Processor> processorList = new ArrayList<>();
     private Processor[] processors;
-    private int noOfProcessors;
     private Disruptor<EventHolder> disruptor;
     private RingBuffer<EventHolder> ringBuffer;
     private boolean disabled = false;
@@ -51,7 +52,6 @@ public class Stream implements Processor {
         this.threadBarrier = wisdomApp.getContext().getThreadBarrier();
         final boolean async = ((Boolean) properties.getOrDefault(ASYNC, wisdomApp.getContext().isAsync()));
         final int bufferSize = ((Number) properties.getOrDefault(BUFFER, wisdomApp.getBufferSize())).intValue();
-        boolean statisticsEnabled = (boolean) properties.getOrDefault(STATISTICS, wisdomApp.getContext().isStatisticsEnabled());
 
         // Create disruptor if async mode is enables
         if (async) {
@@ -65,16 +65,17 @@ public class Stream implements Processor {
             // Get the ring buffer from the Disruptor to be used for publishing.
             this.ringBuffer = disruptor.getRingBuffer();
         }
-
-        // Get stream tracker
-        if (statisticsEnabled) {
-            this.tracker = wisdomApp.getContext().getStatisticsManager().createStreamTracker(this.id);
+        if ((Boolean) properties.getOrDefault(STATISTICS, false)) {
+            StatisticsManager statisticsManager = wisdomApp.getStatisticsManager();
+            if (statisticsManager == null) {
+                throw new WisdomAppValidationException("App level statistic stream must be defined before enabling stream stats");
+            }
+            this.setTracker(statisticsManager.createStreamTracker(id));
         }
     }
 
     @Override
     public void start() {
-        this.noOfProcessors = this.processorList.size();
         this.processors = this.processorList.toArray(new Processor[0]);
 
         if (this.disruptor != null) {

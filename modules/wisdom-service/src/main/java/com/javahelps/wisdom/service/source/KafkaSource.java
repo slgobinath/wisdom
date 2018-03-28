@@ -135,6 +135,7 @@ public class KafkaSource extends Source {
             this.active = false;
             try {
                 lock.lock();
+                this.consumer.unsubscribe();
                 this.consumer.close();
             } catch (CommitFailedException e) {
                 LOGGER.error("Kafka commit failed for topic " + this.topic, e);

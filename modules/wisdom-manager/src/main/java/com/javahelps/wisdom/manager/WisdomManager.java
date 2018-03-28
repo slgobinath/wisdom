@@ -8,10 +8,7 @@ import com.javahelps.wisdom.core.extension.ImportsManager;
 import com.javahelps.wisdom.core.variable.Variable;
 import com.javahelps.wisdom.manager.entity.Artifact;
 import com.javahelps.wisdom.manager.exception.InvalidPropertyException;
-import com.javahelps.wisdom.manager.util.InvalidPropertyExceptionHandler;
-import com.javahelps.wisdom.manager.util.Utility;
-import com.javahelps.wisdom.manager.util.WisdomAppRuntimeExceptionHandler;
-import com.javahelps.wisdom.manager.util.WisdomParserExceptionHandler;
+import com.javahelps.wisdom.manager.util.*;
 import com.javahelps.wisdom.query.WisdomCompiler;
 import com.javahelps.wisdom.query.antlr.WisdomParserException;
 import com.javahelps.wisdom.service.client.WisdomAdminClient;
@@ -35,6 +32,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.javahelps.wisdom.core.util.Commons.map;
 import static com.javahelps.wisdom.core.util.WisdomConstants.PRIORITY;
@@ -42,7 +41,7 @@ import static com.javahelps.wisdom.core.util.WisdomConstants.THRESHOLD_STREAM;
 import static com.javahelps.wisdom.manager.util.Constants.*;
 import static com.javahelps.wisdom.service.Constant.MEDIA_TEXT_PLAIN;
 
-public class WisdomManager {
+public class WisdomManager implements StatisticsConsumer.StatsListener {
 
     static {
         ImportsManager.INSTANCE.scanClassPath();
@@ -51,6 +50,7 @@ public class WisdomManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomManager.class);
 
     private final Yaml yaml;
+    private final int managerPort;
     private final Path artifactsPath;
     private final Path configDirPath;
     private final Path artifactsConfigPath;
@@ -60,17 +60,20 @@ public class WisdomManager {
     private final int minServicePort;
     private final int maxServicePort;
     private final String JAVA_BIN = Paths.get(System.getProperty("java.home"), "bin/java").toAbsolutePath().toString();
+    private final ExecutorService executorService;
+    private StatisticsConsumer statisticsConsumer;
 
-    public WisdomManager() throws IOException {
-        this(System.getenv(WISDOM_HOME));
+    public WisdomManager(int managerPort) throws IOException {
+        this(System.getenv(WISDOM_HOME), managerPort);
     }
 
-    public WisdomManager(String wisdomHome) throws IOException {
+    public WisdomManager(String wisdomHome, int managerPort) throws IOException {
 
         if (wisdomHome == null) {
             throw new WisdomAppRuntimeException("%s environment variable not set", WISDOM_HOME);
         }
         this.wisdomHomePath = Paths.get(wisdomHome);
+        this.managerPort = managerPort;
 
         Representer representer = new Representer();
         representer.addClassTag(Artifact.class, Tag.MAP);
@@ -93,6 +96,52 @@ public class WisdomManager {
         this.minServicePort = (int) wisdomService.getOrDefault("min_port", 8080);
         this.maxServicePort = (int) wisdomService.getOrDefault("max_port", 8888);
         this.loadArtifactsConfig();
+        this.executorService = Executors.newCachedThreadPool();
+        this.statisticsConsumer = new StatisticsConsumer((String) configuration.get("kafka_bootstrap"), (String) configuration.get("statistics_topic"), "WisdomManager_" + this.managerPort, this.executorService, this);
+    }
+
+    public void start() {
+        Spark.port(this.managerPort);
+        Spark.exception(WisdomServiceException.class, new WisdomServiceExceptionHandler());
+        Spark.exception(InvalidPropertyException.class, new InvalidPropertyExceptionHandler());
+        Spark.exception(NullPointerException.class, new InvalidPropertyExceptionHandler());
+        Spark.exception(WisdomParserException.class, new WisdomParserExceptionHandler());
+        Spark.exception(WisdomAppRuntimeException.class, new WisdomAppRuntimeExceptionHandler());
+        Spark.exception(JsonSyntaxException.class, new JsonSyntaxExceptionHandler());
+        Spark.post("/wisdom/deploy", (request, response) -> {
+            Map<String, Object> deployer = this.gson.fromJson(request.body(), Map.class);
+            Utility.validateProperties(deployer, new String[]{"query", "port"}, new Class[]{String.class, Number.class});
+            String query = (String) deployer.get("query");
+            int port = ((Number) deployer.get("port")).intValue();
+            this.deploy(query, port);
+            response.type(MEDIA_TEXT_PLAIN);
+            response.status(HTTP_CREATED);
+            return "Deployed Wisdom app successfully";
+        });
+        Spark.post("/wisdom/start/:appName", (request, response) -> this.start(request.params("appName")));
+        Spark.post("/wisdom/stop/:appName", (request, response) -> this.stop(request.params("appName")));
+        Spark.delete("/wisdom/app/:appName", (request, response) -> this.delete(request.params("appName")));
+        Spark.get("/wisdom/app/:appName", (request, response) -> this.info(request.params("appName")), this.gson::toJson);
+        Spark.post("/wisdom/manager/shutdown", ((request, response) -> this.shutdown()));
+        this.statisticsConsumer.start();
+    }
+
+    public String shutdown() {
+        new Thread(() -> {
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                // Do nothing
+            }
+            try {
+                this.statisticsConsumer.stop();
+                this.executorService.shutdown();
+                Spark.stop();
+            } finally {
+                System.exit(0);
+            }
+        }).start();
+        return "Shutting down wisdom manager...";
     }
 
     public void deploy(String query, int port) throws IOException {
@@ -253,6 +302,12 @@ public class WisdomManager {
         }
     }
 
+
+    @Override
+    public void onStats(Map<String, Comparable> stats) {
+        LOGGER.info("Received statistics {}", stats);
+    }
+
     public static void main(String[] args) {
         // Define arguments
         ArgumentParser parser = ArgumentParsers.newFor("wisdom-service")
@@ -274,32 +329,12 @@ public class WisdomManager {
 
             WisdomManager manager;
             try {
-                manager = new WisdomManager();
+                manager = new WisdomManager(managerPort);
             } catch (IOException e) {
                 e.printStackTrace(System.err);
                 return;
             }
-            Spark.port(managerPort);
-            Spark.exception(WisdomServiceException.class, new WisdomServiceExceptionHandler());
-            Spark.exception(InvalidPropertyException.class, new InvalidPropertyExceptionHandler());
-            Spark.exception(NullPointerException.class, new InvalidPropertyExceptionHandler());
-            Spark.exception(WisdomParserException.class, new WisdomParserExceptionHandler());
-            Spark.exception(WisdomAppRuntimeException.class, new WisdomAppRuntimeExceptionHandler());
-            Spark.exception(JsonSyntaxException.class, new JsonSyntaxExceptionHandler());
-            Spark.post("/wisdom/deploy", (request, response) -> {
-                Map<String, Object> deployer = manager.gson.fromJson(request.body(), Map.class);
-                Utility.validateProperties(deployer, new String[]{"query", "port"}, new Class[]{String.class, Number.class});
-                String query = (String) deployer.get("query");
-                int port = ((Number) deployer.get("port")).intValue();
-                manager.deploy(query, port);
-                response.type(MEDIA_TEXT_PLAIN);
-                response.status(HTTP_CREATED);
-                return "Deployed Wisdom app successfully";
-            });
-            Spark.post("/wisdom/start/:appName", (request, response) -> manager.start(request.params("appName")));
-            Spark.post("/wisdom/stop/:appName", (request, response) -> manager.stop(request.params("appName")));
-            Spark.delete("/wisdom/app/:appName", (request, response) -> manager.delete(request.params("appName")));
-            Spark.get("/wisdom/app/:appName", (request, response) -> manager.info(request.params("appName")), manager.gson::toJson);
+            manager.start();
         } catch (ArgumentParserException e) {
             e.printStackTrace(System.err);
         }

@@ -9,13 +9,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StreamTrackerTest {
+public class TestStreamTracker {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StreamTrackerTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestStreamTracker.class);
 
     @Test
     public void testThroughput() throws InterruptedException {
-        LOGGER.info("Test throughput 1");
+        LOGGER.info("Test throughput - 4");
 
         WisdomApp wisdomApp = new WisdomApp();
         wisdomApp.defineStream("StockStream");
@@ -33,7 +33,7 @@ public class StreamTrackerTest {
                 .select("name", "throughput")
                 .insertInto("FilteredStatisticsStream");
 
-        StatisticsManager manager = wisdomApp.getContext().enableStatistics("StatisticsStream", 1000L);
+        StatisticsManager manager = wisdomApp.enableStatistics("StatisticsStream", 1000L);
         wisdomApp.getStream("StockStream").setTracker(manager.createStreamTracker("StockStream"));
         wisdomApp.getStream("OutputStream").setTracker(manager.createStreamTracker("OutputStream"));
 

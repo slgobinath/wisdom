@@ -46,7 +46,7 @@ public class WisdomManagerTest {
 
         LOGGER.info("Test query file");
 
-        WisdomManager manager = new WisdomManager(".");
+        WisdomManager manager = new WisdomManager(".", 8080);
         manager.deploy(new String(Files.readAllBytes(Paths.get(ClassLoader.getSystemClassLoader().getResource("artifacts/ip_sweep.wisdomql").toURI()))), 8889);
 
         Map<String, Map<String, Object>> artifactMap;

@@ -648,4 +648,46 @@ public class WisdomCompilerTest {
         Assert.assertEquals("Incorrect number of trainable variables", 1, trainableVariables.size());
         Assert.assertEquals("Incorrect variable", "threshold", trainableVariables.get(0).getId());
     }
+
+    @Test
+    public void testStreamThroughput() throws InterruptedException {
+
+        LOGGER.info("Test stream stats");
+
+        String query = "@app(name='WisdomApp', version='1.0.0', stats='StatisticsStream', stats_freq=time.sec(1)) " +
+                "@config(stats=true) " +
+                "def stream StockStream; " +
+                "@config(stats=true) " +
+                "def stream OutputStream; " +
+                "def stream StatisticsStream; " +
+                "def stream FilteredStatisticsStream; " +
+                "" +
+                "from StockStream " +
+                "select symbol, price " +
+                "insert into OutputStream; " +
+                "" +
+                "from StatisticsStream " +
+                "select name, throughput " +
+                "insert into FilteredStatisticsStream; ";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "FilteredStatisticsStream",
+                TestUtil.map("name", "StockStream", "throughput", 2.0),
+                TestUtil.map("name", "OutputStream", "throughput", 2.0),
+                TestUtil.map("name", "StockStream", "throughput", 0.0),
+                TestUtil.map("name", "OutputStream", "throughput", 0.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+
+        Thread.sleep(2100);
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 4, callback.getEventCount());
+    }
 }
