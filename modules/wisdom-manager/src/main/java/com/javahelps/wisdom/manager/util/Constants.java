@@ -25,4 +25,16 @@ public class Constants {
     public static final String STEP = "step";
 
     public static final int HTTP_CREATED = 201;
+
+    public static final int MINIMUM_PRIORITY_THRESHOLD = 7;
+
+    public static final double MINIMUM_THROUGHPUT_THRESHOLD = 0.0;
+
+    public static final double MAXIMUM_THROUGHPUT_THRESHOLD = 0.00000001;
+
+    public static final int THROUGHPUT_WINDOW_LENGTH = 10;
+
+    public static long STATISTIC_MONITOR_INITIAL_DELAY = 900000L;   // 15 minutes
+
+    public static long STATISTIC_MONITOR_PERIOD = 900000L;   // 15 minutes
 }

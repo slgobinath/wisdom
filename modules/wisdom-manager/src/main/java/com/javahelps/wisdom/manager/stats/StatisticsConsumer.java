@@ -1,4 +1,4 @@
-package com.javahelps.wisdom.manager.util;
+package com.javahelps.wisdom.manager.stats;
 
 import com.javahelps.wisdom.service.Utility;
 import org.apache.kafka.clients.consumer.*;
@@ -21,10 +21,10 @@ public class StatisticsConsumer implements Runnable {
     private final String topic;
     private final String bootstrapServers;
     private transient boolean active = true;
-    private final Lock lock = new ReentrantLock();
     private Consumer<String, String> consumer;
-    private final ExecutorService executorService;
     private final StatsListener statsListener;
+    private final Lock lock = new ReentrantLock();
+    private final ExecutorService executorService;
 
     public StatisticsConsumer(String bootstrapServers, String topic, String groupId, ExecutorService executorService, StatsListener statsListener) {
         this.bootstrapServers = bootstrapServers;
@@ -48,11 +48,7 @@ public class StatisticsConsumer implements Runnable {
             }
 
             if (records != null) {
-                records.forEach(record -> {
-                    LOGGER.info("Received {} from Kafka partition {} with key {} and offset {}",
-                            record.value(), record.partition(), record.key(), record.offset());
-                    this.statsListener.onStats(Utility.toMap(record.value()));
-                });
+                records.forEach(record -> this.statsListener.onStats(Utility.toMap(record.value())));
                 try {
                     lock.lock();
                     if (!records.isEmpty()) {

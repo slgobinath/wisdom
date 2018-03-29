@@ -2,5 +2,8 @@ wisdom_service:
     min_port: 8888
     max_port: 9999
 
-kafka_bootstrap: localhost:9092
-statistics_topic:  _Statistics
+statistics:
+  kafka_bootstrap:  localhost:9092
+  kafka_topic: _Statistics
+  delay:  5000
+  period: 5000

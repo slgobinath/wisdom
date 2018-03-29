@@ -1,6 +1,8 @@
 package com.javahelps.wisdom.manager;
 
-import com.javahelps.wisdom.manager.entity.Artifact;
+import com.javahelps.wisdom.manager.artifact.Artifact;
+import com.javahelps.wisdom.manager.artifact.ArtifactController;
+import com.javahelps.wisdom.manager.util.Utility;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -18,10 +20,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 
-public class WisdomManagerTest {
+public class TestArtifactsController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WisdomManagerTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestArtifactsController.class);
     private static Yaml yaml;
+    private static Map<String, Object> configuration;
 
     @BeforeClass
     public static void init() throws IOException, URISyntaxException {
@@ -30,6 +33,7 @@ public class WisdomManagerTest {
         yaml = new Yaml(representer);
         Files.createDirectory(Paths.get("conf"));
         Files.copy(Paths.get(ClassLoader.getSystemClassLoader().getResource("conf/config.yaml").toURI()), Paths.get("conf/config.yaml"));
+        configuration = Utility.readYaml(yaml, Paths.get("conf/config.yaml"), false);
     }
 
     @AfterClass
@@ -44,10 +48,10 @@ public class WisdomManagerTest {
     @Test
     public void testDeployWisdomApp() throws URISyntaxException, IOException {
 
-        LOGGER.info("Test query file");
+        LOGGER.info("Test deploy wisdom app");
 
-        WisdomManager manager = new WisdomManager(".", 8080);
-        manager.deploy(new String(Files.readAllBytes(Paths.get(ClassLoader.getSystemClassLoader().getResource("artifacts/ip_sweep.wisdomql").toURI()))), 8889);
+        ArtifactController controller = new ArtifactController(Paths.get("."), Paths.get("./conf/artifacts.yaml"), configuration, yaml);
+        controller.deploy(new String(Files.readAllBytes(Paths.get(ClassLoader.getSystemClassLoader().getResource("artifacts/ip_sweep.wisdomql").toURI()))), 8889);
 
         Map<String, Map<String, Object>> artifactMap;
         try (BufferedReader reader = Files.newBufferedReader(Paths.get("conf/artifacts.yaml"))) {
@@ -56,6 +60,6 @@ public class WisdomManagerTest {
         System.out.println(artifactMap);
 
         Assert.assertTrue("Failed to deploy the query", Files.exists(Paths.get("artifacts/IPSweepDetector.wisdomql")));
-        Assert.assertEquals("Invalid file name", "IPSweepDetector.wisdomql", artifactMap.get("IPSweepDetector").get("file"));
+        Assert.assertEquals("Invalid file name", "IPSweepDetector", artifactMap.get("IPSweepDetector").get("name"));
     }
 }

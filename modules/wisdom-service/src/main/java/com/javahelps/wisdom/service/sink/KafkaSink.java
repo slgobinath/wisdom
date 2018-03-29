@@ -28,12 +28,11 @@ public class KafkaSink extends Sink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSink.class);
 
-    private final String bootstrapServers;
-    private final boolean batch;
-    private final Producer<String, String> producer;
-    private final String topic;
     private String streamId;
-
+    private final String topic;
+    private final boolean batch;
+    private final String bootstrapServers;
+    private Producer<String, String> producer;
 
     public KafkaSink(String bootstrapServers, String topic) {
         this(bootstrapServers, topic, false);
@@ -55,13 +54,6 @@ public class KafkaSink extends Sink {
         if (this.topic == null) {
             throw new WisdomAppValidationException("Required property %s for Kafka sink not found", TOPIC);
         }
-
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, "WisdomKafkaEventProducer");
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        this.producer = new KafkaProducer<>(props);
     }
 
     @Override
@@ -72,6 +64,12 @@ public class KafkaSink extends Sink {
     @Override
     public void init(WisdomApp wisdomApp, String streamId) {
         this.streamId = streamId;
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "WisdomKafkaEventProducer");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        this.producer = new KafkaProducer<>(props);
     }
 
     @Override
