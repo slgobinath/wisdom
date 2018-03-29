@@ -1,4 +1,4 @@
-package com.javahelps.wisdom.service.exception;
+package com.javahelps.wisdom.manager.exception;
 
 import com.google.gson.JsonSyntaxException;
 import spark.ExceptionHandler;

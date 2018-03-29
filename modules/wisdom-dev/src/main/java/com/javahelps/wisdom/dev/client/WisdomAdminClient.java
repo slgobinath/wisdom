@@ -1,4 +1,4 @@
-package com.javahelps.wisdom.service.client;
+package com.javahelps.wisdom.dev.client;
 
 import com.google.gson.Gson;
 import org.apache.http.NoHttpResponseException;
@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.javahelps.wisdom.service.Constant.HTTP_OK;
+import static com.javahelps.wisdom.dev.util.Constants.HTTP_OK;
 
 public class WisdomAdminClient extends WisdomHTTPClient {
 

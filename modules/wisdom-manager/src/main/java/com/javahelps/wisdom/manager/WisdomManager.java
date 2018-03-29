@@ -6,15 +6,13 @@ import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.manager.artifact.Artifact;
 import com.javahelps.wisdom.manager.artifact.ArtifactController;
 import com.javahelps.wisdom.manager.exception.InvalidPropertyException;
+import com.javahelps.wisdom.manager.exception.JsonSyntaxExceptionHandler;
 import com.javahelps.wisdom.manager.stats.StatisticsManager;
 import com.javahelps.wisdom.manager.util.InvalidPropertyExceptionHandler;
 import com.javahelps.wisdom.manager.util.Utility;
 import com.javahelps.wisdom.manager.util.WisdomAppRuntimeExceptionHandler;
 import com.javahelps.wisdom.manager.util.WisdomParserExceptionHandler;
 import com.javahelps.wisdom.query.antlr.WisdomParserException;
-import com.javahelps.wisdom.service.exception.JsonSyntaxExceptionHandler;
-import com.javahelps.wisdom.service.exception.WisdomServiceException;
-import com.javahelps.wisdom.service.exception.WisdomServiceExceptionHandler;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
@@ -32,8 +30,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import static com.javahelps.wisdom.dev.util.Constants.MEDIA_TEXT_PLAIN;
 import static com.javahelps.wisdom.manager.util.Constants.*;
-import static com.javahelps.wisdom.service.Constant.MEDIA_TEXT_PLAIN;
 
 public class WisdomManager {
 
@@ -78,7 +76,6 @@ public class WisdomManager {
     public void start() {
         LOGGER.info("Starting Wisdom Manager at {}", this.managerPort);
         Spark.port(this.managerPort);
-        Spark.exception(WisdomServiceException.class, new WisdomServiceExceptionHandler());
         Spark.exception(InvalidPropertyException.class, new InvalidPropertyExceptionHandler());
         Spark.exception(NullPointerException.class, new InvalidPropertyExceptionHandler());
         Spark.exception(WisdomParserException.class, new WisdomParserExceptionHandler());

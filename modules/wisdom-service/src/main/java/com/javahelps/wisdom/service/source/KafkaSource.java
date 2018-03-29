@@ -7,7 +7,7 @@ import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.util.EventGenerator;
-import com.javahelps.wisdom.service.Utility;
+import com.javahelps.wisdom.dev.util.Utility;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -20,8 +20,8 @@ import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.javahelps.wisdom.service.Constant.BOOTSTRAP;
-import static com.javahelps.wisdom.service.Constant.TOPIC;
+import static com.javahelps.wisdom.dev.util.Constants.BOOTSTRAP;
+import static com.javahelps.wisdom.dev.util.Constants.TOPIC;
 import static java.util.Map.entry;
 
 @WisdomExtension("kafka")

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.javahelps.wisdom.dev.util.EventUtil.map;
+import static com.javahelps.wisdom.dev.util.Utility.map;
 
 public class PacketDataValidatorTest {
 

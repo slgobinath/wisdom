@@ -1,4 +1,4 @@
-package com.javahelps.wisdom.manager.optimize.wisdom;
+package com.javahelps.wisdom.dev.optimize.wisdom;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
@@ -7,8 +7,8 @@ import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.StreamCallback;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import com.javahelps.wisdom.core.util.EventPrinter;
-import com.javahelps.wisdom.extensions.unique.window.UniqueExternalTimeBatchWindow;
-import com.javahelps.wisdom.manager.optimize.multivariate.Point;
+import com.javahelps.wisdom.core.window.ExternalTimeBatchWindow;
+import com.javahelps.wisdom.dev.optimize.multivariate.Point;
 import com.javahelps.wisdom.query.WisdomCompiler;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,7 +27,7 @@ public class WisdomOptimizerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomOptimizerTest.class);
 
     static {
-        ImportsManager.INSTANCE.use(UniqueExternalTimeBatchWindow.class);
+        ImportsManager.INSTANCE.use(ExternalTimeBatchWindow.class);
     }
 
     @Test

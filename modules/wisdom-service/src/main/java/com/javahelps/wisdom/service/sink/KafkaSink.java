@@ -5,7 +5,7 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.stream.output.Sink;
-import com.javahelps.wisdom.service.Utility;
+import com.javahelps.wisdom.dev.util.Utility;
 import com.javahelps.wisdom.service.exception.WisdomServiceException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-import static com.javahelps.wisdom.service.Constant.*;
+import static com.javahelps.wisdom.dev.util.Constants.*;
 import static java.util.Map.entry;
 
 @WisdomExtension("kafka")

@@ -1,6 +1,6 @@
-package com.javahelps.wisdom.service.client;
+package com.javahelps.wisdom.dev.client;
 
-import com.javahelps.wisdom.service.Utility;
+import com.javahelps.wisdom.dev.util.Utility;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;

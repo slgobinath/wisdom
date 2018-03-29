@@ -25,13 +25,7 @@
 
         <dependency>
             <groupId>com.javahelps.wisdom</groupId>
-            <artifactId>wisdom-service</artifactId>
-            <version>${wisdom.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.javahelps.wisdom</groupId>
-            <artifactId>wisdom-extension-unique</artifactId>
+            <artifactId>wisdom-dev</artifactId>
             <version>${wisdom.version}</version>
         </dependency>
 

@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.javahelps.wisdom.dev.util.EventUtil.map;
+import static com.javahelps.wisdom.dev.util.Utility.map;
 
 public class PredicateQuantizerTest {
 

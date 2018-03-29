@@ -25,6 +25,22 @@
         </dependency>
 
         <dependency>
+            <groupId>com.javahelps.wisdom</groupId>
+            <artifactId>wisdom-query</artifactId>
+            <version>${wisdom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>

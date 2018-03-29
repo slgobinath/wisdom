@@ -1,10 +1,12 @@
-package com.javahelps.wisdom.service;
+package com.javahelps.wisdom.dev.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.dev.optimize.multivariate.Constraint;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +15,42 @@ public class Utility {
     private static final Gson gson = new Gson();
 
     private Utility() {
+
+    }
+
+    public static Map<String, Comparable> map(Comparable... entries) {
+        int count = entries.length;
+        Map<String, Comparable> map = new HashMap<>(count / 2);
+        for (int i = 0; i < count; i += 2) {
+            map.put((String) entries[i], entries[i + 1]);
+        }
+        return map;
+    }
+
+    public static Constraint[] velocityBound(Constraint... bounds) {
+        int length = bounds.length;
+        Constraint[] velocityBounds = new Constraint[length];
+        for (int i = 0; i < length; i++) {
+            double max = Math.abs(bounds[i].getHigh() - bounds[i].getLow());
+            double min = -max;
+            velocityBounds[i] = new Constraint(min, max);
+        }
+        return velocityBounds;
+    }
+
+
+    public static int getMinPos(double[] list) {
+        int pos = 0;
+        double minValue = list[0];
+
+        for (int i = 1; i < list.length; i++) {
+            if (list[i] < minValue) {
+                pos = i;
+                minValue = list[i];
+            }
+        }
+
+        return pos;
     }
 
     /**

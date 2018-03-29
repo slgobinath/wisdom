@@ -4,9 +4,9 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.extension.ImportsManager;
 import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.stream.output.Sink;
-import com.javahelps.wisdom.service.client.WisdomAdminClient;
-import com.javahelps.wisdom.service.client.WisdomClient;
-import com.javahelps.wisdom.service.client.WisdomHTTPClient;
+import com.javahelps.wisdom.dev.client.WisdomAdminClient;
+import com.javahelps.wisdom.dev.client.WisdomClient;
+import com.javahelps.wisdom.dev.client.WisdomHTTPClient;
 import com.javahelps.wisdom.service.sink.HTTPSink;
 import com.javahelps.wisdom.service.source.HTTPSource;
 import com.javahelps.wisdom.service.util.TestUtil;
@@ -24,7 +24,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import static com.javahelps.wisdom.service.util.TestUtil.map;
+import static com.javahelps.wisdom.dev.util.Utility.map;
+
 
 public class TestWisdomService {
 

@@ -1,14 +1,12 @@
-package com.javahelps.wisdom.manager.optimize.multivariate;
+package com.javahelps.wisdom.dev.optimize.multivariate;
 
-import com.javahelps.wisdom.manager.util.Utility;
+import com.javahelps.wisdom.dev.util.Constants;
+import com.javahelps.wisdom.dev.util.Utility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 import java.util.function.Function;
-
-import static com.javahelps.wisdom.manager.util.Constants.W_LOWERBOUND;
-import static com.javahelps.wisdom.manager.util.Constants.W_UPPERBOUND;
 
 public class MultivariateOptimizer {
 
@@ -85,7 +83,7 @@ public class MultivariateOptimizer {
             }
 
             // Update the weight
-            double weight = W_UPPERBOUND - (((double) iteration) / MAX_ITERATION) * (W_UPPERBOUND - W_LOWERBOUND);
+            double weight = Constants.W_UPPERBOUND - (((double) iteration) / MAX_ITERATION) * (Constants.W_UPPERBOUND - Constants.W_LOWERBOUND);
 
             // Update velocity and location
             for (int i = 0; i < SWARM_SIZE; i++) {

@@ -3,8 +3,9 @@ package com.javahelps.wisdom.service;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.extension.ImportsManager;
-import com.javahelps.wisdom.service.client.WisdomClient;
-import com.javahelps.wisdom.service.client.WisdomKafkaClient;
+import com.javahelps.wisdom.dev.client.WisdomClient;
+import com.javahelps.wisdom.dev.client.WisdomKafkaClient;
+import com.javahelps.wisdom.dev.util.Utility;
 import com.javahelps.wisdom.service.sink.KafkaSink;
 import com.javahelps.wisdom.service.source.KafkaSource;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -13,14 +14,13 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 
-import static com.javahelps.wisdom.service.util.TestUtil.map;
+import static com.javahelps.wisdom.dev.util.Utility.map;
 
 public class TestKafkaSupport {
 

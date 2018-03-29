@@ -1,6 +1,6 @@
-package com.javahelps.wisdom.service.client;
+package com.javahelps.wisdom.dev.client;
 
-import com.javahelps.wisdom.service.Utility;
+import com.javahelps.wisdom.dev.util.Utility;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.javahelps.wisdom.service.Constant.MEDIA_APPLICATION_JSON;
+import static com.javahelps.wisdom.dev.util.Constants.MEDIA_APPLICATION_JSON;
 
 public class WisdomHTTPClient extends WisdomClient {
 

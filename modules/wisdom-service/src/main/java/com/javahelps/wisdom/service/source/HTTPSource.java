@@ -18,7 +18,7 @@ import spark.Spark;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.javahelps.wisdom.service.Constant.*;
+import static com.javahelps.wisdom.dev.util.Constants.*;
 
 @WisdomExtension("http")
 public class HTTPSource extends Source {

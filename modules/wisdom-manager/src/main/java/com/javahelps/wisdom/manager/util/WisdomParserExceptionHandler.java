@@ -1,13 +1,13 @@
 package com.javahelps.wisdom.manager.util;
 
-import com.javahelps.wisdom.manager.exception.InvalidPropertyException;
 import com.javahelps.wisdom.query.antlr.WisdomParserException;
 import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
 
-import static com.javahelps.wisdom.service.Constant.HTTP_BAD_REQUEST;
-import static com.javahelps.wisdom.service.Constant.MEDIA_TEXT_PLAIN;
+import static com.javahelps.wisdom.dev.util.Constants.HTTP_BAD_REQUEST;
+import static com.javahelps.wisdom.dev.util.Constants.MEDIA_TEXT_PLAIN;
+
 
 public class WisdomParserExceptionHandler implements ExceptionHandler<WisdomParserException> {
 

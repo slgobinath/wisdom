@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.javahelps.wisdom.core.util.WisdomConstants.THRESHOLD_STREAM;
-import static com.javahelps.wisdom.service.Constant.JSON;
-import static com.javahelps.wisdom.service.Constant.MAPPING;
+import static com.javahelps.wisdom.dev.util.Constants.JSON;
+import static com.javahelps.wisdom.dev.util.Constants.MAPPING;
 
 public class WisdomService {
 

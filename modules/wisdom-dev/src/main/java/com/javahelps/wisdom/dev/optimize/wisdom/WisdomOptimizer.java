@@ -1,17 +1,17 @@
-package com.javahelps.wisdom.manager.optimize.wisdom;
+package com.javahelps.wisdom.dev.optimize.wisdom;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.variable.Variable;
-import com.javahelps.wisdom.manager.optimize.multivariate.Constraint;
-import com.javahelps.wisdom.manager.optimize.multivariate.MultivariateOptimizer;
-import com.javahelps.wisdom.manager.optimize.multivariate.Point;
+import com.javahelps.wisdom.dev.optimize.multivariate.Constraint;
+import com.javahelps.wisdom.dev.optimize.multivariate.MultivariateOptimizer;
+import com.javahelps.wisdom.dev.optimize.multivariate.Point;
+import com.javahelps.wisdom.dev.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import static com.javahelps.wisdom.manager.util.Constants.*;
 
 public class WisdomOptimizer {
 
@@ -26,9 +26,9 @@ public class WisdomOptimizer {
         List<Variable> trainable = app.getTrainable();
         for (Variable variable : trainable) {
             Properties properties = variable.getProperties();
-            Number min = (Number) properties.get(MINIMUM);
-            Number max = (Number) properties.get(MAXIMUM);
-            Number step = (Number) properties.get(STEP);
+            Number min = (Number) properties.get(Constants.MINIMUM);
+            Number max = (Number) properties.get(Constants.MAXIMUM);
+            Number step = (Number) properties.get(Constants.STEP);
             Constraint constraint = new Constraint(min.doubleValue(), max.doubleValue());
             this.addTrainable(variable.getId(), constraint, step.doubleValue());
         }

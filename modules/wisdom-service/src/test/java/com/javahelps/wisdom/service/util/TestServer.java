@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
-import static com.javahelps.wisdom.service.Constant.MEDIA_APPLICATION_JSON;
+import static com.javahelps.wisdom.dev.util.Constants.MEDIA_APPLICATION_JSON;
 
 public class TestServer {
 

@@ -12,7 +12,7 @@ def variable count_threshold = 50;
 from PacketStream
     filter protocol == "icmp"
     partition by srcIp
-    window.unique:externalTimeBatch('destIp', 'timestamp', $time_threshold)
+    window.externalTimeBatch('timestamp', $time_threshold)
     aggregate count() as no_of_packets
     filter no_of_packets > $count_threshold
     select srcIp, destIp, no_of_packets, timestamp

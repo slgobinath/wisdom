@@ -1,4 +1,4 @@
-package com.javahelps.wisdom.manager.optimize.multivariate;
+package com.javahelps.wisdom.dev.optimize.multivariate;
 
 import org.junit.Assert;
 import org.junit.Test;

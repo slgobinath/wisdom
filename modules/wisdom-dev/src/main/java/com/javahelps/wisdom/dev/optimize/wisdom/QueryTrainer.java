@@ -1,4 +1,4 @@
-package com.javahelps.wisdom.manager.optimize.wisdom;
+package com.javahelps.wisdom.dev.optimize.wisdom;
 
 import com.javahelps.wisdom.core.WisdomApp;
 

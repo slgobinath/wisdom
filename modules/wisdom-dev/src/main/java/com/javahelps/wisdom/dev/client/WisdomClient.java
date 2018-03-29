@@ -1,4 +1,4 @@
-package com.javahelps.wisdom.service.client;
+package com.javahelps.wisdom.dev.client;
 
 import java.io.IOException;
 import java.util.Map;
