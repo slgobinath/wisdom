@@ -72,7 +72,7 @@ public class WisdomContext {
         return async;
     }
 
-    public Comparable getProperty(String property) {
+    public Comparable getProperty(Comparable property) {
         return (Comparable) this.properties.get(property);
     }
 }

@@ -72,7 +72,7 @@ public class WisdomApp implements Stateful {
         String statisticStream = properties.getProperty(STATISTICS);
         if (statisticStream != null) {
             long freq = ((Number) properties.getOrDefault(STATISTICS_REPORT_FREQUENCY, WisdomConfig.STATISTICS_REPORT_FREQUENCY)).longValue();
-            String[] env = (String[]) properties.get(STATISTICS_CONTEXT_VARIABLES);
+            Comparable[] env = (Comparable[]) properties.get(STATISTICS_CONTEXT_VARIABLES);
             if (env == null) {
                 env = new String[0];
             }
@@ -294,7 +294,7 @@ public class WisdomApp implements Stateful {
         this.initConsumers.add(app -> source.init(app, streamId));
     }
 
-    public StatisticsManager enableStatistics(String statisticStream, long reportFrequency, String... env) {
+    public StatisticsManager enableStatistics(String statisticStream, long reportFrequency, Comparable... env) {
         Objects.requireNonNull(statisticStream, "Statistic streamId cannot be null");
         if (this.statisticsManager != null) {
             return this.statisticsManager;

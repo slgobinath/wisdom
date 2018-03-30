@@ -102,7 +102,7 @@ annotation
     ;
 
 annotation_element
-    : (NAME ASSIGN)? wisdom_primitive
+    : (NAME ASSIGN)? (wisdom_primitive|array)
     ;
 
 optional_key_value_element
@@ -224,6 +224,9 @@ time_duration
     : TIME DOT (MICROSECOND|MILLISECOND|SECOND|MINUTE|HOUR|DAY|MONTH|YEAR) OPEN_PAREN NUMBER CLOSE_PAREN
     ;
 
+array
+    : OPEN_BRACK wisdom_primitive (COMMA wisdom_primitive)* CLOSE_BRACK
+    ;
 /*
  * lexer rules
  */

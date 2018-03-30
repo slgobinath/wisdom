@@ -690,4 +690,43 @@ public class WisdomCompilerTest {
 
         Assert.assertEquals("Incorrect number of events", 4, callback.getEventCount());
     }
+
+    @Test
+    public void testStatsVariableSelection() throws InterruptedException {
+
+        LOGGER.info("Test stream stats");
+
+        String query = "@app(name='WisdomApp', version='1.0.0', stats='StatisticsStream', stats_freq=time.sec(1), stats_vars=['port', 'version'], port=8080) " +
+                "def stream StockStream; " +
+                "@config(stats=true) " +
+                "def stream OutputStream; " +
+                "def stream StatisticsStream; " +
+                "def stream FilteredStatisticsStream; " +
+                "" +
+                "from StockStream " +
+                "select symbol, price " +
+                "insert into OutputStream; " +
+                "" +
+                "from StatisticsStream " +
+                "select app, port, name, throughput " +
+                "insert into FilteredStatisticsStream; ";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "FilteredStatisticsStream",
+                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 2.0, "port", 8080L),
+                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 0.0, "port", 8080L));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+
+        Thread.sleep(2200);
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
 }

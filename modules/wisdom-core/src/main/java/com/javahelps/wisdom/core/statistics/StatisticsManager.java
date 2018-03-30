@@ -27,10 +27,10 @@ public class StatisticsManager {
     private final String statisticStream;
     private final long reportFrequency;
     private TimestampGenerator timestampGenerator;
-    private final String[] environmentVariables;
+    private final Comparable[] environmentVariables;
     private final List<StreamTracker> streamTrackers = new ArrayList<>();
 
-    public StatisticsManager(String statisticStream, long reportFrequency, String... env) {
+    public StatisticsManager(String statisticStream, long reportFrequency, Comparable... env) {
         this.statisticStream = statisticStream;
         this.reportFrequency = reportFrequency;
         this.environmentVariables = env;
@@ -82,8 +82,8 @@ public class StatisticsManager {
             double duration = (currentTime - tracker.getStartTime()) / 1000;
             double throughput = tracker.getCount() / duration;
             Map<String, Comparable> data = map("app", this.app.getName(), "name", tracker.getStreamId(), "throughput", throughput, "timestamp", currentTime);
-            for (String variable : this.environmentVariables) {
-                data.put(variable, this.context.getProperty(variable));
+            for (Comparable variable : this.environmentVariables) {
+                data.put(variable.toString(), this.context.getProperty(variable));
             }
             Event event = EventGenerator.generate(data);
             tracker.reset();

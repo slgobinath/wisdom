@@ -93,7 +93,9 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             element.setKey(ctx.NAME().getText());
         }
         if (ctx.wisdom_primitive() != null) {
-            element.setValue((Comparable) visit(ctx.wisdom_primitive()));
+            element.setValue(visit(ctx.wisdom_primitive()));
+        } else if (ctx.array() != null) {
+            element.setValue(visit(ctx.array()));
         }
         return element;
     }
@@ -355,6 +357,16 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             throw new WisdomParserException(ctx, "invalid primitive data");
         }
         return value;
+    }
+
+    @Override
+    public Comparable[] visitArray(WisdomQLParser.ArrayContext ctx) {
+        int size = ctx.wisdom_primitive().size();
+        Comparable[] array = new Comparable[size];
+        for (int i = 0; i < size; i++) {
+            array[i] = (Comparable) visit(ctx.wisdom_primitive(i));
+        }
+        return array;
     }
 
     @Override

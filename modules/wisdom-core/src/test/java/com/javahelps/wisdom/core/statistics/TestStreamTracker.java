@@ -70,8 +70,8 @@ public class TestStreamTracker {
                 VERSION, "1.0.0",
                 STATISTICS, "StatisticsStream",
                 STATISTICS_REPORT_FREQUENCY, 1000L,
-                STATISTICS_CONTEXT_VARIABLES, new String[]{"port"},
-                "port", 8080);
+                STATISTICS_CONTEXT_VARIABLES, new Comparable[]{"port"},
+                "port", 8080L);
         WisdomApp wisdomApp = new WisdomApp(properties);
         wisdomApp.defineStream("StockStream");
         wisdomApp.defineStream("OutputStream", toProperties(STATISTICS, true));
@@ -89,8 +89,8 @@ public class TestStreamTracker {
                 .insertInto("FilteredStatisticsStream");
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "FilteredStatisticsStream",
-                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 2.0, "port", 8080),
-                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 0.0, "port", 8080));
+                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 2.0, "port", 8080L),
+                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 0.0, "port", 8080L));
 
         wisdomApp.start();
 
