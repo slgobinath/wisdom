@@ -95,7 +95,7 @@ public class WisdomManager {
         Spark.post("/wisdom/stop/:appName", (request, response) -> this.controller.stop(request.params("appName")));
         Spark.delete("/wisdom/app/:appName", (request, response) -> this.controller.delete(request.params("appName")));
         Spark.get("/wisdom/app/:appName", (request, response) -> this.controller.info(request.params("appName")), this.gson::toJson);
-        Spark.post("/wisdom/manager/shutdown", ((request, response) -> this.shutdown()));
+        Spark.post("/wisdom/shutdown", ((request, response) -> this.shutdown()));
         this.controller.start();
         this.statisticsManager.start();
     }

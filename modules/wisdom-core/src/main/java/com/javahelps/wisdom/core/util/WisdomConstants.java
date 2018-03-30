@@ -28,7 +28,11 @@ public class WisdomConstants {
 
     public static final String STATISTICS_REPORT_FREQUENCY = "stats_freq";
 
+    public static final String STATISTICS_CONTEXT_VARIABLES = "stats_vars";
+
     public static final String THRESHOLD_STREAM = "_ThresholdStream";
+
+    public static final String ADMIN_STREAM = "_AdminStream";
 
     private WisdomConstants() {
     }

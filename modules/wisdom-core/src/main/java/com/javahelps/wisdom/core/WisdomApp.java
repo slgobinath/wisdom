@@ -7,6 +7,7 @@ import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.processor.Stateful;
 import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.core.statistics.StatisticsManager;
+import com.javahelps.wisdom.core.stream.AdminStream;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.stream.StreamCallback;
@@ -71,7 +72,11 @@ public class WisdomApp implements Stateful {
         String statisticStream = properties.getProperty(STATISTICS);
         if (statisticStream != null) {
             long freq = ((Number) properties.getOrDefault(STATISTICS_REPORT_FREQUENCY, WisdomConfig.STATISTICS_REPORT_FREQUENCY)).longValue();
-            this.enableStatistics(statisticStream, freq);
+            String[] env = (String[]) properties.get(STATISTICS_CONTEXT_VARIABLES);
+            if (env == null) {
+                env = new String[0];
+            }
+            this.enableStatistics(statisticStream, freq, env);
         }
     }
 
@@ -110,13 +115,19 @@ public class WisdomApp implements Stateful {
     }
 
     public Stream defineStream(String id) {
-        Stream stream = new Stream(this, id);
-        this.streamMap.put(id, stream);
-        return stream;
+        return this.defineStream(id, EMPTY_PROPERTIES);
     }
 
     public Stream defineStream(String id, Properties properties) {
-        Stream stream = new Stream(this, id, properties);
+        Stream stream = this.getStream(id);
+        if (stream != null) {
+            throw new WisdomAppValidationException("Stream %s is already defined", id);
+        }
+        if (ADMIN_STREAM.equals(id)) {
+            stream = new AdminStream(this, id, properties);
+        } else {
+            stream = new Stream(this, id, properties);
+        }
         this.streamMap.put(id, stream);
         return stream;
     }
@@ -283,14 +294,14 @@ public class WisdomApp implements Stateful {
         this.initConsumers.add(app -> source.init(app, streamId));
     }
 
-    public StatisticsManager enableStatistics(String statisticStream, long reportFrequency) {
+    public StatisticsManager enableStatistics(String statisticStream, long reportFrequency, String... env) {
         Objects.requireNonNull(statisticStream, "Statistic streamId cannot be null");
         if (this.statisticsManager != null) {
             return this.statisticsManager;
         }
         this.statisticStream = statisticStream;
         this.reportFrequency = reportFrequency;
-        this.statisticsManager = new StatisticsManager(this.statisticStream, this.reportFrequency);
+        this.statisticsManager = new StatisticsManager(this.statisticStream, this.reportFrequency, env);
         this.initConsumers.add(this.statisticsManager::init);
         return this.statisticsManager;
     }
@@ -313,6 +324,14 @@ public class WisdomApp implements Stateful {
 
     public List<Variable> getTrainable() {
         return trainable;
+    }
+
+    public AdminStream getAdminStream() {
+        Stream stream = this.getStream(ADMIN_STREAM);
+        if (stream == null) {
+            stream = this.defineStream(ADMIN_STREAM);
+        }
+        return (AdminStream) stream;
     }
 
     @Override

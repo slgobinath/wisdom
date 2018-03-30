@@ -17,6 +17,7 @@ public class WisdomContext {
 
     private final boolean async;
     private final Scheduler scheduler;
+    private final Properties properties;
     private final ExecutorService executorService;
     private final ThreadFactory threadFactory;
     private final ThreadBarrier threadBarrier;
@@ -24,6 +25,7 @@ public class WisdomContext {
     private final ScheduledExecutorService scheduledExecutorService;
 
     public WisdomContext(Properties properties) {
+        this.properties = properties;
         this.timestampGenerator = new SystemTimestampGenerator();
         this.scheduledExecutorService = Executors.newScheduledThreadPool(4);
         this.scheduler = new Scheduler(this);
@@ -68,5 +70,9 @@ public class WisdomContext {
 
     public boolean isAsync() {
         return async;
+    }
+
+    public Comparable getProperty(String property) {
+        return (Comparable) this.properties.get(property);
     }
 }

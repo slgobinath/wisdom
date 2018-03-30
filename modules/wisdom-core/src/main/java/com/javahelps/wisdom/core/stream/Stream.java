@@ -32,7 +32,7 @@ public class Stream implements Processor {
     private static final Logger LOGGER = LoggerFactory.getLogger(Stream.class);
 
     protected String id;
-    private WisdomApp wisdomApp;
+    protected WisdomApp wisdomApp;
     private List<Processor> processorList = new ArrayList<>();
     private Processor[] processors;
     private Disruptor<EventHolder> disruptor;

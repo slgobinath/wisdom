@@ -9,6 +9,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Properties;
+
+import static com.javahelps.wisdom.core.util.Commons.toProperties;
+import static com.javahelps.wisdom.core.util.WisdomConstants.*;
+
 public class TestStreamTracker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestStreamTracker.class);
@@ -50,10 +55,53 @@ public class TestStreamTracker {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
 
 
-        Thread.sleep(2100);
+        Thread.sleep(2200);
 
         wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 4, callback.getEventCount());
+    }
+
+    @Test
+    public void testContextVariables() throws InterruptedException {
+        LOGGER.info("Test throughput variable selection - 2");
+
+        Properties properties = toProperties(NAME, "WisdomApp",
+                VERSION, "1.0.0",
+                STATISTICS, "StatisticsStream",
+                STATISTICS_REPORT_FREQUENCY, 1000L,
+                STATISTICS_CONTEXT_VARIABLES, new String[]{"port"},
+                "port", 8080);
+        WisdomApp wisdomApp = new WisdomApp(properties);
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream", toProperties(STATISTICS, true));
+        wisdomApp.defineStream("StatisticsStream");
+        wisdomApp.defineStream("FilteredStatisticsStream");
+
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .select("symbol", "price")
+                .insertInto("OutputStream");
+
+        wisdomApp.defineQuery("query2")
+                .from("StatisticsStream")
+                .select("app", "port", "name", "throughput")
+                .insertInto("FilteredStatisticsStream");
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "FilteredStatisticsStream",
+                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 2.0, "port", 8080),
+                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 0.0, "port", 8080));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+
+        Thread.sleep(2200);
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
 }

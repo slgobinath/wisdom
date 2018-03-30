@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.extension.ImportsManager;
-import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.util.Commons;
 import com.javahelps.wisdom.query.WisdomCompiler;
@@ -24,7 +23,6 @@ import java.lang.management.RuntimeMXBean;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.javahelps.wisdom.core.util.WisdomConstants.THRESHOLD_STREAM;
@@ -39,10 +37,9 @@ public class WisdomService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomService.class);
 
-    private final WisdomApp wisdomApp;
-    private final int wisdomPort;
-    private Map<String, InputHandler> inputHandlerMap = new HashMap<>();
     private boolean running;
+    private final int wisdomPort;
+    private final WisdomApp wisdomApp;
     private final Gson gson = new Gson();
 
 
@@ -53,6 +50,7 @@ public class WisdomService {
         if (wisdomApp.getStream(THRESHOLD_STREAM) != null) {
             wisdomApp.addSource(THRESHOLD_STREAM, Source.create("http", Commons.map(MAPPING, JSON)));
         }
+        wisdomApp.getProperties().put("port", port);
     }
 
     public void start() {

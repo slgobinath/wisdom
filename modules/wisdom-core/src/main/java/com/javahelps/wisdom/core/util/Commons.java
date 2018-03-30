@@ -19,7 +19,7 @@ public class Commons {
         return map;
     }
 
-    public static Properties toProperties(Comparable... entries) {
+    public static Properties toProperties(Object... entries) {
         int count = entries.length;
         Properties properties = new Properties();
         for (int i = 0; i < count; i += 2) {
