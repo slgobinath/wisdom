@@ -47,8 +47,12 @@ public class StatisticsManager implements StatisticsConsumer.StatsListener {
         if (appName != null) {
             Artifact artifact = this.controller.getArtifact((String) stats.get("app"));
             if (artifact != null) {
-                double throughput = Double.parseDouble(((Object) stats.getOrDefault("throughput", "0.0")).toString());
+                double throughput = ((Number) stats.getOrDefault("throughput", 0.0)).doubleValue();
                 artifact.addThroughput(throughput);
+                if (artifact.getPid() == -1) {
+                    artifact.setPid(1); // Started by someone else
+                }
+                this.controller.saveArtifactsConfig();
             }
         }
     }
@@ -72,7 +76,6 @@ public class StatisticsManager implements StatisticsConsumer.StatsListener {
             if (artifact.getPid() != -1L) {
                 // Running
                 double throughput = artifact.averageThroughput();
-                System.out.println(artifact + "  " + throughput);
                 if (throughput >= MAXIMUM_THROUGHPUT_THRESHOLD) {
                     needResource = true;
                 } else if (throughput <= MINIMUM_THROUGHPUT_THRESHOLD && artifact.getPriority() <= MINIMUM_PRIORITY_THRESHOLD) {

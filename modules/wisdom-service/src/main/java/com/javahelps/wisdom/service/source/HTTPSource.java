@@ -67,6 +67,7 @@ public class HTTPSource extends Source {
         LOGGER.debug("Received event for {}:{}", this.streamId, data);
         if (inputHandler != null) {
             inputHandler.send(EventGenerator.generate(data));
+            response.type(MEDIA_TEXT_PLAIN);
             response.status(HTTP_ACCEPTED);
         } else {
             throw new WisdomServiceException(

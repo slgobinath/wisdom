@@ -59,8 +59,19 @@ public class WisdomService {
         Spark.exception(WisdomServiceException.class, new WisdomServiceExceptionHandler());
         Spark.exception(JsonSyntaxException.class, new JsonSyntaxExceptionHandler());
         Spark.post("/WisdomApp/admin/shutdown", (request, response) -> {
-            this.stop();
-            return null;
+            new Thread(() -> {
+                try {
+                    Thread.sleep(50L);
+                } catch (InterruptedException e) {
+                    // Do nothing
+                }
+                try {
+                    this.stop();
+                } finally {
+                    // System.exit(0);
+                }
+            }).start();
+            return "Shutting down wisdom service...";
         });
         Spark.get("/WisdomApp/admin/info", (request, response) -> this.info(), gson::toJson);
         this.wisdomApp.start();

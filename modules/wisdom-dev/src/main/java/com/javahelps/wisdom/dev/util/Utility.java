@@ -1,11 +1,9 @@
 package com.javahelps.wisdom.dev.util;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.dev.optimize.multivariate.Constraint;
 
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +11,8 @@ import java.util.Map;
 public class Utility {
 
     private static final Gson gson = new Gson();
+//    private static final Type type = new TypeToken<Map<String, Comparable>>() {
+//    }.getType();
 
     private Utility() {
 
@@ -60,10 +60,7 @@ public class Utility {
      * @return
      */
     public static Map<String, Comparable> toMap(String jsonString) {
-        System.out.println(jsonString);
-        Type type = new TypeToken<Map<String, String>>() {
-        }.getType();
-        return gson.fromJson(jsonString, type);
+        return gson.fromJson(jsonString, Map.class);
     }
 
     /**
@@ -72,7 +69,7 @@ public class Utility {
      * @param data
      * @return
      */
-    public static String toJson(Map<String, Comparable> data) {
+    public static String toJson(Map<String, ?> data) {
         return gson.toJson(data);
     }
 

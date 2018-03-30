@@ -4,7 +4,10 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.extension.ImportsManager;
 import com.javahelps.wisdom.core.variable.Variable;
+import com.javahelps.wisdom.dev.client.Response;
 import com.javahelps.wisdom.dev.client.WisdomAdminClient;
+import com.javahelps.wisdom.dev.client.WisdomClient;
+import com.javahelps.wisdom.dev.client.WisdomHTTPClient;
 import com.javahelps.wisdom.manager.util.Utility;
 import com.javahelps.wisdom.query.WisdomCompiler;
 import org.slf4j.Logger;
@@ -24,6 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static com.javahelps.wisdom.core.util.Commons.map;
 import static com.javahelps.wisdom.core.util.WisdomConstants.PRIORITY;
 import static com.javahelps.wisdom.core.util.WisdomConstants.THRESHOLD_STREAM;
+import static com.javahelps.wisdom.dev.util.Constants.HTTP_OK;
 import static com.javahelps.wisdom.manager.util.Constants.ARTIFACTS_DIR;
 
 public class ArtifactController {
@@ -68,7 +72,7 @@ public class ArtifactController {
         this.loadArtifactsConfig();
         for (Artifact artifact : this.deployedArtifacts.values()) {
             LOGGER.info("Loaded artifact {}", artifact.getName());
-            if (artifact.getPid() != -1) {
+            if (artifact.getPid() != -1 || artifact.isStoppedByManager()) {
                 this.start(artifact);
             }
         }
@@ -131,7 +135,7 @@ public class ArtifactController {
                 Map<String, Comparable> info = client.info();
                 if (info != null) {
                     if (info != null) {
-                        return String.format("Wisdom app '%s' is already running on %d for %.2f seconds", appName, info.get("port"), ((Number) info.get("uptime")).doubleValue() / 1000);
+                        return String.format("Wisdom app '%s' is already running on %d for %.2f seconds", appName, ((Number) info.get("port")).intValue(), ((Number) info.get("uptime")).doubleValue() / 1000);
                     }
                 }
             } catch (IOException e) {
@@ -159,6 +163,8 @@ public class ArtifactController {
             artifact.setPid(process.pid());
         }
         this.saveArtifactsConfig();
+        // Initialize the artifact
+        this.initialize(artifact);
         return "Application started successfully";
     }
 
@@ -229,6 +235,53 @@ public class ArtifactController {
         return info;
     }
 
+    public String initialize(String appName, Map<String, Map<String, Comparable>> values) {
+
+        Objects.requireNonNull(appName, "Wisdom appName is not provided");
+        Objects.requireNonNull(values, "values are not not provided");
+        Artifact artifact = deployedArtifacts.get(appName);
+        if (artifact == null) {
+            throw new WisdomAppRuntimeException("Wisdom app: '%s' not found in deployed applications", appName);
+        }
+        Map<String, Map<String, Comparable>> trainableStreams = artifact.getInit();
+        for (Map.Entry<String, Map<String, Comparable>> entry : values.entrySet()) {
+            Map<String, Comparable> variables = trainableStreams.get(entry.getKey());
+            if (variables != null) {
+                for (Map.Entry<String, Comparable> varMapping : entry.getValue().entrySet()) {
+                    variables.replace(varMapping.getKey(), varMapping.getValue());
+                }
+            }
+        }
+        this.saveArtifactsConfig();
+        this.initialize(artifact);
+        return "Initialized the artifact " + appName;
+    }
+
+    public List<Map<String, Comparable>> info() {
+        List<Map<String, Comparable>> allInfo = new ArrayList<>(this.deployedArtifacts.size());
+        for (String appName : this.deployedArtifacts.keySet()) {
+            allInfo.add(this.info(appName));
+        }
+        return allInfo;
+    }
+
+    public String initialize(Artifact artifact) {
+
+        // Test if it is already running
+        try (WisdomClient client = new WisdomHTTPClient(artifact.getHost(), artifact.getPort())) {
+            // Initialize all variables
+            for (Map.Entry<String, Map<String, Comparable>> entry : artifact.getInit().entrySet()) {
+                Response response = client.send(entry.getKey(), entry.getValue());
+                if (response.getStatus() != HTTP_OK) {
+                    return response.getReason();
+                }
+            }
+        } catch (IOException e) {
+            // Not running
+        }
+        return String.format("Wisdom app %s is initialized successfully", artifact.getName());
+    }
+
     private synchronized void loadArtifactsConfig() {
         this.deployedArtifacts.clear();
         Map<String, Object> config = Utility.readYaml(this.yaml, this.artifactsConfigPath, true);
@@ -238,7 +291,7 @@ public class ArtifactController {
         }
     }
 
-    private synchronized void saveArtifactsConfig() {
+    public synchronized void saveArtifactsConfig() {
         try (BufferedWriter writer = Files.newBufferedWriter(this.artifactsConfigPath)) {
             this.yaml.dump(deployedArtifacts, writer);
         } catch (IOException e) {

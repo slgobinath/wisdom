@@ -25,7 +25,7 @@ public class WisdomHTTPClient extends WisdomClient {
     }
 
     @Override
-    public WisdomClient.Response send(String streamId, Map<String, Comparable> data) throws IOException {
+    public Response send(String streamId, Map<String, Comparable> data) throws IOException {
 
         HttpPost post = new HttpPost(this.endpoint + streamId);
         StringEntity input = new StringEntity(Utility.toJson(data));
@@ -33,11 +33,11 @@ public class WisdomHTTPClient extends WisdomClient {
         post.setEntity(input);
 
         CloseableHttpResponse httpResponse = null;
-        WisdomClient.Response response;
+        Response response;
         try {
             httpResponse = client.execute(post);
             StatusLine statusLine = httpResponse.getStatusLine();
-            response = new WisdomClient.Response(statusLine.getStatusCode(), statusLine.getReasonPhrase());
+            response = new Response(statusLine.getStatusCode(), statusLine.getReasonPhrase());
         } finally {
             if (httpResponse != null) {
                 httpResponse.close();

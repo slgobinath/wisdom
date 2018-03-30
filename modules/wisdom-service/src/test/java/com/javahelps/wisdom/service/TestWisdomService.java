@@ -4,6 +4,7 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.extension.ImportsManager;
 import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.stream.output.Sink;
+import com.javahelps.wisdom.dev.client.Response;
 import com.javahelps.wisdom.dev.client.WisdomAdminClient;
 import com.javahelps.wisdom.dev.client.WisdomClient;
 import com.javahelps.wisdom.dev.client.WisdomHTTPClient;
@@ -83,7 +84,7 @@ public class TestWisdomService {
 
         WisdomClient client = new WisdomHTTPClient("localhost", 8080);
 
-        WisdomClient.Response response = client.send("StockStream", map("symbol", "IBM", "price", 50.0, "volume", 10));
+        Response response = client.send("StockStream", map("symbol", "IBM", "price", 50.0, "volume", 10));
         Assert.assertEquals("Failed to send input", 202, response.getStatus());
 
         response = client.send("StockStream", map("symbol", "WSO2", "price", 60.0, "volume", 15));
@@ -96,6 +97,9 @@ public class TestWisdomService {
 
         wisdomService.stop();
         client.close();
+
+        // Let the server to shutdown
+        Thread.sleep(100);
 
         List<String> lines = Files.readAllLines(Paths.get("test_server_output.log"));
         lines.removeIf(line -> line.startsWith("INFO"));
@@ -179,6 +183,9 @@ public class TestWisdomService {
         Map<String, Comparable> info = client.info();
         client.stop();
 
+        // Let the server to shutdown
+        Thread.sleep(100);
+
         LOGGER.info("Received {}", info);
 
         Assert.assertEquals("Failed to retrieve information from Wisdom service", "WisdomApp", info.get("name"));
@@ -204,7 +211,7 @@ public class TestWisdomService {
         Thread.sleep(100);
 
         WisdomAdminClient client = new WisdomAdminClient("localhost", 8081);
-        WisdomClient.Response response = client.send("StockStream", map("symbol", "IBM", "price", 50.0, "volume", 10));
+        Response response = client.send("StockStream", map("symbol", "IBM", "price", 50.0, "volume", 10));
         Assert.assertEquals("Failed to send input", 202, response.getStatus());
 
         response = client.send("StockStream", map("symbol", "WSO2", "price", 60.0, "volume", 15));
@@ -216,6 +223,9 @@ public class TestWisdomService {
         Thread.sleep(testServerWaitingTime);
 
         client.stop();
+
+        // Let the server to shutdown
+        Thread.sleep(100);
 
         List<String> lines = Files.readAllLines(Paths.get("test_server_output.log"));
         lines.removeIf(line -> line.startsWith("INFO"));

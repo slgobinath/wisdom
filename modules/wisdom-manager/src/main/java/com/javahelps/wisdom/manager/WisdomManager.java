@@ -81,7 +81,8 @@ public class WisdomManager {
         Spark.exception(WisdomParserException.class, new WisdomParserExceptionHandler());
         Spark.exception(WisdomAppRuntimeException.class, new WisdomAppRuntimeExceptionHandler());
         Spark.exception(JsonSyntaxException.class, new JsonSyntaxExceptionHandler());
-        Spark.post("/wisdom/deploy", (request, response) -> {
+        // Deploy new artifact
+        Spark.post("/WisdomManager/app", (request, response) -> {
             Map<String, Object> deployer = this.gson.fromJson(request.body(), Map.class);
             Utility.validateProperties(deployer, new String[]{"query", "port"}, new Class[]{String.class, Number.class});
             String query = (String) deployer.get("query");
@@ -91,11 +92,24 @@ public class WisdomManager {
             response.status(HTTP_CREATED);
             return "Deployed Wisdom app successfully";
         });
-        Spark.post("/wisdom/start/:appName", (request, response) -> this.controller.start(request.params("appName")));
-        Spark.post("/wisdom/stop/:appName", (request, response) -> this.controller.stop(request.params("appName")));
-        Spark.delete("/wisdom/app/:appName", (request, response) -> this.controller.delete(request.params("appName")));
-        Spark.get("/wisdom/app/:appName", (request, response) -> this.controller.info(request.params("appName")), this.gson::toJson);
-        Spark.post("/wisdom/shutdown", ((request, response) -> this.shutdown()));
+        // Update initializable variables
+        Spark.patch("/WisdomManager/app/:appName", (request, response) -> {
+            String appName = request.params("appName");
+            Map<String, Map<String, Comparable>> map = this.gson.fromJson(request.body(), Map.class);
+            return this.controller.initialize(appName, map);
+        });
+        // Get deployed artifact information
+        Spark.get("/WisdomManager/app/:appName", (request, response) -> this.controller.info(request.params("appName")), this.gson::toJson);
+        // Get information of all deployed artifacts
+        Spark.get("/WisdomManager/app", (request, response) -> this.controller.info(), this.gson::toJson);
+        // Delete an artifact
+        Spark.delete("/WisdomManager/app/:appName", (request, response) -> this.controller.delete(request.params("appName")));
+        // Start an artifact
+        Spark.post("/WisdomManager/start/:appName", (request, response) -> this.controller.start(request.params("appName")));
+        // Stop an artifact
+        Spark.post("/WisdomManager/stop/:appName", (request, response) -> this.controller.stop(request.params("appName")));
+        // Stop the manager
+        Spark.post("/WisdomManager/stop", ((request, response) -> this.shutdown()));
         this.controller.start();
         this.statisticsManager.start();
     }

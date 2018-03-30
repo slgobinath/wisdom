@@ -9,22 +9,4 @@ public abstract class WisdomClient implements AutoCloseable {
 
     @Override
     public abstract void close() throws IOException;
-
-    public class Response {
-        private int status;
-        private String reason;
-
-        protected Response(int status, String reason) {
-            this.status = status;
-            this.reason = reason;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public String getReason() {
-            return reason;
-        }
-    }
 }
