@@ -1,5 +1,7 @@
 package com.javahelps.wisdom.core.variable;
 
+import com.javahelps.wisdom.core.ThreadBarrier;
+import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 
@@ -23,6 +25,7 @@ public class Variable<T> implements Processor, Supplier<T> {
     private final List<OnUpdateListener<T>> listeners;
     private T value;
     private final Properties properties;
+    private ThreadBarrier threadBarrier;
 
     public Variable(String id, T value) {
         this(id, value, EMPTY_PROPERTIES);
@@ -34,6 +37,11 @@ public class Variable<T> implements Processor, Supplier<T> {
         this.listeners = new ArrayList<>();
         this.value = value;
         this.properties = properties;
+    }
+
+    public void init(WisdomApp wisdomApp) {
+        // Do nothing
+        this.threadBarrier = wisdomApp.getContext().getThreadBarrier();
     }
 
     public String getId() {
@@ -61,14 +69,16 @@ public class Variable<T> implements Processor, Supplier<T> {
      * @param value the new value
      */
     public void set(T value) {
+        List<OnUpdateListener<T>> localListeners;
         this.lock.writeLock().lock();
         try {
             this.value = value;
+            localListeners = new ArrayList<>(this.listeners);
         } finally {
             this.lock.writeLock().unlock();
         }
         // Notify the listeners
-        for (OnUpdateListener<T> listener : this.listeners) {
+        for (OnUpdateListener<T> listener : localListeners) {
             listener.update(value);
         }
     }
@@ -79,8 +89,11 @@ public class Variable<T> implements Processor, Supplier<T> {
      * @param listener the listener object
      */
     public void addOnUpdateListener(OnUpdateListener listener) {
-        synchronized (this) {
+        this.lock.writeLock().lock();
+        try {
             this.listeners.add(listener);
+        } finally {
+            this.lock.writeLock().unlock();
         }
     }
 
@@ -90,8 +103,11 @@ public class Variable<T> implements Processor, Supplier<T> {
      * @param listener
      */
     public void removeOnUpdateListener(OnUpdateListener listener) {
-        synchronized (this) {
+        this.lock.writeLock().lock();
+        try {
             this.listeners.remove(listener);
+        } finally {
+            this.lock.writeLock().unlock();
         }
     }
 

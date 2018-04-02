@@ -55,12 +55,7 @@ public class LengthWindow extends Window implements Variable.OnUpdateListener<Nu
     @Override
     public Window copy() {
 
-        try {
-            this.lock.lock();
-            return new LengthWindow(this.properties);
-        } finally {
-            this.lock.unlock();
-        }
+        return new LengthWindow(this.properties);
     }
 
     @Override

@@ -98,15 +98,14 @@ public class Stream implements Processor {
         if (this.disabled) {
             return;
         }
-        Event newEvent = this.convertEvent(event);
         if (this.tracker != null) {
             this.tracker.inEvent();
         }
         if (this.disruptor == null) {
-            this.sendToProcessors(newEvent);
+            this.sendToProcessors(event);
         } else {
             // Async enabled
-            this.ringBuffer.publishEvent((eventHolder, sequence, buffer) -> eventHolder.set(newEvent));
+            this.ringBuffer.publishEvent((eventHolder, sequence, buffer) -> eventHolder.set(event));
         }
     }
 
@@ -116,12 +115,12 @@ public class Stream implements Processor {
         if (this.disabled) {
             return;
         }
-        List<Event> newEvents = this.convertEvent(events);
         if (this.tracker != null) {
-            this.tracker.inEvent(newEvents.size());
+            this.tracker.inEvent(events.size());
         }
         if (this.disruptor == null) {
             for (Processor processor : this.processors) {
+                List<Event> newEvents = this.convertEvent(events);
                 try {
                     this.threadBarrier.pass();
                     processor.process(newEvents);
@@ -131,7 +130,7 @@ public class Stream implements Processor {
             }
         } else {
             // Async enabled
-            for (Event event : newEvents) {
+            for (Event event : events) {
                 this.ringBuffer.publishEvent((eventHolder, sequence, buffer) -> eventHolder.set(event));
             }
         }
@@ -139,9 +138,10 @@ public class Stream implements Processor {
 
     private void sendToProcessors(Event event) {
         for (Processor processor : this.processors) {
+            Event newEvent = this.convertEvent(event);
             try {
                 this.threadBarrier.pass();
-                processor.process(event);
+                processor.process(newEvent);
             } catch (WisdomAppRuntimeException ex) {
                 this.wisdomApp.handleException(ex);
             }

@@ -78,12 +78,7 @@ public class ExternalTimeBatchWindow extends Window implements Variable.OnUpdate
 
     @Override
     public Window copy() {
-        try {
-            this.lock.lock();
-            return new ExternalTimeBatchWindow(this.properties);
-        } finally {
-            this.lock.unlock();
-        }
+        return new ExternalTimeBatchWindow(this.properties);
     }
 
     @Override

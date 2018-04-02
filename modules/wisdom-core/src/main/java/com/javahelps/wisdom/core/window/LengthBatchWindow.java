@@ -53,13 +53,7 @@ public class LengthBatchWindow extends Window implements Variable.OnUpdateListen
 
     @Override
     public Window copy() {
-
-        try {
-            this.lock.lock();
-            return new LengthBatchWindow(this.properties);
-        } finally {
-            this.lock.unlock();
-        }
+        return new LengthBatchWindow(this.properties);
     }
 
     @Override

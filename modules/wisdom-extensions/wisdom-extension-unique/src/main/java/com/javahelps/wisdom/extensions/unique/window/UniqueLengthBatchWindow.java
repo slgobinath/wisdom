@@ -64,12 +64,7 @@ public class UniqueLengthBatchWindow extends Window implements Variable.OnUpdate
 
     @Override
     public Window copy() {
-        try {
-            this.lock.lock();
-            return new UniqueLengthBatchWindow(this.properties);
-        } finally {
-            this.lock.unlock();
-        }
+        return new UniqueLengthBatchWindow(this.properties);
     }
 
     @Override

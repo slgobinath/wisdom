@@ -87,8 +87,7 @@ public class UniqueExternalTimeBatchWindow extends Window implements Variable.On
     @Override
     public Window copy() {
 
-        Window window = new UniqueExternalTimeBatchWindow(this.properties);
-        return window;
+        return new UniqueExternalTimeBatchWindow(this.properties);
     }
 
     @Override

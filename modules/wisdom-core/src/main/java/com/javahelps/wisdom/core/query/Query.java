@@ -6,15 +6,7 @@ import com.javahelps.wisdom.core.event.Index;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.operator.AggregateOperator;
 import com.javahelps.wisdom.core.pattern.Pattern;
-import com.javahelps.wisdom.core.processor.AggregateProcessor;
-import com.javahelps.wisdom.core.processor.AttributeSelectProcessor;
-import com.javahelps.wisdom.core.processor.EventSelectProcessor;
-import com.javahelps.wisdom.core.processor.FilterProcessor;
-import com.javahelps.wisdom.core.processor.MapProcessor;
-import com.javahelps.wisdom.core.processor.PartitionProcessor;
-import com.javahelps.wisdom.core.processor.Stateful;
-import com.javahelps.wisdom.core.processor.StreamProcessor;
-import com.javahelps.wisdom.core.processor.WindowProcessor;
+import com.javahelps.wisdom.core.processor.*;
 import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.variable.Variable;
 import com.javahelps.wisdom.core.window.Window;
@@ -52,6 +44,14 @@ public class Query implements Stateful {
      */
     public void init() {
         this.streamProcessorMap.values().forEach(processor -> processor.init(this.wisdomApp));
+    }
+
+    public void start() {
+        this.streamProcessorMap.values().forEach(processor -> processor.start());
+    }
+
+    public void stop() {
+        this.streamProcessorMap.values().forEach(processor -> processor.stop());
     }
 
     public Query from(String streamId) {

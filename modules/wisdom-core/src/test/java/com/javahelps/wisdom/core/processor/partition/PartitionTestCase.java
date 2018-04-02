@@ -50,6 +50,8 @@ public class PartitionTestCase {
 
         Thread.sleep(100);
 
+        wisdomApp.shutdown();
+
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
 
@@ -82,6 +84,8 @@ public class PartitionTestCase {
 
         Thread.sleep(100);
 
+        wisdomApp.shutdown();
+
         Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
@@ -112,6 +116,8 @@ public class PartitionTestCase {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 10));
 
         Thread.sleep(100);
+
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
     }
@@ -146,6 +152,8 @@ public class PartitionTestCase {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 75.6, "volume", 40));
 
         Thread.sleep(100);
+
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());
     }

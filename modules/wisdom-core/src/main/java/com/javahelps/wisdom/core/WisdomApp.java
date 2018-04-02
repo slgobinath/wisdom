@@ -91,7 +91,10 @@ public class WisdomApp implements Stateful {
         }
         this.wisdomContext.start();
         this.queryMap.values().forEach(Query::init);
+        this.variableMap.values().forEach(variable -> variable.init(this));
         this.streamMap.values().forEach(Processor::start);
+        // Start query components
+        this.queryMap.values().forEach(Query::start);
         this.sinks.forEach(Sink::start);
         if (this.statisticsManager != null) {
             this.statisticsManager.start();
@@ -107,9 +110,9 @@ public class WisdomApp implements Stateful {
             this.statisticsManager.stop();
         }
         // Stop all streams
-        for (Stream stream : this.streamMap.values()) {
-            stream.stop();
-        }
+        this.streamMap.values().forEach(Stream::stop);
+        // Stop query components
+        this.queryMap.values().forEach(Query::stop);
         this.sinks.forEach(Sink::stop);
         this.wisdomContext.shutdown();
     }
