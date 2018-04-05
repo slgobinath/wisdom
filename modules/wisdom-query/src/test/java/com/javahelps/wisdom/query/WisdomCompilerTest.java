@@ -729,4 +729,23 @@ public class WisdomCompilerTest {
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
+
+    @Test
+    public void testCommentInQuery() {
+
+        LOGGER.info("Test comment in query");
+
+        String query = "/*multiline comment*/ @app(name='WisdomApp', version='1.0.0') /*\n " +
+                "hello world \n" +
+                "end of comment*/ " +
+                "# this is a comment\n " +
+                "def stream StockStream; # another comment\n " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "select symbol, price " +
+                "insert into OutputStream;";
+
+        WisdomCompiler.parse(query);
+    }
 }

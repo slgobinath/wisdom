@@ -256,25 +256,10 @@ INTEGER
  ;
 
 DEF : 'def';
-RETURN : 'return';
-RAISE : 'raise';
 FROM : 'from';
-IMPORT : 'import';
 AS : 'as';
-GLOBAL : 'global';
-NONLOCAL : 'nonlocal';
-ASSERT : 'assert';
 IF : 'if';
-ELIF : 'elif';
-ELSE : 'else';
-WHILE : 'while';
-FOR : 'for';
 IN : 'in';
-TRY : 'try';
-FINALLY : 'finally';
-WITH : 'with';
-EXCEPT : 'except';
-LAMBDA : 'lambda';
 OR : 'or';
 AND : 'and';
 NOT : 'not';
@@ -282,13 +267,7 @@ IS : 'is';
 NONE : 'None';
 TRUE : 'true';
 FALSE : 'false';
-CLASS : 'class';
-YIELD : 'yield';
 DEL : 'del';
-PASS : 'pass';
-CONTINUE : 'continue';
-BREAK : 'break';
-AWAIT : 'await';
 STREAM : 'stream';
 VARIABLE : 'variable';
 SELECT : 'select';
@@ -314,42 +293,6 @@ DAY: 'day' | 'days';
 MONTH: 'month' | 'months';
 YEAR: 'month' | 'months';
 TIME: 'time';
-
-//NEWLINE
-// : ( {atStartOfInput()}?   SPACES
-//   | ( '\r'? '\n' | '\r' | '\f' ) SPACES?
-//   )
-//   {
-//     String newLine = getText().replaceAll("[^\r\n\f]+", "");
-//     String spaces = getText().replaceAll("[\r\n\f]+", "");
-//     int next = _input.LA(1);
-//     if (opened > 0 || next == '\r' || next == '\n' || next == '\f' || next == '#') {
-//       // If we're inside a list or on a blank line, ignore all indents,
-//       // dedents and line breaks.
-//       skip();
-//     }
-//     else {
-//       emit(commonToken(NEWLINE, newLine));
-//       int indent = getIndentationCount(spaces);
-//       int previous = indents.isEmpty() ? 0 : indents.peek();
-//       if (indent == previous) {
-//         // skip indents of the same size newName the present indent-size
-//         skip();
-//       }
-//       else if (indent > previous) {
-//         indents.push(indent);
-//         emit(commonToken(WisdomQLParser.INDENT, spaces));
-//       }
-//       else {
-//         // Possibly emit more than 1 DEDENT token.
-//         while(!indents.isEmpty() && indents.peek() > indent) {
-//           this.emit(createDedent());
-//           indents.pop();
-//         }
-//       }
-//     }
-//   }
-// ;
 
 NEWLINE
     : ( '\r'? '\n' | '\r' | '\f') SPACES?
@@ -599,6 +542,7 @@ fragment SPACES
 
 fragment COMMENT
  : '#' ~[\r\n\f]*
+ | '/*' .*? ( '*/' | EOF )
  ;
 
 fragment LINE_JOINING
