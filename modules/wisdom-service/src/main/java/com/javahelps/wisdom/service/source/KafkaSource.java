@@ -112,8 +112,6 @@ public class KafkaSource extends Source {
 
                 if (records != null) {
                     records.forEach(record -> {
-                        LOGGER.info("Received {} from Kafka partition {} with key {} and offset {}",
-                                record.value(), record.partition(), record.key(), record.offset());
                         Event event = EventGenerator.generate(Utility.toMap(record.value()));
                         this.inputHandler.send(event);
                     });

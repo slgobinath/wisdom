@@ -27,9 +27,9 @@ public class WisdomKafkaClient extends WisdomClient {
     }
 
     @Override
-    public Response send(String streamId, Map<String, Comparable> data) {
+    public Response send(String topic, Map<String, Comparable> data) {
 
-        String topic = this.wisdomAppName + "." + streamId;
+        Response response;
         try {
 
             ProducerRecord<String, String> record = new ProducerRecord<>(topic, this.wisdomAppName, Utility.toJson(data));
@@ -37,13 +37,14 @@ public class WisdomKafkaClient extends WisdomClient {
 
             System.out.printf("Sent record(key=%s value=%s) meta(partition=%d, offset=%d)\n",
                     record.key(), record.value(), metadata.partition(), metadata.offset());
+            response = new Response(0, "Sent record to Kafka");
 
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            response = new Response(-1, e.getMessage());
         } finally {
             producer.flush();
         }
-        return new Response(0, "");
+        return response;
     }
 
     @Override

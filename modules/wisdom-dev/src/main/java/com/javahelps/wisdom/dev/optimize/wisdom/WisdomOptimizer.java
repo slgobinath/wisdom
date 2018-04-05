@@ -6,11 +6,11 @@ import com.javahelps.wisdom.dev.optimize.multivariate.Constraint;
 import com.javahelps.wisdom.dev.optimize.multivariate.MultivariateOptimizer;
 import com.javahelps.wisdom.dev.optimize.multivariate.Point;
 import com.javahelps.wisdom.dev.util.Constants;
+import com.javahelps.wisdom.dev.util.Utility;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 
 
 public class WisdomOptimizer {
@@ -20,9 +20,17 @@ public class WisdomOptimizer {
     private final List<Variable<Long>> variables = new ArrayList<>();
     private final List<Constraint> constraints = new ArrayList<>();
     private final List<Double> steps = new ArrayList<>();
+    private final int swarmSize;
+    private final int maxIterations;
 
     public WisdomOptimizer(WisdomApp app) {
+        this(app, 100, 100);
+    }
+
+    public WisdomOptimizer(WisdomApp app, int swarmSize, int maxIterations) {
         this.app = app;
+        this.swarmSize = swarmSize;
+        this.maxIterations = maxIterations;
         List<Variable> trainable = app.getTrainable();
         for (Variable variable : trainable) {
             Properties properties = variable.getProperties();
@@ -82,22 +90,8 @@ public class WisdomOptimizer {
         for (int i = 0; i < noOfVariables; i++) {
             steps[i] = this.steps.get(i);
         }
-        MultivariateOptimizer optimizer = new MultivariateOptimizer(this::objectiveFunction, constraints, steps);
+        MultivariateOptimizer optimizer = new MultivariateOptimizer(this::objectiveFunction, constraints, Utility.velocityBound(constraints), steps, swarmSize, 0.5, 0.5, maxIterations, 1E-20);
         Point point = optimizer.execute();
         return point;
-    }
-
-    public static Callable<Point> callable(WisdomApp app, QueryTrainer... trainers) {
-        WisdomOptimizer optimizer = new WisdomOptimizer(app);
-        for (QueryTrainer trainer : trainers) {
-            optimizer.addQueryTrainer(trainer);
-        }
-        Callable<Point> callable = () -> {
-            app.start();
-            Point point = optimizer.optimize();
-            app.shutdown();
-            return point;
-        };
-        return callable;
     }
 }
