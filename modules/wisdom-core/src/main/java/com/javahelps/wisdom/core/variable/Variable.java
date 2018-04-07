@@ -140,6 +140,11 @@ public class Variable<T> implements Processor, Supplier<T> {
         return null;
     }
 
+    @Override
+    public void destroy() {
+
+    }
+
     @FunctionalInterface
     public interface OnUpdateListener<T> {
         void update(T value);

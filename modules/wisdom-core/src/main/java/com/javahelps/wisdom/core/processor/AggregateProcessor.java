@@ -59,4 +59,9 @@ public class AggregateProcessor extends StreamProcessor {
         mapProcessor.setNextProcessor(this.getNextProcessor().copy());
         return mapProcessor;
     }
+
+    @Override
+    public void destroy() {
+        this.operators = null;
+    }
 }

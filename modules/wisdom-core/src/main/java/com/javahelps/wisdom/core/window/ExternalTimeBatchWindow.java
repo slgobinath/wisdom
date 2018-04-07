@@ -20,6 +20,7 @@ public class ExternalTimeBatchWindow extends Window implements Variable.OnUpdate
     private long timeToKeep;
     private List<Event> events = new ArrayList<>();
     private long endTime = -1;
+    private Variable<Number> timeVariable;
 
     public ExternalTimeBatchWindow(Map<String, ?> properties) {
         super(properties);
@@ -33,9 +34,9 @@ public class ExternalTimeBatchWindow extends Window implements Variable.OnUpdate
         if (durationVal instanceof Number) {
             this.timeToKeep = ((Number) durationVal).longValue();
         } else if (durationVal instanceof Variable) {
-            Variable<Number> variable = (Variable<Number>) durationVal;
-            this.timeToKeep = variable.get().longValue();
-            variable.addOnUpdateListener(this);
+            this.timeVariable = (Variable<Number>) durationVal;
+            this.timeToKeep = this.timeVariable.get().longValue();
+            this.timeVariable.addOnUpdateListener(this);
         } else {
             throw new WisdomAppValidationException("duration of ExternalTimeBatchWindow must be long but found %d",
                     keyVal.getClass().getSimpleName());
@@ -90,6 +91,14 @@ public class ExternalTimeBatchWindow extends Window implements Variable.OnUpdate
         } finally {
             this.lock.unlock();
         }
+    }
+
+    @Override
+    public void destroy() {
+        if (this.timeVariable != null) {
+            this.timeVariable.removeOnUpdateListener(this);
+        }
+        this.events = null;
     }
 
     @Override

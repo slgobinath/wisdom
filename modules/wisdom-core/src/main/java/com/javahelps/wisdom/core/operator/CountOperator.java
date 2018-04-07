@@ -36,4 +36,9 @@ public class CountOperator extends AggregateOperator {
     public Partitionable copy() {
         return new CountOperator(this.newName);
     }
+
+    @Override
+    public void destroy() {
+
+    }
 }

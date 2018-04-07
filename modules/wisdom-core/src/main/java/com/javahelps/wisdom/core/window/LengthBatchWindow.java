@@ -18,14 +18,15 @@ public class LengthBatchWindow extends Window implements Variable.OnUpdateListen
 
     private List<Event> events;
     private int length;
+    private Variable<Number> lengthVariable;
 
     public LengthBatchWindow(Map<String, ?> properties) {
         super(properties);
         Object val = this.getProperty("length", 0);
         if (val instanceof Variable) {
-            Variable<Number> variable = (Variable<Number>) val;
-            this.length = variable.get().intValue();
-            variable.addOnUpdateListener(this);
+            this.lengthVariable = (Variable<Number>) val;
+            this.length = this.lengthVariable.get().intValue();
+            this.lengthVariable.addOnUpdateListener(this);
         } else if (val instanceof Number) {
             this.length = ((Number) val).intValue();
         } else {
@@ -74,5 +75,13 @@ public class LengthBatchWindow extends Window implements Variable.OnUpdateListen
         } finally {
             this.lock.unlock();
         }
+    }
+
+    @Override
+    public void destroy() {
+        if (this.lengthVariable != null) {
+            this.lengthVariable.removeOnUpdateListener(this);
+        }
+        this.events = null;
     }
 }

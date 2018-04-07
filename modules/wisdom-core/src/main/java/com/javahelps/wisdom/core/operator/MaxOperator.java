@@ -43,4 +43,9 @@ public class MaxOperator extends AggregateOperator {
     public Partitionable copy() {
         return new MaxOperator(this.attribute, this.newName);
     }
+
+    @Override
+    public void destroy() {
+        this.max = null;
+    }
 }

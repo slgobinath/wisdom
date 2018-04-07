@@ -197,6 +197,11 @@ public class WisdomApp implements Stateful {
                 public Processor copy() {
                     return this;
                 }
+
+                @Override
+                public void destroy() {
+
+                }
             }, 0);
         }
     }
@@ -284,6 +289,11 @@ public class WisdomApp implements Stateful {
             @Override
             public Processor copy() {
                 return this;
+            }
+
+            @Override
+            public void destroy() {
+
             }
         });
     }

@@ -43,6 +43,12 @@ public class WindowProcessor extends StreamProcessor implements Stateful {
     }
 
     @Override
+    public void destroy() {
+        this.window.destroy();
+        this.window = null;
+    }
+
+    @Override
     public void clear() {
         this.window.clear();
     }

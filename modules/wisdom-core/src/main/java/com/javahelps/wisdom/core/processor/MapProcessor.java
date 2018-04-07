@@ -41,4 +41,9 @@ public class MapProcessor extends StreamProcessor {
         mapProcessor.setNextProcessor(this.getNextProcessor().copy());
         return mapProcessor;
     }
+
+    @Override
+    public void destroy() {
+        this.function = null;
+    }
 }

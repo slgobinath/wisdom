@@ -44,4 +44,9 @@ public class FilterProcessor extends StreamProcessor {
         filterProcessor.setNextProcessor(this.getNextProcessor().copy());
         return filterProcessor;
     }
+
+    @Override
+    public void destroy() {
+        this.predicate = null;
+    }
 }

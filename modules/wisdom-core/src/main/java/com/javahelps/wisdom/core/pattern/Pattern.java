@@ -10,11 +10,7 @@ import com.javahelps.wisdom.core.util.TimestampGenerator;
 import com.javahelps.wisdom.core.util.WisdomConstants;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
@@ -349,6 +345,11 @@ public class Pattern extends StreamProcessor implements Stateful {
     @Override
     public Pattern copy() {
         return null;
+    }
+
+    @Override
+    public void destroy() {
+
     }
 
     @Override

@@ -190,6 +190,11 @@ public class Stream implements Processor {
         return this;
     }
 
+    @Override
+    public void destroy() {
+        // Do nothing
+    }
+
     public void enable() {
         this.disabled = false;
     }

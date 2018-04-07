@@ -45,4 +45,9 @@ public class AvgOperator extends AggregateOperator {
     public Partitionable copy() {
         return new AvgOperator(this.attribute, this.newName);
     }
+
+    @Override
+    public void destroy() {
+
+    }
 }

@@ -15,10 +15,11 @@ import java.util.Map;
 @WisdomExtension("unique:externalTimeBatch")
 public class UniqueExternalTimeBatchWindow extends Window implements Variable.OnUpdateListener<Long> {
 
-    private final Map<Comparable, Event> eventMap = new LinkedHashMap<>();
+    private Map<Comparable, Event> eventMap = new LinkedHashMap<>();
     private final String uniqueKey;
     private final String timestampKey;
     private long timeToKeep;
+    private Variable<Number> timeToKeepVariable;
     private long endTime = -1;
 
 
@@ -41,9 +42,9 @@ public class UniqueExternalTimeBatchWindow extends Window implements Variable.On
         if (durationVal instanceof Number) {
             this.timeToKeep = ((Number) durationVal).longValue();
         } else if (durationVal instanceof Variable) {
-            Variable<Long> variable = (Variable<Long>) durationVal;
-            this.timeToKeep = variable.get();
-            variable.addOnUpdateListener(this);
+            this.timeToKeepVariable = (Variable<Number>) durationVal;
+            this.timeToKeep = this.timeToKeepVariable.get().longValue();
+            this.timeToKeepVariable.addOnUpdateListener(this);
         } else {
             throw new WisdomAppValidationException("duration of UniqueExternalTimeBatchWindow must be long but found %d", timestampKeyVal.getClass().getSimpleName());
         }
@@ -99,6 +100,14 @@ public class UniqueExternalTimeBatchWindow extends Window implements Variable.On
         } finally {
             this.lock.unlock();
         }
+    }
+
+    @Override
+    public void destroy() {
+        if (this.timeToKeepVariable != null) {
+            this.timeToKeepVariable.removeOnUpdateListener(this);
+        }
+        this.eventMap = null;
     }
 
     @Override

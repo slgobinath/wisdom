@@ -117,9 +117,17 @@ public class PartitionProcessor extends StreamProcessor implements Stateful {
     }
 
     @Override
+    public void destroy() {
+        this.clear();
+    }
+
+    @Override
     public void clear() {
         try {
             this.lock.lock();
+            for (Processor processor : this.processorMap.values()) {
+                processor.destroy();
+            }
             this.processorMap.clear();
         } finally {
             this.lock.unlock();

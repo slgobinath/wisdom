@@ -15,9 +15,10 @@ import java.util.Map;
 @WisdomExtension("unique:lengthBatch")
 public class UniqueLengthBatchWindow extends Window implements Variable.OnUpdateListener<Integer> {
 
-    private final Map<Comparable, Event> eventMap;
+    private Map<Comparable, Event> eventMap;
     private final String uniqueKey;
     private int length;
+    private Variable<Number> lengthVariable;
 
     public UniqueLengthBatchWindow(Map<String, ?> properties) {
         super(properties);
@@ -30,9 +31,9 @@ public class UniqueLengthBatchWindow extends Window implements Variable.OnUpdate
             throw new WisdomAppValidationException("uniqueKey of UniqueLengthBatchWindow must be java.lang.String but found %d", uniqueKeyVal.getClass().getSimpleName());
         }
         if (lengthVal instanceof Variable) {
-            Variable<Integer> variable = (Variable<Integer>) lengthVal;
-            this.length = variable.get();
-            variable.addOnUpdateListener(this);
+            this.lengthVariable = (Variable<Number>) lengthVal;
+            this.length = this.lengthVariable.get().intValue();
+            this.lengthVariable.addOnUpdateListener(this);
         } else if (lengthVal instanceof Number) {
             this.length = ((Number) lengthVal).intValue();
         } else {
@@ -75,6 +76,15 @@ public class UniqueLengthBatchWindow extends Window implements Variable.OnUpdate
         } finally {
             this.lock.unlock();
         }
+    }
+
+
+    @Override
+    public void destroy() {
+        if (this.lengthVariable != null) {
+            this.lengthVariable.removeOnUpdateListener(this);
+        }
+        this.eventMap = null;
     }
 
     @Override

@@ -52,4 +52,9 @@ public class EventSelectProcessor extends StreamProcessor {
         eventSelectProcessor.setNextProcessor(this.getNextProcessor().copy());
         return eventSelectProcessor;
     }
+
+    @Override
+    public void destroy() {
+
+    }
 }

@@ -33,6 +33,11 @@ public class SumOperator extends AggregateOperator {
     }
 
     @Override
+    public void destroy() {
+
+    }
+
+    @Override
     public Partitionable copy() {
         return new SumOperator(this.attribute, this.newName);
     }

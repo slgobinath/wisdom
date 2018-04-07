@@ -54,4 +54,9 @@ public class AttributeSelectProcessor extends StreamProcessor {
         attributeSelectProcessor.setNextProcessor(this.getNextProcessor().copy());
         return attributeSelectProcessor;
     }
+
+    @Override
+    public void destroy() {
+        this.attributes = null;
+    }
 }

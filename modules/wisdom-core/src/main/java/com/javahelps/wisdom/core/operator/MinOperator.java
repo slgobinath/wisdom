@@ -43,4 +43,9 @@ public class MinOperator extends AggregateOperator {
     public Partitionable copy() {
         return new MinOperator(this.attribute, this.newName);
     }
+
+    @Override
+    public void destroy() {
+        this.min = null;
+    }
 }
