@@ -1,7 +1,6 @@
 package com.javahelps.wisdom.core.operator;
 
 import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.operand.WisdomLong;
 import com.javahelps.wisdom.core.processor.AttributeSelectProcessor;
 
 import java.util.Objects;
@@ -240,4 +239,106 @@ public class Operator {
             }
         };
     }
+
+    public static Predicate<Event> ATTR_IN_ATTR(final String leftAttr, final String rightAttr) {
+
+        return event -> {
+            String leftData = (String) event.get(leftAttr);
+            String rightData = (String) event.get(rightAttr);
+            if (leftData == null || rightData == null) {
+                return false;
+            } else {
+                return rightData.contains(leftData);
+            }
+        };
+    }
+
+    public static Predicate<Event> ATTR_IN_STR(final String leftAttr, final String rightData) {
+
+        return event -> {
+            String leftData = (String) event.get(leftAttr);
+            if (leftData == null) {
+                return false;
+            } else {
+                return rightData.contains(leftData);
+            }
+        };
+    }
+
+    public static Predicate<Event> ATTR_IN_VAR(final String attribute, final Supplier<String> rightSupplier) {
+
+        return event -> {
+            String leftData = (String) event.get(attribute);
+            String rightData = rightSupplier.get();
+            if (leftData == null || rightData == null) {
+                return false;
+            } else {
+                return rightData.contains(leftData);
+            }
+        };
+    }
+
+    public static Predicate<Event> VAR_IN_ATTR(final Supplier<String> leftSupplier, final String rightAttr) {
+
+        return event -> {
+            String leftData = leftSupplier.get();
+            String rightData = (String) event.get(rightAttr);
+            if (leftData == null || rightData == null) {
+                return false;
+            } else {
+                return rightData.contains(leftData);
+            }
+        };
+    }
+
+    public static Predicate<Event> VAR_IN_STR(final Supplier<String> leftSupplier, final String rightData) {
+
+        return event -> {
+            String leftData = leftSupplier.get();
+            if (leftData == null) {
+                return false;
+            } else {
+                return rightData.contains(leftData);
+            }
+        };
+    }
+
+    public static Predicate<Event> VAR_IN_VAR(final Supplier<String> leftSupplier, final Supplier<String> rightSupplier) {
+
+        return event -> {
+            String leftData = leftSupplier.get();
+            String rightData = rightSupplier.get();
+            if (leftData == null || rightData == null) {
+                return false;
+            } else {
+                return rightData.contains(leftData);
+            }
+        };
+    }
+
+
+    public static Predicate<Event> STR_IN_ATTR(final String leftData, final String rightAttr) {
+
+        return event -> {
+            String rightData = (String) event.get(rightAttr);
+            if (rightData == null) {
+                return false;
+            } else {
+                return rightData.contains(leftData);
+            }
+        };
+    }
+
+    public static Predicate<Event> STR_IN_VAR(final String leftData, final Supplier<String> rightSupplier) {
+
+        return event -> {
+            String rightData = rightSupplier.get();
+            if (rightData == null) {
+                return false;
+            } else {
+                return rightData.contains(leftData);
+            }
+        };
+    }
+
 }

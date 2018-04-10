@@ -203,6 +203,8 @@ logical_operator
                 (rgt_name=NAME|rgt_number=NUMBER|rgt_var=variable_reference))
     | ((lft_name=NAME|lft_pri=wisdom_primitive|lft_var=variable_reference) EQUALS
                 (rgt_name=NAME|rgt_pri=wisdom_primitive|lft_var=variable_reference))
+    | ((lft_name=NAME|lft_string=STRING|lft_var=variable_reference) IN
+                      (rgt_name=NAME|rgt_string=STRING|rgt_var=variable_reference))
     | NOT logical_operator
     | logical_operator AND logical_operator
     | logical_operator OR logical_operator

@@ -228,6 +228,8 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             operator = new LogicalOperator(LogicalOperator.Operation.LT_EQ);
         } else if (ctx.EQUALS() != null) {
             operator = new LogicalOperator(LogicalOperator.Operation.EQ);
+        } else if (ctx.IN() != null) {
+            operator = new LogicalOperator(LogicalOperator.Operation.IN);
         } else if (noOfLogicalOperators == 1) {
             operator = new LogicalOperator(LogicalOperator.Operation.IDENTICAL);
         } else {
@@ -245,6 +247,8 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
                 operator.setLeftAttr(ctx.lft_name.getText());
             } else if (ctx.lft_number != null) {
                 operator.setLeftComparable(Double.parseDouble(ctx.lft_number.getText()));
+            } else if (ctx.lft_string != null) {
+                operator.setLeftComparable(Utility.toString(ctx.lft_string.getText()));
             } else if (ctx.lft_pri != null) {
                 operator.setLeftComparable((Comparable) visit(ctx.lft_pri));
             } else if (ctx.lft_var != null) {
@@ -254,6 +258,8 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
                 operator.setRightAttr(ctx.rgt_name.getText());
             } else if (ctx.rgt_number != null) {
                 operator.setRightComparable(Double.parseDouble(ctx.rgt_number.getText()));
+            } else if (ctx.rgt_string != null) {
+                operator.setRightComparable(Utility.toString(ctx.rgt_string.getText()));
             } else if (ctx.rgt_pri != null) {
                 operator.setRightComparable((Comparable) visit(ctx.rgt_pri));
             } else if (ctx.rgt_var != null) {

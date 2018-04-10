@@ -12,7 +12,7 @@ public class LogicalOperator implements OperatorElement {
 
 
     public enum Operation {
-        GT, GT_EQ, LT, LT_EQ, AND, OR, NOT, EQ, IDENTICAL
+        GT, GT_EQ, LT, LT_EQ, AND, OR, NOT, EQ, IDENTICAL, IN
     }
 
     private final Operation operation;
@@ -255,11 +255,52 @@ public class LogicalOperator implements OperatorElement {
                 // 10 == $var
                 predicate = Operator.EQUALS(app.getVariable(rightVar), leftComparable);
             } else if (rightComparable != null) {
-                // $var == 10
+                // 10 == 10
                 final boolean result = Objects.equals(leftComparable, rightComparable);
                 predicate = event -> result;
             }
         }
+        return predicate;
+    }
+
+    private Predicate<Event> in(WisdomApp app) {
+        Predicate<Event> predicate = null;
+        if (leftAttr != null) {
+            if (rightAttr != null) {
+                // attr in attr
+                predicate = Operator.ATTR_IN_ATTR(leftAttr, rightAttr);
+            } else if (rightVar != null) {
+                // attr in $var
+                predicate = Operator.ATTR_IN_VAR(leftAttr, app.getVariable(rightVar));
+            } else if (rightComparable != null) {
+                // attr in "hello"
+                predicate = Operator.ATTR_IN_STR(leftAttr, (String) rightComparable);
+            }
+        } else if (leftVar != null) {
+            if (rightAttr != null) {
+                // $var in attr
+                predicate = Operator.VAR_IN_ATTR(app.getVariable(leftVar), rightAttr);
+            } else if (rightVar != null) {
+                // $var in $var
+                predicate = Operator.VAR_IN_VAR(app.getVariable(leftVar), app.getVariable(rightVar));
+            } else if (rightComparable != null) {
+                // $var in "hello"
+                predicate = Operator.VAR_IN_STR(app.getVariable(leftVar), (String) rightComparable);
+            }
+        } else if (leftComparable != null) {
+            if (rightAttr != null) {
+                // "hello" in attr
+                predicate = Operator.STR_IN_ATTR((String) leftComparable, rightAttr);
+            } else if (rightVar != null) {
+                // "hello" in $var
+                predicate = Operator.STR_IN_VAR((String) leftComparable, app.getVariable(rightVar));
+            } else if (rightComparable != null) {
+                // "he" in "hello"
+                final boolean result = ((String) rightComparable).contains((CharSequence) leftComparable);
+                predicate = event -> result;
+            }
+        }
+
         return predicate;
     }
 
@@ -283,6 +324,9 @@ public class LogicalOperator implements OperatorElement {
                 return this.lessThan(app);
             case LT_EQ:
                 return this.lessThanOrEqual(app);
+            case IN:
+                return this.in(app);
+
         }
         return null;
     }
