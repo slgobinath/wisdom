@@ -3,6 +3,7 @@ package com.javahelps.wisdom.query.util;
 import com.javahelps.wisdom.query.antlr.WisdomParserException;
 import com.javahelps.wisdom.query.tree.Annotation;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,12 +28,23 @@ public class Utility {
         }
     }
 
+    /**
+     * Parse Wisdom query String constants and unescape special characters.
+     *
+     * @param str String constant
+     * @return unescaped string
+     */
     public static String toString(String str) {
-        if (str.startsWith("\"")) {
+        if (str.startsWith("\"\"\"")) {
+            str = str.replaceAll("^\"\"\"|\"\"\"$", "");
+        } else if (str.startsWith("\"")) {
             str = str.replaceAll("^\"|\"$", "");
         } else if (str.startsWith("'")) {
             str = str.replaceAll("^'|'$", "");
+        } else if (str.startsWith("'''")) {
+            str = str.replaceAll("^'''|'''$", "");
         }
+        str = StringEscapeUtils.unescapeJava(str);
         return str;
     }
 
