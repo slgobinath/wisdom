@@ -63,30 +63,6 @@ tokens { INDENT, DEDENT }
     return new CommonToken(this._tokenFactorySourcePair, type, DEFAULT_TOKEN_CHANNEL, start, stop);
   }
 
-  // Calculates the indentation of the provided spaces, taking the
-  // following rules into account:
-  //
-  // "Tabs are replaced (from left to right) by one to eight spaces
-  //  such that the total number of characters up to and including
-  //  the replacement is a multiple of eight [...]"
-  //
-  //  -- https://docs.python.org/3.1/reference/lexical_analysis.html#indentation
-  static int getIndentationCount(String spaces) {
-    int count = 0;
-    for (char ch : spaces.toCharArray()) {
-      switch (ch) {
-        case '\t':
-          count += 8 - (count % 8);
-          break;
-        default:
-          // A normal space char.
-          count++;
-      }
-    }
-
-    return count;
-  }
-
   boolean atStartOfInput() {
     return super.getCharPositionInLine() == 0 && super.getLine() == 1;
   }
@@ -400,7 +376,7 @@ POWER_ASSIGN : '**=';
 IDIV_ASSIGN : '//=';
 
 SKIP_
- : ( SPACES | COMMENT | LINE_JOINING ) -> skip
+ : ( SPACES | COMMENT ) -> skip
  ;
 
 UNKNOWN_CHAR
@@ -539,16 +515,12 @@ fragment BYTES_ESCAPE_SEQ
  ;
 
 fragment SPACES
- : [ \t]+
+ : [ \t\r\n\f]+
  ;
 
 fragment COMMENT
- : '#' ~[\r\n\f]*
+ : '#' ~[\r\n\f]* NEWLINE
  | '/*' .*? ( '*/' | EOF )
- ;
-
-fragment LINE_JOINING
- : '\\' SPACES? ( '\r'? '\n' | '\r' | '\f')
  ;
 
 /// id_start     ::=  <all characters in general categories Lu, Ll, Lt, Lm, Lo, Nl, the underscore, and characters with the Other_ID_Start property>
