@@ -26,6 +26,8 @@ public class WisdomConstants {
 
     public static final String PRIORITY = "priority";
 
+    public static final String REQUIRES = "requires";
+
     public static final String STATISTICS_REPORT_FREQUENCY = "stats_freq";
 
     public static final String STATISTICS_CONTEXT_VARIABLES = "stats_vars";

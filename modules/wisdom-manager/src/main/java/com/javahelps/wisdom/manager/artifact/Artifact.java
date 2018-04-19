@@ -1,7 +1,6 @@
 package com.javahelps.wisdom.manager.artifact;
 
-import com.google.common.collect.EvictingQueue;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +16,9 @@ public class Artifact {
     private String host = "127.0.0.1";
     private int priority = 10;
     private boolean stoppedByManager;
+    private List<String> requires = new ArrayList<>();
     private Map<String, Map<String, Comparable>> init = new HashMap<>();
-    private final EvictingQueue<Double> throughputs = EvictingQueue.create(THROUGHPUT_WINDOW_LENGTH);
+    private List<Double> throughputs = new ArrayList<>(THROUGHPUT_WINDOW_LENGTH);
 
     public Artifact() {
 
@@ -31,9 +31,15 @@ public class Artifact {
         this.priority = (int) map.get("priority");
         this.pid = ((Number) map.getOrDefault("pid", -1L)).longValue();
         this.init = (Map<String, Map<String, Comparable>>) map.getOrDefault("init", this.init);
+        List<String> requires = (List<String>) map.get("requires");
         List<Double> throughputs = (List<Double>) map.get("throughputs");
         if (throughputs != null) {
-            this.throughputs.addAll(throughputs);
+            for (Double val : throughputs) {
+                this.throughputs.add(val);
+            }
+        }
+        if (requires != null) {
+            this.requires = requires;
         }
     }
 
@@ -102,8 +108,16 @@ public class Artifact {
         return stoppedByManager;
     }
 
-    public EvictingQueue<Double> getThroughputs() {
+    public List<Double> getThroughputs() {
         return throughputs;
+    }
+
+    public void setRequires(List<String> requires) {
+        this.requires = requires;
+    }
+
+    public List<String> getRequires() {
+        return requires;
     }
 
     public void addInit(String streamId, String variableId, Comparable value) {
@@ -136,12 +150,27 @@ public class Artifact {
 
     public void addThroughput(double throughput) {
         synchronized (this) {
-            this.throughputs.offer(throughput);
+            this.throughputs.add(throughput);
+            while (this.throughputs.size() > THROUGHPUT_WINDOW_LENGTH) {
+                this.throughputs.remove(0);
+            }
         }
+    }
+
+    public void setThroughputs(List<Double> throughputs) {
+        this.throughputs = throughputs;
     }
 
     @Override
     public String toString() {
         return this.name;
+    }
+
+    public void addRequires(Comparable[] comparables) {
+        if (comparables != null) {
+            for (Comparable comparable : comparables) {
+                this.requires.add(comparable.toString());
+            }
+        }
     }
 }

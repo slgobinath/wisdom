@@ -21,12 +21,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static com.javahelps.wisdom.core.util.Commons.map;
-import static com.javahelps.wisdom.core.util.WisdomConstants.PRIORITY;
-import static com.javahelps.wisdom.core.util.WisdomConstants.THRESHOLD_STREAM;
+import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 import static com.javahelps.wisdom.dev.util.Constants.HTTP_OK;
 import static com.javahelps.wisdom.manager.util.Constants.ARTIFACTS_DIR;
 
@@ -45,7 +42,6 @@ public class ArtifactController {
     private final int maxServicePort;
 
     private final Path artifactsConfigPath;
-    private final Lock lock = new ReentrantLock();
     private final Map<String, Artifact> deployedArtifacts = new HashMap<>();
     private final String JAVA_BIN = Paths.get(System.getProperty("java.home"), "bin/java").toAbsolutePath().toString();
 
@@ -96,10 +92,12 @@ public class ArtifactController {
             }
         }
 
+        Properties appProperties = app.getProperties();
         Artifact artifact = new Artifact();
         artifact.setName(appName);
         artifact.setPort(port);
-        artifact.setPriority(((Long) app.getProperties().getOrDefault(PRIORITY, 10L)).intValue());
+        artifact.setPriority(((Long) appProperties.getOrDefault(PRIORITY, 10L)).intValue());
+        artifact.addRequires((Comparable[]) appProperties.get(REQUIRES));
 
         List<Variable> trainableVariables = app.getTrainable();
         for (Variable variable : trainableVariables) {
@@ -282,6 +280,17 @@ public class ArtifactController {
         return String.format("Wisdom app %s is initialized successfully", artifact.getName());
     }
 
+    public void shutdown() {
+        for (Artifact artifact : this.deployedArtifacts.values()) {
+            if (artifact.getPid() != -1) {
+                LOGGER.info("Stopping artifact {}", artifact.getName());
+                this.stop(artifact);
+                artifact.setStoppedByManager(true);
+            }
+        }
+        this.saveArtifactsConfig();
+    }
+
     private synchronized void loadArtifactsConfig() {
         this.deployedArtifacts.clear();
         Map<String, Object> config = Utility.readYaml(this.yaml, this.artifactsConfigPath, true);
@@ -303,6 +312,17 @@ public class ArtifactController {
     public Artifact getArtifact(String name) {
         return this.deployedArtifacts.get(name);
     }
+
+    public Artifact getArtifactRequires(String streamName) {
+
+        for (Artifact artifact : this.deployedArtifacts.values()) {
+            if (artifact.getRequires().contains(streamName)) {
+                return artifact;
+            }
+        }
+        return null;
+    }
+
 
     public Iterable<Artifact> getArtifacts() {
         return this.deployedArtifacts.values();

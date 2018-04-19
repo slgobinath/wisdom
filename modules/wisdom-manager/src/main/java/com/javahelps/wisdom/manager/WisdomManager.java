@@ -116,6 +116,7 @@ public class WisdomManager {
 
     public String shutdown() {
         this.statisticsManager.stop();
+        this.controller.shutdown();
         new Thread(() -> {
             try {
                 Thread.sleep(100L);

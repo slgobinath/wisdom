@@ -42,16 +42,13 @@ public class StatisticsManager implements StatisticsConsumer.StatsListener {
 
     @Override
     public void onStats(Map<String, Comparable> stats) {
-        LOGGER.info("Received statistics {}", stats);
-        String appName = (String) stats.get("app");
-        if (appName != null) {
-            Artifact artifact = this.controller.getArtifact((String) stats.get("app"));
+        LOGGER.debug("Received statistics {}", stats);
+        String streamName = (String) stats.get("name");
+        if (streamName != null) {
+            Artifact artifact = this.controller.getArtifactRequires(streamName);
             if (artifact != null) {
                 double throughput = ((Number) stats.getOrDefault("throughput", 0.0)).doubleValue();
                 artifact.addThroughput(throughput);
-                if (artifact.getPid() == -1) {
-                    artifact.setPid(1); // Started by someone else
-                }
                 this.controller.saveArtifactsConfig();
             }
         }
@@ -69,34 +66,29 @@ public class StatisticsManager implements StatisticsConsumer.StatsListener {
     }
 
     public void manageRunningInstances() {
-        boolean needResource = false;
         List<Artifact> stopable = new ArrayList<>();
-        List<Artifact> stopped = new ArrayList<>();
+        List<Artifact> startable = new ArrayList<>();
         for (Artifact artifact : this.controller.getArtifacts()) {
-            if (artifact.getPid() != -1L) {
-                // Running
-                double throughput = artifact.averageThroughput();
-                if (throughput >= MAXIMUM_THROUGHPUT_THRESHOLD) {
-                    needResource = true;
-                } else if (throughput <= MINIMUM_THROUGHPUT_THRESHOLD && artifact.getPriority() <= MINIMUM_PRIORITY_THRESHOLD) {
+            double throughput = artifact.averageThroughput();
+            long pid = artifact.getPid();
+            if (pid == -1L && throughput > MINIMUM_THROUGHPUT_THRESHOLD) {
+                // Not running but need boosting
+                startable.add(artifact);
+            } else if (pid != -1L && throughput <= MINIMUM_THROUGHPUT_THRESHOLD && artifact.getPriority() <= MINIMUM_PRIORITY_THRESHOLD) {
+                // Running but no longer required
                     stopable.add(artifact);
-                }
-            } else if (artifact.isStoppedByManager()) {
-                stopped.add(artifact);
             }
         }
-        if (needResource) {
-            // Stop possible artifacts
-            for (Artifact artifact : stopable) {
-                artifact.setStoppedByManager(true);
-                this.controller.stop(artifact);
-            }
-        } else {
-            // Restart stopped artifacts
-            for (Artifact artifact : stopped) {
-                artifact.setStoppedByManager(false);
-                this.controller.start(artifact);
-            }
+
+        // Start possible artifacts
+        for (Artifact artifact : startable) {
+            LOGGER.info("Starting {}", artifact.getName());
+            this.controller.start(artifact);
+        }
+        // Stop possible artifacts
+        for (Artifact artifact : stopable) {
+            LOGGER.info("Stopping {}", artifact.getName());
+            this.controller.stop(artifact);
         }
     }
 }

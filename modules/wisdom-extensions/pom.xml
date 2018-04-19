@@ -16,8 +16,8 @@
 
     <modules>
         <module>wisdom-extension-unique</module>
-        <module>wisdom-extension-snort</module>
         <module>wisdom-extension-ml</module>
+        <module>wisdom-extension-file</module>
     </modules>
 
     <properties>

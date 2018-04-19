@@ -22,7 +22,7 @@ public class Constants {
 
     public static final double MAXIMUM_THROUGHPUT_THRESHOLD = 0.00000001;
 
-    public static final int THROUGHPUT_WINDOW_LENGTH = 10;
+    public static final int THROUGHPUT_WINDOW_LENGTH = 60;
 
     public static long STATISTIC_MONITOR_INITIAL_DELAY = 900000L;   // 15 minutes
 
