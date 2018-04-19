@@ -791,7 +791,7 @@ public class WisdomCompilerTest {
                 "def stream OutputStream; " +
                 "" +
                 "from PacketStream " +
-                "filter 'Keep Alice: \\\\d+' in header " +
+                "filter 'Keep-Alive: \\\\d+' in header " +
                 "select ip, port " +
                 "insert into OutputStream;";
 
@@ -804,9 +804,41 @@ public class WisdomCompilerTest {
         wisdomApp.start();
 
         InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("PacketStream");
-        stockStreamInputHandler.send(EventGenerator.generate("ip", "127.0.0.1", "port", 80, "header", "Keep Alice: 768"));
-        stockStreamInputHandler.send(EventGenerator.generate("ip", "127.0.0.2", "port", 80, "header", "Keep Alice: 985"));
+        stockStreamInputHandler.send(EventGenerator.generate("ip", "127.0.0.1", "port", 80, "header", "Keep-Alive: 768"));
+        stockStreamInputHandler.send(EventGenerator.generate("ip", "127.0.0.2", "port", 80, "header", "Keep-Alive: 985"));
         stockStreamInputHandler.send(EventGenerator.generate("ip", "127.0.0.3", "port", 80, "header", "Connection: Keep-Alive"));
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
+    @Test
+    public void testNewLineInQuery() {
+
+        LOGGER.info("Test new line character IN attribute query");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "filter '\\r\\n' in data " +
+                "select symbol, price " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "WSO2", "price", 60.0),
+                map("symbol", "AMAZON", "price", 70.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "data", "hello world"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "data", "hello\r\nworld"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "AMAZON", "price", 70.0, "data", "hello world\r\n"));
 
         wisdomApp.shutdown();
 
