@@ -20,39 +20,6 @@ import java.util.regex.Pattern;
  */
 public class Operator {
 
-    //    public Attribute ADD(Comparable valueToAdd) {
-//        Function<Event, Event> function = event -> {
-//            if (event.get(name) instanceof Number && valueToAdd instanceof Number) {
-//                event.set(name, ((Number) event.get(name)).doubleValue() + ((Number) valueToAdd).doubleValue());
-//                return event;
-//            } else {
-//                throw new WisdomAppRuntimeException(
-//                        String.format("%s of type %s cannot be added with %s type %s",
-//                                this.name, event.get(name).getClass().getSimpleName(),
-//                                valueToAdd, valueToAdd.getClass().getSimpleName()));
-//            }
-//        };
-//        this.function = this.function.andThen(function);
-//        return this;
-//    }
-//
-//    public Attribute AS(String newName) {
-//        Function<Event, Event> function = event -> {
-//            if (Objects.equals(this.name, newName)) {
-//                return event;
-//            } else {
-//                Comparable value = event.get(this.name);
-//                event.remove(this.name).set(newName, value);
-//                return event;
-//            }
-//        };
-//        this.function = this.function.andThen(function);
-//        return this;
-//    }
-//
-//
-
-
     public static AggregateOperator SUM(final String attribute, final String as) {
 
         return new SumOperator(attribute, as);
@@ -319,24 +286,27 @@ public class Operator {
 
     public static Predicate<Event> STR_IN_ATTR(final String leftData, final String rightAttr) {
 
+        Pattern pattern = Pattern.compile(leftData);
         return event -> {
             String rightData = (String) event.get(rightAttr);
             if (rightData == null) {
                 return false;
             } else {
-                return rightData.contains(leftData);
+                boolean res = pattern.matcher(rightData).find();
+                return res;
             }
         };
     }
 
     public static Predicate<Event> STR_IN_VAR(final String leftData, final Supplier<String> rightSupplier) {
 
+        Pattern pattern = Pattern.compile(leftData);
         return event -> {
             String rightData = rightSupplier.get();
             if (rightData == null) {
                 return false;
             } else {
-                return rightData.contains(leftData);
+                return pattern.matcher(rightData).find();
             }
         };
     }

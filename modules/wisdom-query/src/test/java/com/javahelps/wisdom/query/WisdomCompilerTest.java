@@ -780,4 +780,36 @@ public class WisdomCompilerTest {
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
+
+    @Test
+    public void testRegexInQuery() {
+
+        LOGGER.info("Test '\\d+' IN attribute query");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream PacketStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from PacketStream " +
+                "filter 'Keep Alice: \\\\d+' in header " +
+                "select ip, port " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("ip", "127.0.0.1", "port", 80),
+                map("ip", "127.0.0.2", "port", 80));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("PacketStream");
+        stockStreamInputHandler.send(EventGenerator.generate("ip", "127.0.0.1", "port", 80, "header", "Keep Alice: 768"));
+        stockStreamInputHandler.send(EventGenerator.generate("ip", "127.0.0.2", "port", 80, "header", "Keep Alice: 985"));
+        stockStreamInputHandler.send(EventGenerator.generate("ip", "127.0.0.3", "port", 80, "header", "Connection: Keep-Alive"));
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
 }
