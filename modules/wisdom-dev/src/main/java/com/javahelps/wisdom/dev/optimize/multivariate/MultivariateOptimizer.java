@@ -110,28 +110,50 @@ public class MultivariateOptimizer {
                 fitnessValueList[i] = particle.getFitnessValue();
             }
 
-            error = this.function.apply(globalBestPoint) - 0;
+            error = this.function.apply(globalBestPoint);
 
             LOGGER.debug("Iteration {}:\tLoss:{}\tBest values:{}", iteration, this.function.apply(globalBestPoint), globalBestPoint);
 
             iteration++;
         }
-        LOGGER.info("Solution found at iteration {}:\tLoss: {}\tBest values: {}", (iteration - 1), this.function.apply(globalBestPoint), globalBestPoint);
+        iteration--;
+        LOGGER.info("Solution found at iteration {}:\tLoss: {}\tBest values: {}", iteration, this.function.apply(globalBestPoint), globalBestPoint);
 
         double[] optimizedPoints = globalBestPoint.getCoordinates();
         Constraint[] constraints = globalBestPoint.getConstraints();
         for (int i = 0; i < DIMENSION; i++) {
             Point point = new Point(globalBestPoint.getCoordinates(), constraints);
             double[] currentPoint = point.getCoordinates();
-            double minLimit = constraints[i].getLow();
-            double maxLimit = constraints[i].getHigh();
-            double newError = error;
-            double step = this.steps[i];
-            while (newError <= error && currentPoint[i] >= minLimit && currentPoint[i] <= maxLimit) {
-                error = newError;
-                optimizedPoints[i] = currentPoint[i];
+            double direction = this.steps[i];
+            double boundary;
+            if (direction == 0.0) {
+                continue;
+            } else if (direction > 0) {
+                boundary = constraints[i].getHigh();
+            } else {
+                boundary = constraints[i].getLow();
+            }
+            while (true) {
+
+                double step = (boundary - currentPoint[i]) / 2;
+                if (Math.abs(step) < Math.abs(direction)) {
+                    step = direction;
+                }
+                // Increase the value
                 currentPoint[i] += step;
-                newError = this.function.apply(point) - 0;
+                if (Math.abs(currentPoint[i] - boundary) < 1) {
+                    currentPoint[i] = optimizedPoints[i];
+                    break;
+                }
+                double newError = this.function.apply(point);
+                if (newError > error) {
+                    boundary = currentPoint[i];
+                    currentPoint[i] = optimizedPoints[i];
+                } else {
+                    error = newError;
+                    optimizedPoints[i] = currentPoint[i];
+                }
+                LOGGER.debug("Iteration {}:\tLoss:{}\tBest values:{}", iteration, error, globalBestPoint);
                 iteration++;
             }
         }

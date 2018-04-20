@@ -19,8 +19,8 @@ public class MultivariateOptimizerTest {
         Constraint[] locationBounds = {new Constraint(1, 1000), new Constraint(1, 2000)};
         MultivariateOptimizer optimizer = new MultivariateOptimizer(function, locationBounds, new double[]{1, 1});
         Point point = optimizer.execute();
-        Assert.assertEquals("Invalid x value", 5D, point.getCoordinates()[0], 1);
-        Assert.assertEquals("Invalid y value", 1000D, point.getCoordinates()[1], 1);
+        Assert.assertEquals("Invalid x value", 5D, Math.round(point.getCoordinates()[0]), 1);
+        Assert.assertEquals("Invalid y value", 1000D, Math.round(point.getCoordinates()[1]), 1);
     }
 
     @Test
