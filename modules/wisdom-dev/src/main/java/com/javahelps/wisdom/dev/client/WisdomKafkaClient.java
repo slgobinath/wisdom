@@ -6,6 +6,8 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Properties;
@@ -15,6 +17,7 @@ public class WisdomKafkaClient extends WisdomClient {
 
     private final KafkaProducer producer;
     private final String wisdomAppName;
+    private static final Logger LOGGER = LoggerFactory.getLogger(WisdomKafkaClient.class);
 
     public WisdomKafkaClient(String wisdomAppName, String bootstrapServers) {
         Properties props = new Properties();
@@ -35,7 +38,7 @@ public class WisdomKafkaClient extends WisdomClient {
             ProducerRecord<String, String> record = new ProducerRecord<>(topic, this.wisdomAppName, Utility.toJson(data));
             RecordMetadata metadata = (RecordMetadata) producer.send(record).get();
 
-            System.out.printf("Sent record(key=%s value=%s) meta(partition=%d, offset=%d)\n",
+            LOGGER.debug("Sent meta(partition={}, offset={}) record(key={} value={})",
                     record.key(), record.value(), metadata.partition(), metadata.offset());
             response = new Response(0, "Sent record to Kafka");
 
