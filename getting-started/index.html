@@ -66,6 +66,9 @@
     <li class="toctree-l2"><a href="#wisdom-java-api">Wisdom Java API</a></li>
     
 
+    <li class="toctree-l2"><a href="#wisdom-query">Wisdom Query</a></li>
+    
+
     </ul>
 	    </li>
           
@@ -225,7 +228,126 @@ public class HelloWorld {
 <pre><code class="txt">[Event{timestamp=1524709449322, stream=OutputStream, data={symbol=AMAZON, price=20.5}, expired=false}]
 </code></pre>
 
-<p>As you can see, above Wisdom app filters events for AMAZON and prints them to the console.</p>
+<p>As you can see, above Wisdom app filters events having symbol equal to AMAZON and prints them to the console.</p>
+<h2 id="wisdom-query">Wisdom Query</h2>
+<p>Above Wisdom application can be defined using the folloing Wisdom query:</p>
+<pre><code class="kotlin">@app(name='WisdomApp', version='1.0.0')
+def stream StockStream;
+def stream OutputStream;
+
+@query(name='FilterQuery')
+from StockStream
+filter symbol == 'AMAZON'
+select symbol, price
+insert into OutputStream;
+</code></pre>
+
+<p>To use this query in a Java application, create a new Maven project in your favorite IDE.</p>
+<p>Open the <code>pom.xml</code> file and add <code>wisdom-core</code>, <code>wisdom-query</code> and optionally <code>logback</code> dependencies as shown below:</p>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;com.javahelps&lt;/groupId&gt;
+    &lt;artifactId&gt;wisdom-java-api&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;configuration&gt;
+                    &lt;source&gt;1.9&lt;/source&gt;
+                    &lt;target&gt;1.9&lt;/target&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+
+    &lt;properties&gt;
+        &lt;wisdom.version&gt;0.0.1&lt;/wisdom.version&gt;
+        &lt;slf4j.version&gt;1.7.25&lt;/slf4j.version&gt;
+        &lt;logback.version&gt;1.2.3&lt;/logback.version&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.javahelps.wisdom&lt;/groupId&gt;
+            &lt;artifactId&gt;wisdom-core&lt;/artifactId&gt;
+            &lt;version&gt;${wisdom.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.javahelps.wisdom&lt;/groupId&gt;
+            &lt;artifactId&gt;wisdom-query&lt;/artifactId&gt;
+            &lt;version&gt;${wisdom.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;ch.qos.logback&lt;/groupId&gt;
+            &lt;artifactId&gt;logback-core&lt;/artifactId&gt;
+            &lt;version&gt;${logback.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;ch.qos.logback&lt;/groupId&gt;
+            &lt;artifactId&gt;logback-classic&lt;/artifactId&gt;
+            &lt;version&gt;${logback.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+&lt;/project&gt;
+</code></pre>
+
+<p>Create a new Java class <code>com.javahelps.helloworld.wisdomql.HelloWorld</code> with the following code.</p>
+<pre><code class="java">package com.javahelps.helloworld.wisdomql;
+
+import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.stream.InputHandler;
+import com.javahelps.wisdom.core.util.EventGenerator;
+import com.javahelps.wisdom.core.util.EventPrinter;
+import com.javahelps.wisdom.query.WisdomCompiler;
+
+public class HelloWorld {
+
+    public static void main(String[] args) {
+
+        String query = &quot;@app(name='WisdomApp', version='1.0.0') &quot; +
+                &quot;def stream StockStream; &quot; +
+                &quot;def stream OutputStream; &quot; +
+                &quot; &quot; +
+                &quot;@query(name='FilterQuery') &quot; +
+                &quot;from StockStream &quot; +
+                &quot;filter symbol == 'AMAZON' &quot; +
+                &quot;select symbol, price &quot; +
+                &quot;insert into OutputStream;&quot;;
+
+        // Create a Wisdom application
+        WisdomApp app = WisdomCompiler.parse(query);
+
+        // Add output stream callback
+        app.addCallback(&quot;OutputStream&quot;, EventPrinter::print);
+
+        // Get an input handler
+        InputHandler inputHandler = app.getInputHandler(&quot;StockStream&quot;);
+
+        // Start the application
+        app.start();
+
+        // Send three inputs
+        inputHandler.send(EventGenerator.generate(&quot;symbol&quot;, &quot;GOOGLE&quot;, &quot;price&quot;, 10.5, &quot;volume&quot;, 10L));
+        inputHandler.send(EventGenerator.generate(&quot;symbol&quot;, &quot;AMAZON&quot;, &quot;price&quot;, 20.5, &quot;volume&quot;, 20L));
+        inputHandler.send(EventGenerator.generate(&quot;symbol&quot;, &quot;FACEBOOK&quot;, &quot;price&quot;, 30.5, &quot;volume&quot;, 30L));
+
+        // Shutdown the application
+        app.shutdown();
+    }
+}
+</code></pre>
+
+<p>Above code replaces the Java API used in previous example by the Wisdom query to construct a Wisdom app. Once the Wisdom app is created, creating InputHandler and sending events are same as the previous example.</p>
               
             </div>
           </div>
