@@ -2,23 +2,18 @@
     "docs": [
         {
             "location": "/",
-            "text": "Welcome to Wisdom\n\n\nAn adaptive and self-boosting complex event processor\n\n\nCommands\n\n\n\n\nmkdocs new [dir-name]\n - Create a new project.\n\n\nmkdocs serve\n - Start the live-reloading docs server.\n\n\nmkdocs build\n - Build the documentation site.\n\n\nmkdocs help\n - Print this help message.\n\n\n\n\nProject layout\n\n\nmkdocs.yml    # The configuration file.\ndocs/\n    index.md  # The documentation homepage.\n    ...       # Other markdown pages, images and other files.",
-            "title": "Welcome to Wisdom"
+            "text": "Welcome to Wisdom Stream Processor\n\n\nWisdom is an adaptive, distributed and self-boosting stream processor written in Java 9 using modern architecture. After publishing all the results, Wisdom will be made open source.\n\n\nIf you like to use Wisdom for your research, please contact the author via: \nlgobinat@uwo.ca\n.\n\n\nRequirements\n\n\n\n\nJava 9 (or latest)\n\n\nApache Maven\n\n\nApache Kafka (for self-boosting deployment)",
+            "title": "Welcome to Wisdom Stream Processor"
         },
         {
-            "location": "/#welcome-to-wisdom",
-            "text": "An adaptive and self-boosting complex event processor",
-            "title": "Welcome to Wisdom"
+            "location": "/#welcome-to-wisdom-stream-processor",
+            "text": "Wisdom is an adaptive, distributed and self-boosting stream processor written in Java 9 using modern architecture. After publishing all the results, Wisdom will be made open source.  If you like to use Wisdom for your research, please contact the author via:  lgobinat@uwo.ca .",
+            "title": "Welcome to Wisdom Stream Processor"
         },
         {
-            "location": "/#commands",
-            "text": "mkdocs new [dir-name]  - Create a new project.  mkdocs serve  - Start the live-reloading docs server.  mkdocs build  - Build the documentation site.  mkdocs help  - Print this help message.",
-            "title": "Commands"
-        },
-        {
-            "location": "/#project-layout",
-            "text": "mkdocs.yml    # The configuration file.\ndocs/\n    index.md  # The documentation homepage.\n    ...       # Other markdown pages, images and other files.",
-            "title": "Project layout"
+            "location": "/#requirements",
+            "text": "Java 9 (or latest)  Apache Maven  Apache Kafka (for self-boosting deployment)",
+            "title": "Requirements"
         }
     ]
 }
