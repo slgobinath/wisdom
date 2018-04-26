@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Getting Started - Wisdom Stream Processor</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Getting Started";
+    var mkdocs_page_input_path = "getting-started.md";
+    var mkdocs_page_url = "/getting-started/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Wisdom Stream Processor</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Getting Started</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#requirements">Requirements</a></li>
+    
+
+    <li class="toctree-l2"><a href="#installation">Installation</a></li>
+    
+
+    <li class="toctree-l2"><a href="#wisdom-java-api">Wisdom Java API</a></li>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Wisdom Stream Processor</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Getting Started</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p>Wisdom offers a complete Java API and Wisdom query to develop Complex Event Processing (CEP) applications. Wisdom can be used as a Java library or standalone service. Java library is recommended for testing purposes, small scale applications and Android applications. If you are developing a resource consuming CEP application, it is recommended to use Wisdom Service. Wisdom Service is the only way to use HTTP Source and Sinks. This section explains how to create a simple CEP application using Wisdom Java API and Wisdom Query.</p>
+<h2 id="requirements">Requirements</h2>
+<p>Make sure that you have set up the following softwares in your system before building Wisdom.</p>
+<ul>
+<li>Java 9 (or latest)</li>
+<li>Apache Maven</li>
+<li>Apache Kafka (for self-boosting deployment)</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<p>Please contact the author (<code>lgobinat@uwo.ca</code>) to get access to Wisdom source code. Once you have downloaded the Wisdom source code, follow these steps to build and install Wisdom library.</p>
+<p>Open your terminal and change directory</p>
+<pre><code class="bash">cd wisdom
+</code></pre>
+
+<p>Compile and install Wisdom using Apache Maven</p>
+<pre><code class="bash">mvn clean install
+</code></pre>
+
+<h2 id="wisdom-java-api">Wisdom Java API</h2>
+<p>Create a new Maven Project in your favorite IDE. We use <a href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a> throughout this document.</p>
+<p>Open the <code>pom.xml</code> file add <code>wisdom-core</code> and optionally <code>logback</code> dependencies as shown below:</p>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;com.javahelps&lt;/groupId&gt;
+    &lt;artifactId&gt;wisdom-java-api&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;configuration&gt;
+                    &lt;source&gt;1.9&lt;/source&gt;
+                    &lt;target&gt;1.9&lt;/target&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+
+    &lt;properties&gt;
+        &lt;wisdom.version&gt;0.0.1&lt;/wisdom.version&gt;
+        &lt;slf4j.version&gt;1.7.25&lt;/slf4j.version&gt;
+        &lt;logback.version&gt;1.2.3&lt;/logback.version&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.javahelps.wisdom&lt;/groupId&gt;
+            &lt;artifactId&gt;wisdom-core&lt;/artifactId&gt;
+            &lt;version&gt;${wisdom.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;ch.qos.logback&lt;/groupId&gt;
+            &lt;artifactId&gt;logback-core&lt;/artifactId&gt;
+            &lt;version&gt;${logback.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;ch.qos.logback&lt;/groupId&gt;
+            &lt;artifactId&gt;logback-classic&lt;/artifactId&gt;
+            &lt;version&gt;${logback.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+&lt;/project&gt;
+</code></pre>
+
+<p>Create a new Java class <code>com.javahelps.helloworld.javaapi.HelloWorld</code> with the following code.</p>
+<pre><code class="java">package com.javahelps.helloworld.javaapi;
+
+import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.operator.Operator;
+import com.javahelps.wisdom.core.stream.InputHandler;
+import com.javahelps.wisdom.core.util.EventGenerator;
+import com.javahelps.wisdom.core.util.EventPrinter;
+
+public class HelloWorld {
+
+    public static void main(String[] args) {
+
+        // Create a Wisdom application
+        WisdomApp app = new WisdomApp(&quot;WisdomApp&quot;, &quot;1.0.0&quot;);
+
+        // Define streams
+        app.defineStream(&quot;StockStream&quot;);
+        app.defineStream(&quot;OutputStream&quot;);
+
+        // Create a query
+        app.defineQuery(&quot;FilterQuery&quot;)
+                .from(&quot;StockStream&quot;)
+                .filter(Operator.EQUALS(&quot;symbol&quot;, &quot;AMAZON&quot;))
+                .select(&quot;symbol&quot;, &quot;price&quot;)
+                .insertInto(&quot;OutputStream&quot;);
+
+        // Add output stream callback
+        app.addCallback(&quot;OutputStream&quot;, EventPrinter::print);
+
+        // Get an input handler
+        InputHandler inputHandler = app.getInputHandler(&quot;StockStream&quot;);
+
+        // Start the application
+        app.start();
+
+        // Send three inputs
+        inputHandler.send(EventGenerator.generate(&quot;symbol&quot;, &quot;GOOGLE&quot;, &quot;price&quot;, 10.5, &quot;volume&quot;, 10L));
+        inputHandler.send(EventGenerator.generate(&quot;symbol&quot;, &quot;AMAZON&quot;, &quot;price&quot;, 20.5, &quot;volume&quot;, 20L));
+        inputHandler.send(EventGenerator.generate(&quot;symbol&quot;, &quot;FACEBOOK&quot;, &quot;price&quot;, 30.5, &quot;volume&quot;, 30L));
+
+        // Shutdown the application
+        app.shutdown();
+    }
+}
+</code></pre>
+
+<p>Above code creates Wisdom application with two streams: <code>StockStream</code> and <code>OutputStream</code>, and a query named <code>FilterQuery</code>. The <code>FilterQuery</code> filters stock events of <code>AMAZON</code>, select <code>symbol</code> and <code>price</code>, and insert them into the <code>OutputStream</code>. <code>InputHandler</code> is used to feed events to a stream and callback is used to receive events from a stream.</p>
+<p>Running this code should print an output similar to this:</p>
+<pre><code class="txt">[Event{timestamp=1524709449322, stream=OutputStream, data={symbol=AMAZON, price=20.5}, expired=false}]
+</code></pre>
+
+<p>As you can see, above Wisdom app filters events for AMAZON and prints them to the console.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/require.js"></script>
+      <script src="../search/search.js"></script>
+
+</body>
+</html>
