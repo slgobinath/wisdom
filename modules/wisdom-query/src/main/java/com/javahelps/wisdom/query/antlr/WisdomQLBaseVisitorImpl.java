@@ -14,6 +14,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.List;
 
 import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.*;
 
@@ -118,9 +119,19 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     @Override
     public Statement visitSelect_statement(WisdomQLParser.Select_statementContext ctx) {
         SelectStatement selectStatement = new SelectStatement();
-        if (ctx.STAR() == null) {
+        if (ctx.NAME() != null && !ctx.NAME().isEmpty()) {
+            List lst = ctx.NAME();
             for (TerminalNode attribute : ctx.NAME()) {
                 selectStatement.addAttribute(attribute.getText());
+            }
+        } else if (ctx.NUMBER() != null && !ctx.NUMBER().isEmpty()) {
+            for (TerminalNode num : ctx.NUMBER()) {
+                try {
+                    int index = Integer.parseInt(num.getText());
+                    selectStatement.addIndex(index);
+                } catch (NumberFormatException ex) {
+                    throw new WisdomParserException(ctx, "index must be an integer but found " + num.getText());
+                }
             }
         }
         return selectStatement;

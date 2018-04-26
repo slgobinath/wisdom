@@ -13,9 +13,6 @@ import java.util.Map;
  */
 public class Event {
 
-    public static final Index FIRST = new Index(0);
-    public static final Index LAST = new Index(Integer.MAX_VALUE);
-
     private long timestamp = -1;
     private Stream stream;
     private String name;

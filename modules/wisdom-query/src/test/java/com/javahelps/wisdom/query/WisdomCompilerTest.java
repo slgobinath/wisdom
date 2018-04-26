@@ -23,9 +23,9 @@ public class WisdomCompilerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomCompilerTest.class);
 
     @Test
-    public void testSelectQuery() {
+    public void testSelectAttributesQuery() {
 
-        LOGGER.info("Test select query");
+        LOGGER.info("Test select attributes query");
 
         String query = "@app(name='WisdomApp', version='1.0.0') " +
                 "def stream StockStream; " +
@@ -46,6 +46,38 @@ public class WisdomCompilerTest {
         InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
+    @Test
+    public void testSelectEventsQuery() {
+
+        LOGGER.info("Test select events query");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "window.lengthBatch(3) " +
+                "select -2, -1 " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "WSO2", "price", 60.0, "volume", 15),
+                map("symbol", "GOOGLE", "price", 70.0, "volume", 20));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "GOOGLE", "price", 70.0, "volume", 20));
 
         wisdomApp.shutdown();
 

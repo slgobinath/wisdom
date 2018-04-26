@@ -112,6 +112,7 @@ query_statement
 
 select_statement
     : SELECT (STAR | (NAME (COMMA NAME)*)) END_OF_STATEMENT?
+    | SELECT (NUMBER (COMMA NUMBER)*) END_OF_STATEMENT?
     ;
 
 filter_statement

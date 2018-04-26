@@ -4,6 +4,7 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.event.Index;
 import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,11 +38,16 @@ public class EventSelectProcessor extends StreamProcessor {
     public void process(List<Event> events) {
         int length = events.size();
         if (length > 0) {
-            if (this.index == Event.FIRST) {
-                this.getNextProcessor().process(events.get(0));
-            } else if (this.index == Event.LAST) {
-                this.getNextProcessor().process(events.get(length - 1));
+            int[] indices = this.index.getIndices();
+            List<Event> selectedEvents = new ArrayList<>(indices.length);
+            for (int i : indices) {
+                if (i >= 0) {
+                    selectedEvents.add(events.get(i));
+                } else {
+                    selectedEvents.add(events.get(length + i));
+                }
             }
+            this.getNextProcessor().process(selectedEvents);
         }
     }
 

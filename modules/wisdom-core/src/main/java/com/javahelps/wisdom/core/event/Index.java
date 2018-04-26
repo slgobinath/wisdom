@@ -4,14 +4,24 @@ public class Index {
 
     private int[] indices;
 
-    Index(int... indices) {
+    private Index(int... indices) {
         this.indices = indices;
     }
 
-//    public static Index of(int index) {
-//        if (index < 0) {
-//            throw new WisdomAppValidationException("Index cannot be negative but found %d", index);
-//        }
-//        return new Index(index);
-//    }
+    public static Index of(int... indices) {
+        return new Index(indices);
+    }
+
+    public static Index range(int start, int end) {
+        final int size = end - start;
+        int[] indices = new int[size];
+        for (int i = 0; i < size; i++) {
+            indices[i] = start + i;
+        }
+        return new Index(indices);
+    }
+
+    public int[] getIndices() {
+        return indices;
+    }
 }

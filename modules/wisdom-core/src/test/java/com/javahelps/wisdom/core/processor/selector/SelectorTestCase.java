@@ -2,7 +2,7 @@ package com.javahelps.wisdom.core.processor.selector;
 
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.event.Index;
 import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
@@ -109,7 +109,7 @@ public class SelectorTestCase {
 
     @Test
     public void testSelector4() throws InterruptedException {
-        LOGGER.info("Test selector 3 - OUT 1");
+        LOGGER.info("Test selector 4 - OUT 1");
 
         WisdomApp wisdomApp = new WisdomApp();
         wisdomApp.defineStream("StockStream");
@@ -118,7 +118,7 @@ public class SelectorTestCase {
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
                 .window(Window.lengthBatch(3))
-                .select(Event.LAST)
+                .select(Index.of(-1))
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
@@ -135,5 +135,38 @@ public class SelectorTestCase {
         Thread.sleep(100);
 
         Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
+    }
+
+    @Test
+    public void testSelector5() throws InterruptedException {
+        LOGGER.info("Test selector 5 - OUT 2");
+
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream");
+
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .window(Window.lengthBatch(5))
+                .select(Index.range(-3, -1))
+                .select("symbol", "price")
+                .insertInto("OutputStream");
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "ORACLE", "price", 70.0),
+                map("symbol", "GOOGLE", "price", 80.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 55.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "GOOGLE", "price", 80.0, "volume", 25));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "UBER", "price", 90.0, "volume", 30));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
 }
