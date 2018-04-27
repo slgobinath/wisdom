@@ -27,4 +27,12 @@ public class Commons {
         }
         return properties;
     }
+
+    public static <T> T getProperty(Map<String, ?> properties, String attribute, int index) {
+        T value = (T) properties.get(attribute);
+        if (value == null) {
+            value = (T) properties.get(String.format("_param_%d", index));
+        }
+        return value;
+    }
 }

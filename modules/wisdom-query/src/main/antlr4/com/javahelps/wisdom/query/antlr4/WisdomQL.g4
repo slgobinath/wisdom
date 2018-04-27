@@ -108,6 +108,7 @@ query_statement
     | window_statement
     | partition_statement
     | aggregate_statement
+    | map_statement
     ;
 
 select_statement
@@ -127,12 +128,20 @@ aggregate_statement
     : AGGREGATE aggregate_operator (COMMA aggregate_operator)* END_OF_STATEMENT?
     ;
 
+map_statement
+    : MAP map_operator (COMMA map_operator)* END_OF_STATEMENT?
+    ;
+
 aggregate_operator
     : sum_operator
     | avg_operator
     | max_operator
     | min_operator
     | count_operator
+    ;
+
+map_operator
+    : (NAME | NAME OPEN_PAREN NAME (COMMA optional_key_value_element)* CLOSE_PAREN) AS NAME
     ;
 
 sum_operator
@@ -256,6 +265,7 @@ INTO : 'into';
 FILTER : 'filter';
 PARTITION : 'partition';
 AGGREGATE : 'aggregate';
+MAP : 'map';
 BY : 'by';
 SUM : 'sum';
 AVG : 'avg';

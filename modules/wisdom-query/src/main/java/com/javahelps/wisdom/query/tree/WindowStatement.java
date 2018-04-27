@@ -3,9 +3,9 @@ package com.javahelps.wisdom.query.tree;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.core.window.Window;
+import com.javahelps.wisdom.query.util.Utility;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,20 +30,7 @@ public class WindowStatement implements Statement {
     @Override
     public void addTo(WisdomApp app, Query query) {
         String namespace = type == null ? name : name + ":" + type;
-        int count = 0;
-        Map<String, Object> properties = new HashMap<>(this.keyValueElements.size());
-        for (KeyValueElement element : this.keyValueElements) {
-            String key = element.getKey();
-            if (key == null) {
-                key = String.format("_param_%d", count);
-            }
-            if (element.isVariable()) {
-                properties.put(key, app.getVariable((String) element.getValue()));
-            } else {
-                properties.put(key, element.getValue());
-            }
-            count++;
-        }
+        Map<String, Object> properties = Utility.toProperties(app, this.keyValueElements);
         Window window = Window.create(namespace, properties);
         query.window(window);
     }

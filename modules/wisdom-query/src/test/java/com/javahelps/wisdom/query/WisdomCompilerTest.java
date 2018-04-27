@@ -876,4 +876,68 @@ public class WisdomCompilerTest {
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
+
+    @Test
+    public void testRenameAttributesQuery() {
+
+        LOGGER.info("Test rename attributes query");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "map symbol as name, price as cost " +
+                "select name, cost " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("name", "IBM", "cost", 50.0),
+                map("name", "WSO2", "cost", 60.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
+    @Test
+    public void testFormatTimeMapperQuery() {
+
+        LOGGER.info("Test rename attributes query");
+
+        long timestamp = 1524789758000L;
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "map formatTime(timestamp, 'UTC') as dateTime, dateTime as newTime " +
+                "select name, newTime " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("name", "Temp", "newTime", "2018-04-27T00:42:38"),
+                map("name", "Temp", "newTime", "2018-04-27T00:43:38"));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("name", "Temp", "timestamp", timestamp));
+        stockStreamInputHandler.send(EventGenerator.generate("name", "Temp", "timestamp", timestamp + 60_000L));
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
 }

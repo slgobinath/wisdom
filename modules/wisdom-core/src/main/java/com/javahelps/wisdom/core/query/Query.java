@@ -139,6 +139,15 @@ public class Query implements Stateful {
         return this;
     }
 
+    public Query map(Function<Event, Event>... functions) {
+
+        for (Function<Event, Event> function : functions) {
+            this.map(function);
+        }
+
+        return this;
+    }
+
     public Query aggregate(AggregateOperator... operators) {
 
         AggregateProcessor aggregateProcessor = new AggregateProcessor(generateId(), operators);

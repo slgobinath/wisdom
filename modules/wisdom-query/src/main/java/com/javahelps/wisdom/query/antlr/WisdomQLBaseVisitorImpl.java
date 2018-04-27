@@ -1,6 +1,7 @@
 package com.javahelps.wisdom.query.antlr;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.map.Mapper;
 import com.javahelps.wisdom.core.operator.AggregateOperator;
 import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.query.Query;
@@ -14,7 +15,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
-import java.util.List;
 
 import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.*;
 
@@ -120,7 +120,6 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     public Statement visitSelect_statement(WisdomQLParser.Select_statementContext ctx) {
         SelectStatement selectStatement = new SelectStatement();
         if (ctx.NAME() != null && !ctx.NAME().isEmpty()) {
-            List lst = ctx.NAME();
             for (TerminalNode attribute : ctx.NAME()) {
                 selectStatement.addAttribute(attribute.getText());
             }
@@ -183,6 +182,15 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
+    public Statement visitMap_statement(WisdomQLParser.Map_statementContext ctx) {
+        MapStatement statement = new MapStatement();
+        for (ParseTree tree : ctx.map_operator()) {
+            statement.addOperator((MapOperator) visit(tree));
+        }
+        return statement;
+    }
+
+    @Override
     public Statement visitQuery_statement(WisdomQLParser.Query_statementContext ctx) {
         if (ctx.select_statement() != null) {
             return (Statement) visit(ctx.select_statement());
@@ -194,6 +202,8 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             return (Statement) visit(ctx.aggregate_statement());
         } else if (ctx.partition_statement() != null) {
             return (Statement) visit(ctx.partition_statement());
+        } else if (ctx.map_statement() != null) {
+            return (Statement) visit(ctx.map_statement());
         } else {
             throw new WisdomParserException(ctx, "unknown query statement");
         }
@@ -275,6 +285,26 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
                 operator.setRightComparable((Comparable) visit(ctx.rgt_pri));
             } else if (ctx.rgt_var != null) {
                 operator.setRightVar((String) visit(ctx.rgt_var));
+            }
+        }
+        return operator;
+    }
+
+    @Override
+    public MapOperator visitMap_operator(WisdomQLParser.Map_operatorContext ctx) {
+        MapOperator operator = new MapOperator();
+        int noOfMappers = ctx.NAME().size();
+        if (noOfMappers == 2) {
+            operator.setNamespace("rename");
+            operator.setCurrentName(ctx.NAME(0).getText());
+            operator.setNewName(ctx.NAME(1).getText());
+        } else {
+            operator.setNamespace(ctx.NAME(0).getText());
+            operator.setCurrentName(ctx.NAME(1).getText());
+            operator.setNewName(ctx.NAME(2).getText());
+
+            for (ParseTree tree : ctx.optional_key_value_element()) {
+                operator.addProperty((KeyValueElement) visit(tree));
             }
         }
         return operator;
