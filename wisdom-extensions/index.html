@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Writing Extensions - Wisdom Stream Processor</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Writing Extensions";
+    var mkdocs_page_input_path = "wisdom-extensions.md";
+    var mkdocs_page_url = "/wisdom-extensions/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Wisdom Stream Processor</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../why-wisdom/">Why Wisdom?</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../getting-started/">Getting Started</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../deploy-wisdom/">Deploy Wisdom</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../query-guide/">Wisdom Query Guide</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Writing Extensions</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#create-new-sink-extension">Create New Sink Extension</a></li>
+    
+
+    <li class="toctree-l2"><a href="#use-extension-in-java-api">Use Extension in Java API</a></li>
+    
+
+    <li class="toctree-l2"><a href="#use-extension-in-wisdom-query">Use Extension in Wisdom Query</a></li>
+    
+
+    <li class="toctree-l2"><a href="#deploy-in-wisdom-server">Deploy in Wisdom Server</a></li>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Use Cases</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../intrusion-detection/">Intrusion Detection</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Wisdom Stream Processor</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Writing Extensions</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p>Writing extensions for Wisdom is super easy if you know Java. An extension can be a <code>Window</code>, <code>Source</code>, <code>Sink</code>, or <code>Mapper</code>. In this section, I explain how to create a new sink to write events to a text file. All existing windows, sources, sinks, and mappers are written as extensions following the same technique.</p>
+<h2 id="create-new-sink-extension">Create New Sink Extension</h2>
+<p><strong>Step 1:</strong> Create a new Maven project in your favorite IDE.</p>
+<p><strong>Step 2:</strong> Open <code>pom.xml</code> file and add <code>wisdom-core</code> dependency as show below:</p>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;com.javahelps&lt;/groupId&gt;
+    &lt;artifactId&gt;wisdom-java-api&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;configuration&gt;
+                    &lt;source&gt;1.9&lt;/source&gt;
+                    &lt;target&gt;1.9&lt;/target&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+
+    &lt;properties&gt;
+        &lt;wisdom.version&gt;0.0.1&lt;/wisdom.version&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.javahelps.wisdom&lt;/groupId&gt;
+            &lt;artifactId&gt;wisdom-core&lt;/artifactId&gt;
+            &lt;version&gt;${wisdom.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+&lt;/project&gt;
+</code></pre>
+
+<p><strong>Step 3:</strong> Create a new class <code>com.javahelps.wisdom.extensions.file.sink.TextFileSink</code> and extend <code>com.javahelps.wisdom.core.stream.output.Sink</code>. Depending on your extension type, you may need to override different classes:</p>
+<ul>
+<li>Window - <code>com.javahelps.wisdom.core.window.Window</code></li>
+<li>Source - <code>com.javahelps.wisdom.core.stream.input.Source</code></li>
+<li>Sink - <code>com.javahelps.wisdom.core.stream.output.Sink</code></li>
+<li>Mapper - <code>com.javahelps.wisdom.core.map.Mapper</code></li>
+</ul>
+<pre><code class="java">package com.javahelps.wisdom.extensions.file.sink;
+
+import com.javahelps.wisdom.core.stream.output.Sink;
+
+public class TextFileSink extends Sink {
+
+}
+</code></pre>
+
+<p><strong>Step 4:</strong> Annotate the class using <code>WisdomExtension</code> annotation and define namespace as <code>file.text</code> which will be used to identify this sink later in Wisdom query. This step is common for all Wisdom extensions.</p>
+<pre><code class="java">package com.javahelps.wisdom.extensions.file.sink;
+
+import com.javahelps.wisdom.core.extension.WisdomExtension;
+import com.javahelps.wisdom.core.stream.output.Sink;
+
+@WisdomExtension(&quot;file.text&quot;)
+public class TextFileSink extends Sink {
+
+}
+</code></pre>
+
+<p><strong>Step 5:</strong> Override all required methods. For text file sink, overriding <code>publish</code> method is enough. You may need <code>start</code>, <code>init</code> and <code>stop</code> if your sink is complex as Kafka sink.</p>
+<pre><code class="java">package com.javahelps.wisdom.extensions.file.sink;
+
+import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.extension.WisdomExtension;
+import com.javahelps.wisdom.core.stream.output.Sink;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.Map;
+
+@WisdomExtension(&quot;file.text&quot;)
+public class TextFileSink extends Sink {
+
+    private final String path;
+
+    public TextFileSink(Map&lt;String, ?&gt; properties) {
+        super(properties);
+        this.path = (String) properties.get(&quot;path&quot;);
+        if (this.path == null) {
+            throw new WisdomAppValidationException(&quot;Required property 'path' for TextFile sink not found&quot;);
+        }
+    }
+
+    @Override
+    public void start() {
+        // Do nothing
+    }
+
+    @Override
+    public void init(WisdomApp wisdomApp, String streamId) {
+
+    }
+
+    @Override
+    public void publish(List&lt;Event&gt; events) throws IOException {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(this.path, true))) {
+            for (Event event : events) {
+                writer.println(event);
+            }
+        }
+    }
+
+    @Override
+    public void stop() {
+        // Do nothing
+    }
+}
+</code></pre>
+
+<p>Now you are ready to use this sink in your Wisdom app.</p>
+<h2 id="use-extension-in-java-api">Use Extension in Java API</h2>
+<p><strong>Step 1:</strong> Create a new test class in the same project <code>com.javahelps.wisdom.extensions.file.sink.TestTextFileSink</code>.</p>
+<p><strong>Step 2:</strong> Create a static initialization block and import the custom extension.</p>
+<pre><code class="java">package com.javahelps.wisdom.extensions.file.sink;
+
+import com.javahelps.wisdom.core.extension.ImportsManager;
+
+public class TestTextFileSink {
+
+    static {
+        ImportsManager.INSTANCE.use(TextFileSink.class);
+    }
+}
+</code></pre>
+
+<p>We use <code>ImportsManager</code> to import selected extension, instead of searching the complete classpath to avoid unnecessary delays. It also reduces unnecessary complexities in Android applications.</p>
+<p><strong>Step 3:</strong> Create a new Wisdom app using the <code>file.text</code> sink. Note that we are using the namespace <code>file.text</code> to create this sink.</p>
+<pre><code class="java">WisdomApp wisdomApp = new WisdomApp();
+wisdomApp.defineStream(&quot;StockStream&quot;);
+wisdomApp.defineStream(&quot;OutputStream&quot;);
+
+wisdomApp.defineQuery(&quot;query1&quot;)
+        .from(&quot;StockStream&quot;)
+        .select(&quot;symbol&quot;, &quot;price&quot;)
+        .insertInto(&quot;OutputStream&quot;);
+wisdomApp.addSink(&quot;OutputStream&quot;, Sink.create(&quot;file.text&quot;, Map.of(&quot;path&quot;, &quot;output.log&quot;)));
+
+
+wisdomApp.start();
+
+InputHandler stockStreamInputHandler = wisdomApp.getInputHandler(&quot;StockStream&quot;);
+stockStreamInputHandler.send(EventGenerator.generate(&quot;symbol&quot;, &quot;IBM&quot;, &quot;price&quot;, 50.0, &quot;volume&quot;, 10));
+stockStreamInputHandler.send(EventGenerator.generate(&quot;symbol&quot;, &quot;WSO2&quot;, &quot;price&quot;, 60.0, &quot;volume&quot;, 15));
+</code></pre>
+
+<h2 id="use-extension-in-wisdom-query">Use Extension in Wisdom Query</h2>
+<p>Above sink can be used in a Wisdom query as given below:</p>
+<pre><code class="java">def stream StockStream;
+@sink(type='file.text', path='output.log')
+def stream OutputStream;
+
+from StockStream
+select symbol, price
+insert into OutputStream;JAR
+</code></pre>
+
+<h2 id="deploy-in-wisdom-server">Deploy in Wisdom Server</h2>
+<p><strong>Step 1:</strong> Build the jar file containing <code>com.javahelps.wisdom.extensions.file.sink.TextFileSink</code>.</p>
+<pre><code class="bash">mvn clean package
+</code></pre>
+
+<p><strong>Step 2:</strong> Copy and paste the <code>target/xxx.jar</code> file into <code>WISDOM_HOME/lib</code> directory.</p>
+<p><strong>Step 3:</strong> Restart running Wisdom services.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../intrusion-detection/" class="btn btn-neutral float-right" title="Intrusion Detection">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../query-guide/" class="btn btn-neutral" title="Wisdom Query Guide"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../query-guide/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../intrusion-detection/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/require.js"></script>
+      <script src="../search/search.js"></script>
+
+</body>
+</html>

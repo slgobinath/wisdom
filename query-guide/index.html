@@ -74,6 +74,14 @@
             
     <li class="toctree-l2"><a href="#stream">Stream</a></li>
     
+        <ul>
+        
+            <li><a class="toctree-l3" href="#select">Select</a></li>
+        
+            <li><a class="toctree-l3" href="#aggregate">Aggregate</a></li>
+        
+        </ul>
+    
 
     <li class="toctree-l2"><a href="#filter">Filter</a></li>
     
@@ -81,12 +89,27 @@
         
             <li><a class="toctree-l3" href="#window">Window</a></li>
         
-            <li><a class="toctree-l3" href="#select">Select</a></li>
+            <li><a class="toctree-l3" href="#map">Map</a></li>
+        
+            <li><a class="toctree-l3" href="#partition">Partition</a></li>
+        
+            <li><a class="toctree-l3" href="#pattern">Pattern</a></li>
+        
+            <li><a class="toctree-l3" href="#source">Source</a></li>
+        
+            <li><a class="toctree-l3" href="#sink">Sink</a></li>
+        
+            <li><a class="toctree-l3" href="#variable">Variable</a></li>
         
         </ul>
     
 
     </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../wisdom-extensions/">Writing Extensions</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -139,8 +162,9 @@
 ;
 </code></pre>
 
+<p><strong>NOTE:</strong> Since I am busy with my research, I am unable to list all features implemented in Wisdom here. Once you get access to Wisdom, please check the Unit test classes to see the available features and how to use them. You can contact me at any time to clarify your issues.</p>
 <h1 id="stream">Stream</h1>
-<p>Stream is a the most basic component of stream processor. In Wisdom, you need to define a stream before using it. Wisdom streams are dynamic typed like Python so you cannot define attributes of s stream. At the runtime, whatever you pass will be accepted by the stream.</p>
+<p>Stream is the most basic component of stream processor. In Wisdom, you need to define a stream before using it. Wisdom streams are dynamically typed like Python so you cannot define attributes of a stream. At the runtime, whatever you pass will be accepted by the stream.</p>
 <p><strong>Java API:</strong></p>
 <pre><code class="java">app.defineStream(&quot;StockStream&quot;);
 </code></pre>
@@ -149,63 +173,9 @@
 <pre><code class="java">def stream StockStream;
 </code></pre>
 
-<h1 id="filter">Filter</h1>
-<p>Filter is an operator to filter events coming from a stream. In Wisdom query, a <code>filter</code> can be used anywhere in between <code>from</code> and <code>insert into</code> statements.</p>
-<p><strong>Java API:</strong></p>
-<pre><code class="java">app.defineQuery(&quot;query1&quot;)
-    .from(&quot;StockStream&quot;)
-    .filter(event -&gt; &quot;UWO&quot;.equals(event.get(&quot;stock&quot;)))
-    .insertInto(&quot;OutputStream&quot;);
-</code></pre>
-
-<p>In Java API, the <code>filter</code> method accepts any <code>java.util.function.Predicate&lt;Event&gt;</code> as the argument. For user's convenient, Wisdom offers some built-in predicates:</p>
-<ul>
-<li>Operator.EQUALS</li>
-<li>Operator.GREATER_THAN</li>
-<li>Operator.GREATER_THAN_OR_EQUAL</li>
-<li>Operator.LESS_THAN</li>
-<li>Operator.LESS_THAN_OR_EQUAL</li>
-<li>Operator.STR_IN_ATTR and its variants</li>
-</ul>
-<p>Above code can be written using built-in <code>Operator.EQUALS</code> predicate as shown below:</p>
-<pre><code class="java">app.defineQuery(&quot;query1&quot;)
-    .from(&quot;StockStream&quot;)
-    .filter(Operator.EQUALS(&quot;stock&quot;, &quot;AMAZON&quot;))
-    .insertInto(&quot;OutputStream&quot;);
-</code></pre>
-
-<p><strong>Wisdom Query:</strong></p>
-<pre><code class="java">from StockStream
-filter symbol == 'UWO'
-insert into OutputStream;
-</code></pre>
-
-<p>Wisdom Query supports the following logical operators: <code>==</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code> and <code>in</code></p>
-<h2 id="window">Window</h2>
-<p>Windows are used to batch events based on some conditions. Wisdom 0.0.1 supports the following windows:</p>
-<ul>
-<li>Window.length</li>
-<li>Window.lengthBatch</li>
-<li>Window.externalTimeBatch</li>
-<li>UniqueWindow.lengthBatch</li>
-<li>UniqueWindow.externalTimeBatch</li>
-</ul>
-<p><strong>Java API:</strong></p>
-<pre><code class="java">app.defineQuery(&quot;query1&quot;)
-    .from(&quot;StockStream&quot;)
-    .window(Window.lengthBatch(3))
-    .insertInto(&quot;OutputStream&quot;);
-</code></pre>
-
-<p><strong>Wisdom Query:</strong></p>
-<pre><code class="java">from StockStream
-window.lengthBatch(3)
-insert into OutputStream;
-</code></pre>
-
 <h2 id="select">Select</h2>
-<p>Selector selects attributes and events to be inserted into the following operator. If the selector is used with attribute names, it selects the attributes from events. If selector is used with index of events after windows, it selects the specified events from the list of events.</p>
-<p>NOTE: Positive indices select events from the begining of list and negative indices select events from the end of list. For example <code>0</code> selects the first event and <code>-1</code> selects the last event.</p>
+<p>Selector selects attributes and events to be inserted into the following operator. If the selector is used with attribute names, it selects the attributes from events. If a selector is used with the index of events after windows, it selects the specified events from the list of events.</p>
+<p>NOTE: Positive indices select events from the beginning of a list and negative indices select events from the end of a list. For example <code>0</code> selects the first event and <code>-1</code> selects the last event.</p>
 <p><strong>Java API:</strong></p>
 <p>Select <code>symbol</code> and <code>price</code> from all events and insert them into OutputStream.</p>
 <pre><code class="java">app.defineQuery(&quot;query1&quot;)
@@ -234,6 +204,257 @@ insert into OutputStream;
 select -2, -1
 insert into OutputStream;
 </code></pre>
+
+<h2 id="aggregate">Aggregate</h2>
+<p>Aggregators aggregate events and inject results into the stream. Wisdom supports the following aggregators:</p>
+<ul>
+<li>SUM</li>
+<li>MIN</li>
+<li>MAX</li>
+<li>AVERAGE</li>
+<li>COUNT</li>
+</ul>
+<p><strong>Java API:</strong></p>
+<p>Find the total price of three stock events.</p>
+<pre><code class="java">app.defineQuery(&quot;query1&quot;)
+    .from(&quot;StockStream&quot;)
+    .window(Window.lengthBatch(3))
+    .aggregate(Operator.SUM(&quot;price&quot;, &quot;total&quot;))
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p><strong>Wisdom Query:</strong></p>
+<p>Find the total price of three stock events.</p>
+<pre><code class="java">from StockStream
+window.lengthBatch(3)
+aggregate sum(price) as total
+insert into OutputStream;
+</code></pre>
+
+<h1 id="filter">Filter</h1>
+<p>Filter is an operator to filter events coming from a stream. In Wisdom query, a <code>filter</code> can be used anywhere in between <code>from</code> and <code>insert into</code> statements.</p>
+<p>In Java API, the <code>filter</code> method accepts any <code>java.util.function.Predicate&lt;Event&gt;</code> as the argument. For user's convenient, Wisdom offers some built-in predicates:</p>
+<ul>
+<li>Operator.EQUALS</li>
+<li>Operator.GREATER_THAN</li>
+<li>Operator.GREATER_THAN_OR_EQUAL</li>
+<li>Operator.LESS_THAN</li>
+<li>Operator.LESS_THAN_OR_EQUAL</li>
+<li>Operator.STR_IN_ATTR and its variants</li>
+</ul>
+<p><strong>Java API:</strong></p>
+<p>Filter events having <code>symbol</code> equal to <code>AMAZON</code>.</p>
+<pre><code class="java">app.defineQuery(&quot;query1&quot;)
+    .from(&quot;StockStream&quot;)
+    .filter(event -&gt; &quot;UWO&quot;.equals(event.get(&quot;symbol&quot;)))
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p>Above code can be written using built-in <code>Operator.EQUALS</code> predicate as shown below:</p>
+<pre><code class="java">app.defineQuery(&quot;query1&quot;)
+    .from(&quot;StockStream&quot;)
+    .filter(Operator.EQUALS(&quot;symbol&quot;, &quot;AMAZON&quot;))
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p><strong>Wisdom Query:</strong></p>
+<p>Filter events having <code>symbol</code> equal to <code>AMAZON</code>.</p>
+<pre><code class="java">from StockStream
+filter symbol == 'AMAZON'
+insert into OutputStream;
+</code></pre>
+
+<p>Wisdom Query supports the following logical operators: <code>==</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code> and <code>in</code></p>
+<h2 id="window">Window</h2>
+<p>Windows are used to batch events based on some conditions. Wisdom 0.0.1 supports the following windows:</p>
+<ul>
+<li>Window.length</li>
+<li>Window.lengthBatch</li>
+<li>Window.externalTimeBatch</li>
+<li>UniqueWindow.lengthBatch</li>
+<li>UniqueWindow.externalTimeBatch</li>
+</ul>
+<p><strong>Java API:</strong></p>
+<pre><code class="java">app.defineQuery(&quot;query1&quot;)
+    .from(&quot;StockStream&quot;)
+    .window(Window.lengthBatch(3))
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p><strong>Wisdom Query:</strong></p>
+<pre><code class="java">from StockStream
+window.lengthBatch(3)
+insert into OutputStream;
+</code></pre>
+
+<h2 id="map">Map</h2>
+<p>Wisdom map is used to map events from one format to another format. In Java API, mapper accepts any <code>java.util.function.Function&lt;Event, Event&gt;</code>. Wisdom also provides the following built-in mappers:</p>
+<ul>
+<li>Mapper.rename</li>
+<li>Mapper.formatTime</li>
+</ul>
+<p><strong>Java API:</strong></p>
+<p>Rename <code>symbol</code> to <code>name</code> and <code>price</code> to <code>cost</code>.</p>
+<pre><code class="java">app.defineQuery(&quot;query1&quot;)
+    .from(&quot;StockStream&quot;)
+    .map(Mapper.rename(&quot;symbol&quot;, &quot;name&quot;), Mapper.rename(&quot;price&quot;, &quot;cost&quot;))
+    .select(&quot;name&quot;, &quot;cost&quot;)
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p><strong>Wisdom Query:</strong></p>
+<p>Rename <code>symbol</code> to <code>name</code> and <code>price</code> to <code>cost</code>.</p>
+<pre><code class="java">from StockStream
+map symbol as name, price as cost
+select name, cost
+insert into OutputStream;
+</code></pre>
+
+<h2 id="partition">Partition</h2>
+<p>Partitions split streams into partitions based on given attributes to sandbox aggregations and to parallelize execution.</p>
+<p><strong>Java API:</strong></p>
+<p>Partition <code>StockStream</code> by <code>symbol</code></p>
+<pre><code class="java">app.defineQuery(&quot;query1&quot;)
+    .from(&quot;StockStream&quot;)
+    .partitionBy(&quot;symbol&quot;)
+    .select(&quot;symbol&quot;, &quot;price&quot;)
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p><strong>Wisdom Query:</strong></p>
+<p>Rename <code>symbol</code> to <code>name</code> and <code>price</code> to <code>cost</code>.</p>
+<pre><code class="java">from StockStream
+partition by symbol
+select symbol, price
+insert into OutputStream;
+</code></pre>
+
+<h2 id="pattern">Pattern</h2>
+<p>Patterns are another important aspect of stream processing. Wisdom supports regular patterns, count patterns and logical patterns.</p>
+<p><strong>Java API:</strong></p>
+<p>Wisdom pattern to detect <code>IBM</code> or <code>WSO2</code> followed by <code>ORACLE</code>.</p>
+<pre><code class="java">app.defineStream(&quot;StockStream&quot;);
+app.defineStream(&quot;OutputStream&quot;);
+
+// e1 or e2 -&gt; e3
+Pattern e1 = Pattern.pattern(&quot;Pattern1&quot;, &quot;e1&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;IBM&quot;));
+Pattern e2 = Pattern.pattern(&quot;Pattern2&quot;, &quot;e2&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;WSO2&quot;));
+Pattern e3 = Pattern.pattern(&quot;Pattern3&quot;, &quot;e3&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;ORACLE&quot;));
+
+Pattern finalPattern = Pattern.followedBy(Pattern.or(e1, e2), e3);
+
+app.defineQuery(&quot;query1&quot;)
+    .from(finalPattern)
+    .select(&quot;e1.symbol&quot;, &quot;e2.symbol&quot;, &quot;e3.symbol&quot;)
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p>Still I have not implemented Wisdom Query for pattern. Therefore, patterns can be used only in Java.</p>
+<h2 id="source">Source</h2>
+<p>Source is an event source for a Wisdom stream. Currently Wisdom provides the following sources:</p>
+<ul>
+<li>HTTP</li>
+<li>Kafka</li>
+<li>CSV</li>
+<li>Pcap</li>
+</ul>
+<p><strong>Java API:</strong></p>
+<p>Define Kafka source in Java.</p>
+<pre><code class="java">wisdomApp.defineQuery(&quot;query1&quot;)
+        .from(&quot;StockStream&quot;)
+        .select(&quot;symbol&quot;, &quot;price&quot;)
+        .insertInto(&quot;OutputStream&quot;);
+
+wisdomApp.addSource(&quot;StockStream&quot;, new KafkaSource(&quot;localhost:9092&quot;));
+</code></pre>
+
+<p><strong>Wisdom Query:</strong></p>
+<p>Define Kafka source in Wisdom Query.</p>
+<pre><code class="java">@source(type='kafka', bootstrap='localhost:9092')
+def stream StockStream;
+
+def stream OutputStream;
+
+from StockStream
+select symbol, price
+insert into OutputStream;
+</code></pre>
+
+<h2 id="sink">Sink</h2>
+<p>Sink receives events from a stream and send them to the relative receiver. Currently Wisdom supports the following sinks:</p>
+<ul>
+<li>HTTP</li>
+<li>Kafka</li>
+<li>CSV</li>
+<li>Text File</li>
+<li>Console</li>
+</ul>
+<p><strong>Java API:</strong></p>
+<p>Define HTTP sink in Java.</p>
+<pre><code class="java">wisdomApp.defineQuery(&quot;query1&quot;)
+        .from(&quot;StockStream&quot;)
+        .select(&quot;symbol&quot;, &quot;price&quot;)
+        .insertInto(&quot;OutputStream&quot;);
+
+wisdomApp.addSink(&quot;OutputStream&quot;, new HTTPSink(&quot;http://localhost:9999/streamReceiver&quot;));
+</code></pre>
+
+<p><strong>Wisdom Query:</strong></p>
+<p>Define HTTP sink in Wisdom Query.</p>
+<pre><code class="java">def stream StockStream;
+
+@sink(type='http', mapping='json', endpoint='http://localhost:9999/streamReceiver')
+def stream OutputStream;
+
+from StockStream
+select symbol, price
+insert into OutputStream;
+</code></pre>
+
+<h2 id="variable">Variable</h2>
+<p>Wisdom variables are used to store a value in memory. A Wisdom query can be defined using predefined variables.</p>
+<p><strong>Java API:</strong></p>
+<p>A dynamic size length window defined using a variable.</p>
+<pre><code class="java">app.defineStream(&quot;StockStream&quot;);
+app.defineStream(&quot;OutputStream&quot;);
+app.defineStream(&quot;VariableStream&quot;);
+Variable&lt;Integer&gt; variable = app.defineVariable(&quot;window_length&quot;, 3);
+
+app.defineQuery(&quot;query1&quot;)
+    .from(&quot;StockStream&quot;)
+    .filter(Operator.GREATER_THAN(&quot;price&quot;, 55.0))
+    .window(Window.lengthBatch(variable))
+    .select(&quot;symbol&quot;, &quot;price&quot;)
+    .insertInto(&quot;OutputStream&quot;);
+
+app.defineQuery(&quot;query2&quot;)
+    .from(&quot;VariableStream&quot;)
+    .filter(Operator.GREATER_THAN(&quot;value&quot;, 0))
+    .map(Mapper.rename(&quot;value&quot;, &quot;window_length&quot;))
+    .update(&quot;window_length&quot;);
+</code></pre>
+
+<p><strong>Wisdom Query:</strong></p>
+<p>A dynamic size lengthBatch window defined using a variable.</p>
+<pre><code class="java">def stream StockStream;
+def stream OutputStream;
+def stream VariableStream;
+def variable window_length = 3;
+
+from StockStream
+filter price &gt; 55.0
+window.lengthBatch($window_length)
+select symbol, price
+insert into OutputStream;
+
+from VariableStream
+filter value &gt; 0
+map value as window_length
+update window_length;
+</code></pre>
               
             </div>
           </div>
@@ -241,7 +462,7 @@ insert into OutputStream;
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../intrusion-detection/" class="btn btn-neutral float-right" title="Intrusion Detection">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../wisdom-extensions/" class="btn btn-neutral float-right" title="Writing Extensions">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../deploy-wisdom/" class="btn btn-neutral" title="Deploy Wisdom"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -273,7 +494,7 @@ insert into OutputStream;
         <span><a href="../deploy-wisdom/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../intrusion-detection/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../wisdom-extensions/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

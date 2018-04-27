@@ -4,7 +4,7 @@
     
     <url>
      <loc>/</loc>
-     <lastmod>2018-04-26</lastmod>
+     <lastmod>2018-04-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -12,7 +12,7 @@
     
     <url>
      <loc>/why-wisdom/</loc>
-     <lastmod>2018-04-26</lastmod>
+     <lastmod>2018-04-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -20,7 +20,7 @@
     
     <url>
      <loc>/getting-started/</loc>
-     <lastmod>2018-04-26</lastmod>
+     <lastmod>2018-04-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -28,7 +28,7 @@
     
     <url>
      <loc>/deploy-wisdom/</loc>
-     <lastmod>2018-04-26</lastmod>
+     <lastmod>2018-04-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -36,7 +36,15 @@
     
     <url>
      <loc>/query-guide/</loc>
-     <lastmod>2018-04-26</lastmod>
+     <lastmod>2018-04-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/wisdom-extensions/</loc>
+     <lastmod>2018-04-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -45,7 +53,7 @@
         
     <url>
      <loc>/intrusion-detection/</loc>
-     <lastmod>2018-04-26</lastmod>
+     <lastmod>2018-04-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
