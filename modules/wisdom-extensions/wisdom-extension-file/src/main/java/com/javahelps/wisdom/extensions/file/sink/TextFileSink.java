@@ -12,7 +12,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
-import static com.javahelps.wisdom.extensions.file.sink.com.javahelps.wisdom.extensions.file.util.Constants.PATH;
+import static com.javahelps.wisdom.extensions.file.util.Constants.PATH;
 
 @WisdomExtension("file.text")
 public class TextFileSink extends Sink {
