@@ -29,6 +29,7 @@
         <reflections.version>0.9.11</reflections.version>
         <spark.java.version>2.7.2</spark.java.version>
         <argparse4j.version>0.8.1</argparse4j.version>
+        <pcap4j.version>1.7.3</pcap4j.version>
         <logback.version>1.2.3</logback.version>
         <apache.commons.text.version>1.3</apache.commons.text.version>
         <apache.httpcomponents.version>4.5.3</apache.httpcomponents.version>
@@ -110,6 +111,19 @@
                 <version>${apache.commons.text.version}</version>
             </dependency>
 
+            <!-- Pcap4j -->
+            <dependency>
+                <groupId>org.pcap4j</groupId>
+                <artifactId>pcap4j-core</artifactId>
+                <version>${pcap4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.pcap4j</groupId>
+                <artifactId>pcap4j-packetfactory-static</artifactId>
+                <version>${pcap4j.version}</version>
+            </dependency>
+
             <!-- SLF4J -->
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -130,7 +144,6 @@
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
             </dependency>
-
 
             <!-- JUnit -->
             <dependency>
