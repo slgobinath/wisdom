@@ -11,8 +11,7 @@ import java.util.List;
 public class MapOperator implements OperatorElement {
 
     private String namespace;
-    private String currentName;
-    private String newName;
+    private String attrName;
     private List<KeyValueElement> keyValueElements = new ArrayList<>();
 
     public void addProperty(KeyValueElement element) {
@@ -27,23 +26,11 @@ public class MapOperator implements OperatorElement {
         this.namespace = namespace;
     }
 
-    public String getCurrentName() {
-        return currentName;
-    }
-
-    public void setCurrentName(String currentName) {
-        this.currentName = currentName;
-    }
-
-    public String getNewName() {
-        return newName;
-    }
-
-    public void setNewName(String newName) {
-        this.newName = newName;
+    public void setAttrName(String attrName) {
+        this.attrName = attrName;
     }
 
     public Mapper build(WisdomApp app, Query query) {
-        return Mapper.create(namespace, currentName, newName, Utility.toProperties(app, keyValueElements));
+        return Mapper.create(namespace, attrName, Utility.toProperties(app, keyValueElements));
     }
 }

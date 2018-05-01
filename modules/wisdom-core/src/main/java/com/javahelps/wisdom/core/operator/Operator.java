@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 /**
  * {@link Operator} provides some built-in operations on the given attribute of an {@link Event} at the
  * runtime.
- * {@link Operator} modifies the attributes of the {@link Event} which is passed newName the parameter of the
+ * {@link Operator} modifies the attributes of the {@link Event} which is passed attrName the parameter of the
  * {@link Function}.
  *
  * @see AttributeSelectProcessor

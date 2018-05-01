@@ -199,7 +199,7 @@ public class PartitionTestCase {
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream StockStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream , symbol of StockStream1) begin @info(name = 'query1') " +
-                "from cseEventStream[700>price] select symbol,sum(price) newName price,volume insert into OutStockStream ;" +
+                "from cseEventStream[700>price] select symbol,sum(price) attrName price,volume insert into OutStockStream ;" +
                 "  end ";
 
 

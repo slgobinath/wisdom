@@ -4,6 +4,7 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.event.Index;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.map.Mapper;
 import com.javahelps.wisdom.core.operator.AggregateOperator;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.processor.*;
@@ -32,6 +33,7 @@ public class Query implements Stateful {
     private int processorIndex = 0;
     private final Map<String, StreamProcessor> streamProcessorMap = new HashMap<>();
     private final List<Stateful> statefulList = new ArrayList<>();
+    private final List<Mapper> mapperList = new ArrayList<>();
 
     public Query(WisdomApp wisdomApp, String id) {
 
@@ -44,14 +46,17 @@ public class Query implements Stateful {
      */
     public void init() {
         this.streamProcessorMap.values().forEach(processor -> processor.init(this.wisdomApp));
+        this.mapperList.forEach(mapper -> mapper.init(this.wisdomApp));
     }
 
     public void start() {
-        this.streamProcessorMap.values().forEach(processor -> processor.start());
+        this.streamProcessorMap.values().forEach(StreamProcessor::start);
+        this.mapperList.forEach(Mapper::start);
     }
 
     public void stop() {
-        this.streamProcessorMap.values().forEach(processor -> processor.stop());
+        this.streamProcessorMap.values().forEach(StreamProcessor::stop);
+        this.mapperList.forEach(Mapper::stop);
     }
 
     public Query from(String streamId) {
@@ -140,11 +145,31 @@ public class Query implements Stateful {
     }
 
     public Query map(Function<Event, Event>... functions) {
-
         for (Function<Event, Event> function : functions) {
             this.map(function);
         }
+        return this;
+    }
 
+    public Query map(Mapper... mappers) {
+        for (Mapper mapper : mappers) {
+            this.map(mapper);
+            this.mapperList.add(mapper);
+        }
+        return this;
+    }
+
+    public Query map(Mapper mapper) {
+
+        MapProcessor mapProcessor = new MapProcessor(generateId(), mapper);
+        if (this.lastStreamProcessor == null) {
+            this.inputStream.addProcessor(mapProcessor);
+        } else {
+            this.lastStreamProcessor.setNextProcessor(mapProcessor);
+        }
+        this.addStreamProcessor(mapProcessor);
+        this.lastStreamProcessor = mapProcessor;
+        this.mapperList.add(mapper);
         return this;
     }
 

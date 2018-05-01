@@ -54,9 +54,9 @@ public enum ImportsManager {
             }
         } else if (Mapper.class.isAssignableFrom(clazz)) {
             try {
-                this.mappers.put(namespace, clazz.getConstructor(String.class, String.class, Map.class));
+                this.mappers.put(namespace, clazz.getConstructor(String.class, Map.class));
             } catch (NoSuchMethodException e) {
-                throw new WisdomAppValidationException("<init>(java.lang.String, java.lang.String, java.util.Map<String, ?>) not found in %s", clazz.getCanonicalName());
+                throw new WisdomAppValidationException("<init>(java.lang.String, java.util.Map<String, ?>) not found in %s", clazz.getCanonicalName());
             }
         }
     }
@@ -106,13 +106,13 @@ public enum ImportsManager {
         }
     }
 
-    public Mapper createMapper(String namespace, String currentName, String newName, Map<String, ?> properties) {
+    public Mapper createMapper(String namespace, String newName, Map<String, ?> properties) {
         Constructor constructor = this.mappers.get(namespace);
         if (constructor == null) {
             throw new WisdomAppValidationException("Class to create %s mapper was not imported", namespace);
         }
         try {
-            return (Mapper) constructor.newInstance(currentName, newName, properties);
+            return (Mapper) constructor.newInstance(newName, properties);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new WisdomAppValidationException(e.getCause(), "Failed to create %s mapper instance", namespace);
         }

@@ -6,6 +6,12 @@ public class Constants {
     public static String MIN_VALUE = "min_value";
     public static String MAX_VALUE = "max_value";
 
+    public static final String PATH = "path";
+
+    public static final String OPERATION = "operation";
+
+    public static final String TYPE = "type";
+
     private Constants() {
 
     }

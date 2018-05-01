@@ -6,6 +6,13 @@ public class KeyValueElement {
     private Comparable value;
     private boolean isVariable;
 
+    public static KeyValueElement of(String key, Comparable value) {
+        KeyValueElement element = new KeyValueElement();
+        element.setKey(key);
+        element.setValue(value);
+        return element;
+    }
+
     public void setKey(String key) {
         this.key = key;
     }

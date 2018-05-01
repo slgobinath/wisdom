@@ -1,5 +1,6 @@
 package com.javahelps.wisdom.core.map;
 
+import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.extension.ImportsManager;
 
@@ -7,29 +8,35 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.javahelps.wisdom.core.util.WisdomConstants.ATTR;
+
 public abstract class Mapper implements Function<Event, Event> {
 
-    protected final String currentName;
-    protected final String newName;
+    protected final String attrName;
 
     static {
         ImportsManager.INSTANCE.use(Mapper.class.getPackageName());
     }
 
-    public Mapper(String currentName, String newName, Map<String, ?> properties) {
-        this.currentName = currentName;
-        this.newName = newName;
+    public Mapper(String attrName, Map<String, ?> properties) {
+        this.attrName = attrName;
     }
 
-    public static Mapper create(String namespace, String currentName, String newName, Map<String, ?> properties) {
-        return ImportsManager.INSTANCE.createMapper(namespace, currentName, newName, properties);
+    public abstract void start();
+
+    public abstract void init(WisdomApp wisdomApp);
+
+    public abstract void stop();
+
+    public static Mapper create(String namespace, String newName, Map<String, ?> properties) {
+        return ImportsManager.INSTANCE.createMapper(namespace, newName, properties);
     }
 
     public static Mapper formatTime(String currentName, String newName) {
-        return new FormatTimeMapper(currentName, newName, Collections.emptyMap());
+        return new FormatTimeMapper(newName, Map.of(ATTR, currentName));
     }
 
     public static Mapper rename(String currentName, String newName) {
-        return new RenameMapper(currentName, newName, Collections.emptyMap());
+        return new RenameMapper(newName, Map.of(ATTR, currentName));
     }
 }

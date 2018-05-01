@@ -36,6 +36,12 @@ public class WisdomConstants {
 
     public static final String ADMIN_STREAM = "_AdminStream";
 
+    public static final String ATTR = "attr";
+
+    public static final String VALUE = "value";
+
+    public static final String VARIABLE = "variable";
+
     private WisdomConstants() {
     }
 }

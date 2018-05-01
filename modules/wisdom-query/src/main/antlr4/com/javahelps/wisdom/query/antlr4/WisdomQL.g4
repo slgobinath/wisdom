@@ -141,7 +141,10 @@ aggregate_operator
     ;
 
 map_operator
-    : (NAME | NAME OPEN_PAREN NAME (COMMA optional_key_value_element)* CLOSE_PAREN) AS NAME
+    : NAME AS attr=NAME
+    | wisdom_primitive AS attr=NAME
+    | variable_reference AS attr=NAME
+    | namespace=NAME OPEN_PAREN optional_key_value_element (COMMA optional_key_value_element)* CLOSE_PAREN AS attr=NAME
     ;
 
 sum_operator

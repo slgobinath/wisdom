@@ -1,7 +1,6 @@
 package com.javahelps.wisdom.query.antlr;
 
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.map.Mapper;
 import com.javahelps.wisdom.core.operator.AggregateOperator;
 import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.query.Query;
@@ -16,7 +15,10 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 
+import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.*;
+import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.NAME;
+import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.VERSION;
 
 public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
@@ -293,16 +295,24 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     @Override
     public MapOperator visitMap_operator(WisdomQLParser.Map_operatorContext ctx) {
         MapOperator operator = new MapOperator();
-        int noOfMappers = ctx.NAME().size();
-        if (noOfMappers == 2) {
-            operator.setNamespace("rename");
-            operator.setCurrentName(ctx.NAME(0).getText());
-            operator.setNewName(ctx.NAME(1).getText());
+        if (ctx.namespace == null) {
+            int noOfMappers = ctx.NAME().size();
+            if (noOfMappers == 2) {
+                operator.setNamespace("rename");
+                operator.addProperty(KeyValueElement.of(ATTR, ctx.NAME(0).getText()));
+                operator.setAttrName(ctx.attr.getText());
+            } else if (ctx.wisdom_primitive() != null) {
+                operator.setNamespace("constant");
+                operator.addProperty(KeyValueElement.of(VALUE, (Comparable) visit(ctx.wisdom_primitive())));
+                operator.setAttrName(ctx.attr.getText());
+            } else if (ctx.variable_reference() != null) {
+                operator.setNamespace("variable");
+                operator.addProperty(KeyValueElement.of(VARIABLE, (Comparable) visit(ctx.variable_reference())));
+                operator.setAttrName(ctx.attr.getText());
+            }
         } else {
-            operator.setNamespace(ctx.NAME(0).getText());
-            operator.setCurrentName(ctx.NAME(1).getText());
-            operator.setNewName(ctx.NAME(2).getText());
-
+            operator.setNamespace(ctx.namespace.getText());
+            operator.setAttrName(ctx.attr.getText());
             for (ParseTree tree : ctx.optional_key_value_element()) {
                 operator.addProperty((KeyValueElement) visit(tree));
             }
@@ -417,7 +427,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
-    public Object visitVariable_reference(WisdomQLParser.Variable_referenceContext ctx) {
+    public String visitVariable_reference(WisdomQLParser.Variable_referenceContext ctx) {
         return ctx.NAME().getText();
     }
 }

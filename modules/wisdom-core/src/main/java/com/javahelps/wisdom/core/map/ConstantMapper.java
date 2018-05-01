@@ -8,18 +8,18 @@ import com.javahelps.wisdom.core.util.Commons;
 
 import java.util.Map;
 
-import static com.javahelps.wisdom.core.util.WisdomConstants.ATTR;
+import static com.javahelps.wisdom.core.util.WisdomConstants.VALUE;
 
-@WisdomExtension("rename")
-public class RenameMapper extends Mapper {
+@WisdomExtension("constant")
+public class ConstantMapper extends Mapper {
 
-    private final String currentName;
+    private final Comparable constant;
 
-    public RenameMapper(String attrName, Map<String, ?> properties) {
+    public ConstantMapper(String attrName, Map<String, ?> properties) {
         super(attrName, properties);
-        this.currentName = Commons.getProperty(properties, ATTR, 0);
-        if (this.currentName == null) {
-            throw new WisdomAppValidationException("Required property %s for Rename mapper not found", ATTR);
+        this.constant = Commons.getProperty(properties, VALUE, 0);
+        if (this.constant == null) {
+            throw new WisdomAppValidationException("Required property %s for Constant mapper not found", VALUE);
         }
     }
 
@@ -40,6 +40,6 @@ public class RenameMapper extends Mapper {
 
     @Override
     public Event apply(Event event) {
-        return event.rename(currentName, attrName);
+        return event.set(this.attrName, this.constant);
     }
 }

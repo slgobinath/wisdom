@@ -24,8 +24,8 @@ import static com.javahelps.wisdom.core.util.WisdomConfig.EMPTY_PROPERTIES;
 import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 
 /**
- * {@link Stream} is the fundamental data-structure of the event processor. At the runtime, it acts newName the entry point
- * and manager of all the queries starting with this newName the input stream.
+ * {@link Stream} is the fundamental data-structure of the event processor. At the runtime, it acts attrName the entry point
+ * and manager of all the queries starting with this attrName the input stream.
  */
 public class Stream implements Processor {
 

@@ -230,7 +230,11 @@ public class WisdomApp implements Stateful {
     }
 
     public Variable getVariable(String id) {
-        return this.variableMap.get(id);
+        Variable variable = this.variableMap.get(id);
+        if (variable == null) {
+            throw new WisdomAppValidationException("Variable %s is not defined", id);
+        }
+        return variable;
     }
 
     public void send(String streamId, Event event) {

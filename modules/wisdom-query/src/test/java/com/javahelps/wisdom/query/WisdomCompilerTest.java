@@ -920,7 +920,7 @@ public class WisdomCompilerTest {
                 "def stream OutputStream; " +
                 "" +
                 "from StockStream " +
-                "map formatTime(timestamp, 'UTC') as dateTime, dateTime as newTime " +
+                "map formatTime('timestamp', 'UTC') as dateTime, dateTime as newTime " +
                 "select name, newTime " +
                 "insert into OutputStream;";
 
@@ -935,6 +935,68 @@ public class WisdomCompilerTest {
         InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
         stockStreamInputHandler.send(EventGenerator.generate("name", "Temp", "timestamp", timestamp));
         stockStreamInputHandler.send(EventGenerator.generate("name", "Temp", "timestamp", timestamp + 60_000L));
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
+    @Test
+    public void testConstantMapperQuery() {
+
+        LOGGER.info("Test constant as query");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "map true as released, 50 as volume, time.sec(1) as timestamp " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "IBM", "price", 50.0, "volume", 50L, "released", true, "timestamp", 1000L),
+                map("symbol", "WSO2", "price", 60.0, "volume", 50L, "released", true, "timestamp", 1000L));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
+    @Test
+    public void testVariableMapperQuery() {
+
+        LOGGER.info("Test variable as query");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "def variable released = false; " +
+                "" +
+                "from StockStream " +
+                "map $released as released " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "IBM", "price", 50.0, "volume", 10L, "released", false),
+                map("symbol", "WSO2", "price", 60.0, "volume", 15L, "released", true));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10L));
+        wisdomApp.getVariable("released").set(true);
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15L));
 
         wisdomApp.shutdown();
 
