@@ -15,6 +15,7 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 import static com.javahelps.wisdom.query.TestUtil.map;
 
@@ -997,6 +998,36 @@ public class WisdomCompilerTest {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10L));
         wisdomApp.getVariable("released").set(true);
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15L));
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
+    @Test
+    public void testDataTypeMapperQuery() {
+
+        LOGGER.info("Test int(x) as x query");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "map int('price') as price, float('volume') as volume, bool('symbol') as symbol " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                Map.of("symbol", true, "price", 50, "volume", 10.0f),
+                Map.of("symbol", false, "price", 60, "volume", 15.0f));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.1, "volume", 10L));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "", "price", 60.5, "volume", 15L));
 
         wisdomApp.shutdown();
 

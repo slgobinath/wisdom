@@ -80,6 +80,23 @@ public class Event {
         return ((Number) value);
     }
 
+    public Boolean getAsBool(String attribute) {
+        boolean bool;
+        Comparable value = this.get(attribute);
+        if (value == null) {
+            bool = false;
+        } else if (value instanceof Boolean) {
+            bool = (boolean) value;
+        } else if (value instanceof Number) {
+            bool = ((Number) value).intValue() != 0;
+        } else if (value instanceof String) {
+            bool = !"".equals(value);
+        } else {
+            bool = true;
+        }
+        return bool;
+    }
+
     public long getAsLong(String attribute) {
         return this.getAsNumber(attribute).longValue();
     }
