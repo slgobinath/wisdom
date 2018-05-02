@@ -1,2 +1,2 @@
-# wisdom
-A new complex event processor written in Java 8
+# Wisdom Stream Processor
+An adaptive and self-boosting stream processor.

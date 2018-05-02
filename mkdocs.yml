@@ -1,0 +1,12 @@
+site_name: Wisdom Stream Processor
+pages:
+    - Home: index.md
+    - Why Wisdom?: why-wisdom.md
+    - Getting Started: getting-started.md
+    - Deploy Wisdom:   deploy-wisdom.md
+    - Wisdom Query Guide: query-guide.md
+    - Writing Extensions: wisdom-extensions.md
+    - Use Cases:
+        - Intrusion Detection: use-cases/intrusion-detection.md
+        - TensorFlow Integration: use-cases/tensor-flow.md
+theme: readthedocs

@@ -36,3 +36,6 @@ log/
 target/
 .cache-tests
 .cache-main
+
+# Mkdocs
+site/
