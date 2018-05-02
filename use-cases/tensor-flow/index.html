@@ -194,8 +194,8 @@ with tf.Session() as sess:
 def stream OutputStream;
 
 from EventStream
-map int(x) as x, int(y) as y
-map tensorFlow(path='/tmp/tf_add_model/1', operation='ans', type='int') as result
+map int('x') as x, int('y') as y
+map tensorFlow(path='/tmp/tf_add_model', operation='ans', type='int') as result
 insert into OutputStream;
 </code></pre>
 
