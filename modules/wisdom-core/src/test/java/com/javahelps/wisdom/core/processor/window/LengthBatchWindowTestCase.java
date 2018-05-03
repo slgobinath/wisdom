@@ -2,6 +2,7 @@ package com.javahelps.wisdom.core.processor.window;
 
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.event.Attribute;
 import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
@@ -91,7 +92,7 @@ public class LengthBatchWindowTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .filter(Operator.GREATER_THAN("price", 55.0))
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 55.0))
                 .window(Window.lengthBatch(3))
                 .select("symbol", "price")
                 .insertInto("OutputStream");
@@ -127,14 +128,14 @@ public class LengthBatchWindowTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .filter(Operator.GREATER_THAN("price", 55.0))
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 55.0))
                 .window(Window.lengthBatch(variable))
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
         wisdomApp.defineQuery("query2")
                 .from("VariableStream")
-                .filter(Operator.GREATER_THAN("value", 0))
+                .filter(Operator.GREATER_THAN(Attribute.of("value"), 0))
                 .map(event -> event.rename("value", "window_length"))
                 .update("window_length");
 

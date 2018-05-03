@@ -4,6 +4,7 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.query.antlr.WisdomParserException;
 import com.javahelps.wisdom.query.tree.Annotation;
 import com.javahelps.wisdom.query.tree.KeyValueElement;
+import com.javahelps.wisdom.query.tree.VariableReference;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -67,8 +68,9 @@ public class Utility {
             if (key == null) {
                 key = String.format("_param_%d", count);
             }
-            if (element.isVariable()) {
-                properties.put(key, app.getVariable((String) element.getValue()));
+            Object value = element.getValue();
+            if (value instanceof VariableReference) {
+                properties.put(key, ((VariableReference) value).build(app));
             } else {
                 properties.put(key, element.getValue());
             }

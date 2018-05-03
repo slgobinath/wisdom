@@ -2,6 +2,7 @@ package com.javahelps.wisdom.core.processor.pattern;
 
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.event.Attribute;
 import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.pattern.Pattern;
 import com.javahelps.wisdom.core.util.EventGenerator;
@@ -30,11 +31,11 @@ public class EveryPatternTestCase {
 
         // every(e1) -> e2 -> e3
         Pattern e1 = Pattern.every(Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Operator.GREATER_THAN("price", 45.0)));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 45.0)));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream2")
-                .filter(Operator.GREATER_THAN("volume", 10));
+                .filter(Operator.GREATER_THAN(Attribute.of("volume"), 10));
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream2")
-                .filter(Operator.GREATER_THAN("price", 50.0));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 50.0));
 
         Pattern finalPattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
@@ -71,11 +72,11 @@ public class EveryPatternTestCase {
 
         // e1 -> every(e2) -> e3
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Operator.GREATER_THAN("price", 45.0));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 45.0));
         Pattern e2 = Pattern.every(Pattern.pattern("Pattern2", "e2", "StockStream2")
-                .filter(Operator.GREATER_THAN("volume", 10)));
+                .filter(Operator.GREATER_THAN(Attribute.of("volume"), 10)));
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream2")
-                .filter(Operator.GREATER_THAN("price", 50.0));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 50.0));
 
         Pattern finalPattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
@@ -112,11 +113,11 @@ public class EveryPatternTestCase {
 
         // e1 -> e2 -> every(e3)
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Operator.GREATER_THAN("price", 45.0));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 45.0));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream2")
-                .filter(Operator.GREATER_THAN("volume", 10));
+                .filter(Operator.GREATER_THAN(Attribute.of("volume"), 10));
         Pattern e3 = Pattern.every(Pattern.pattern("Pattern3", "e3", "StockStream2")
-                .filter(Operator.GREATER_THAN("price", 50.0)));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 50.0)));
 
         Pattern finalPattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
@@ -191,9 +192,9 @@ public class EveryPatternTestCase {
 
         // every(e1 -> e2)
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Operator.GREATER_THAN("price", 45.0));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 45.0));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream2")
-                .filter(Operator.GREATER_THAN("volume", 10));
+                .filter(Operator.GREATER_THAN(Attribute.of("volume"), 10));
 
         Pattern finalPattern = Pattern.every(Pattern.followedBy(e1, e2));
 
@@ -230,9 +231,9 @@ public class EveryPatternTestCase {
 
         // every(e1 -> e2)
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Operator.GREATER_THAN("price", 45.0));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 45.0));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream2")
-                .filter(Operator.GREATER_THAN("volume", 10));
+                .filter(Operator.GREATER_THAN(Attribute.of("volume"), 10));
 
         Pattern finalPattern = Pattern.every(Pattern.followedBy(e1, e2));
 
@@ -267,9 +268,9 @@ public class EveryPatternTestCase {
 
         // every(e1 -> e2)
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Operator.GREATER_THAN("price", 45.0));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 45.0));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream2")
-                .filter(Operator.GREATER_THAN("volume", 10));
+                .filter(Operator.GREATER_THAN(Attribute.of("volume"), 10));
 
         Pattern finalPattern = Pattern.every(Pattern.followedBy(e1, e2));
 
@@ -334,11 +335,11 @@ public class EveryPatternTestCase {
 
         // every(e1 -> e2) -> e3
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Operator.GREATER_THAN("price", 10.0));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 10.0));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
-                .filter(Operator.GREATER_THAN("price", 20.0));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 20.0));
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream2")
-                .filter(Operator.GREATER_THAN("price", e2.attribute("e1.price")));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), e2.attribute("e1.price")));
 
         Pattern finalPattern = Pattern.followedBy(Pattern.every(Pattern.followedBy(e1, e2)), e3);
 
@@ -375,13 +376,13 @@ public class EveryPatternTestCase {
 
         // e1 -> every(e2 -> e3) -> e4
         Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
-                .filter(Operator.EQUALS("symbol", "MSFT"));
+                .filter(Operator.EQUALS(Attribute.of("symbol"), "MSFT"));
         Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
-                .filter(Operator.GREATER_THAN("price", 20.0));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 20.0));
         Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")
-                .filter(Operator.GREATER_THAN("price", 20.0));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 20.0));
         Pattern e4 = Pattern.pattern("Pattern4", "e4", "StockStream2")
-                .filter(Operator.GREATER_THAN("price", e3.attribute("e2.price")));
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), e3.attribute("e2.price")));
 
         Pattern finalPattern = Pattern.followedBy(e1,
                 Pattern.followedBy(Pattern.every(Pattern.followedBy(e2, e3)), e4));

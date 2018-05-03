@@ -1,6 +1,8 @@
 package com.javahelps.wisdom.query.antlr;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.event.Attribute;
+import com.javahelps.wisdom.core.operand.WisdomArray;
 import com.javahelps.wisdom.core.operator.AggregateOperator;
 import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.query.Query;
@@ -110,10 +112,9 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             element.setKey(ctx.NAME().getText());
         }
         if (ctx.wisdom_primitive() != null) {
-            element.setValue((Comparable) visit(ctx.wisdom_primitive()));
+            element.setValue(visit(ctx.wisdom_primitive()));
         } else if (ctx.variable_reference() != null) {
-            element.setValue((Comparable) visit(ctx.variable_reference()));
-            element.setVariable(true);
+            element.setValue(visit(ctx.variable_reference()));
         }
         return element;
     }
@@ -235,58 +236,45 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         LogicalOperator operator;
         int noOfLogicalOperators = ctx.logical_operator().size();
 
-        if (ctx.NOT() != null) {
-            operator = new LogicalOperator(LogicalOperator.Operation.NOT);
+        if (ctx.operator != null) {
+            operator = new LogicalOperator(ctx.operator.getText().toLowerCase());
+        } else if (ctx.NOT() != null) {
+            operator = new LogicalOperator("not");
         } else if (ctx.AND() != null) {
-            operator = new LogicalOperator(LogicalOperator.Operation.AND);
+            operator = new LogicalOperator("and");
         } else if (ctx.OR() != null) {
-            operator = new LogicalOperator(LogicalOperator.Operation.OR);
-        } else if (ctx.GREATER_THAN() != null) {
-            operator = new LogicalOperator(LogicalOperator.Operation.GT);
-        } else if (ctx.LESS_THAN() != null) {
-            operator = new LogicalOperator(LogicalOperator.Operation.LT);
-        } else if (ctx.GT_EQ() != null) {
-            operator = new LogicalOperator(LogicalOperator.Operation.GT_EQ);
-        } else if (ctx.LT_EQ() != null) {
-            operator = new LogicalOperator(LogicalOperator.Operation.LT_EQ);
-        } else if (ctx.EQUALS() != null) {
-            operator = new LogicalOperator(LogicalOperator.Operation.EQ);
-        } else if (ctx.IN() != null) {
-            operator = new LogicalOperator(LogicalOperator.Operation.IN);
-        } else if (noOfLogicalOperators == 1) {
-            operator = new LogicalOperator(LogicalOperator.Operation.IDENTICAL);
+            operator = new LogicalOperator("or");
         } else {
-            throw new WisdomParserException(ctx, "unknown logical operator");
+            operator = new LogicalOperator(null);
         }
 
-
         if (noOfLogicalOperators == 1) {
-            operator.setLeftOperator((LogicalOperator) visit(ctx.logical_operator(0)));
+            operator.setLeft(visit(ctx.logical_operator(0)));
         } else if (noOfLogicalOperators == 2) {
-            operator.setLeftOperator((LogicalOperator) visit(ctx.logical_operator(0)));
-            operator.setRightOperator((LogicalOperator) visit(ctx.logical_operator(1)));
+            operator.setLeft(visit(ctx.logical_operator(0)));
+            operator.setRight(visit(ctx.logical_operator(1)));
         } else if (noOfLogicalOperators == 0) {
             if (ctx.lft_name != null) {
-                operator.setLeftAttr(ctx.lft_name.getText());
-            } else if (ctx.lft_number != null) {
-                operator.setLeftComparable(Double.parseDouble(ctx.lft_number.getText()));
+                operator.setLeft(Attribute.of(ctx.lft_name.getText()));
+            } else if (ctx.lft_primitive != null) {
+                operator.setLeft(visit(ctx.lft_primitive));
             } else if (ctx.lft_string != null) {
-                operator.setLeftComparable(Utility.toString(ctx.lft_string.getText()));
-            } else if (ctx.lft_pri != null) {
-                operator.setLeftComparable((Comparable) visit(ctx.lft_pri));
+                operator.setLeft(Utility.toString(ctx.lft_string.getText()));
             } else if (ctx.lft_var != null) {
-                operator.setLeftVar((String) visit(ctx.lft_var));
+                operator.setLeft(visit(ctx.lft_var));
+            } else if (ctx.lft_array != null) {
+                operator.setLeft(WisdomArray.of((Comparable[]) visit(ctx.lft_array)));
             }
             if (ctx.rgt_name != null) {
-                operator.setRightAttr(ctx.rgt_name.getText());
-            } else if (ctx.rgt_number != null) {
-                operator.setRightComparable(Double.parseDouble(ctx.rgt_number.getText()));
+                operator.setRight(Attribute.of(ctx.rgt_name.getText()));
+            } else if (ctx.rgt_primitive != null) {
+                operator.setRight(visit(ctx.rgt_primitive));
             } else if (ctx.rgt_string != null) {
-                operator.setRightComparable(Utility.toString(ctx.rgt_string.getText()));
-            } else if (ctx.rgt_pri != null) {
-                operator.setRightComparable((Comparable) visit(ctx.rgt_pri));
+                operator.setRight(Utility.toString(ctx.rgt_string.getText()));
             } else if (ctx.rgt_var != null) {
-                operator.setRightVar((String) visit(ctx.rgt_var));
+                operator.setRight(visit(ctx.rgt_var));
+            } else if (ctx.rgt_array != null) {
+                operator.setRight(WisdomArray.of((Comparable[]) visit(ctx.rgt_array)));
             }
         }
         return operator;
@@ -312,7 +300,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
                     operator.setAttrName(ctx.attr.getText());
                 } else if (ctx.variable_reference() != null) {
                     operator.setNamespace("variable");
-                    operator.addProperty(KeyValueElement.of(VARIABLE, (Comparable) visit(ctx.variable_reference())));
+                    operator.addProperty(KeyValueElement.of(VARIABLE, ((VariableReference) visit(ctx.variable_reference())).getVariableId()));
                     operator.setAttrName(ctx.attr.getText());
                 }
             } else {
@@ -433,7 +421,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
-    public String visitVariable_reference(WisdomQLParser.Variable_referenceContext ctx) {
-        return ctx.NAME().getText();
+    public VariableReference visitVariable_reference(WisdomQLParser.Variable_referenceContext ctx) {
+        return new VariableReference(ctx.NAME().getText());
     }
 }

@@ -183,18 +183,14 @@ update_statement
 
 logical_operator
     : OPEN_PAREN logical_operator CLOSE_PAREN
-    | ((lft_name=NAME|lft_number=NUMBER|lft_var=variable_reference) GREATER_THAN
-                (rgt_name=NAME|rgt_number=NUMBER|rgt_var=variable_reference))
-    | ((lft_name=NAME|lft_number=NUMBER|lft_var=variable_reference) GT_EQ
-                (rgt_name=NAME|rgt_number=NUMBER|rgt_var=variable_reference))
-    | ((lft_name=NAME|lft_number=NUMBER|lft_var=variable_reference) LESS_THAN
-                (rgt_name=NAME|rgt_number=NUMBER|rgt_var=variable_reference))
-    | ((lft_name=NAME|lft_number=NUMBER|lft_var=variable_reference) LT_EQ
-                (rgt_name=NAME|rgt_number=NUMBER|rgt_var=variable_reference))
-    | ((lft_name=NAME|lft_pri=wisdom_primitive|lft_var=variable_reference) EQUALS
-                (rgt_name=NAME|rgt_pri=wisdom_primitive|lft_var=variable_reference))
-    | ((lft_name=NAME|lft_string=STRING|lft_var=variable_reference) IN
-                      (rgt_name=NAME|rgt_string=STRING|rgt_var=variable_reference))
+    | ((lft_name=NAME|lft_primitive=wisdom_primitive|lft_var=variable_reference) operator=(GREATER_THAN|GT_EQ|LESS_THAN|LT_EQ|EQUALS)
+                (rgt_name=NAME|rgt_primitive=wisdom_primitive|rgt_var=variable_reference))
+    | ((lft_name=NAME|lft_string=STRING|lft_var=variable_reference) operator=IN
+                          (rgt_name=NAME|rgt_string=STRING|rgt_var=variable_reference))
+    | ((lft_name=NAME|lft_primitive=wisdom_primitive|lft_var=variable_reference|lft_array=array) operator=IN
+                          (rgt_name=NAME|rgt_var=variable_reference|rgt_array=array))
+    | ((lft_name=NAME|lft_string=STRING|lft_var=variable_reference) operator=MATCHES
+                          (rgt_name=NAME|rgt_string=STRING|rgt_var=variable_reference))
     | NOT logical_operator
     | logical_operator AND logical_operator
     | logical_operator OR logical_operator
@@ -252,6 +248,7 @@ FROM : 'from';
 AS : 'as';
 IF : 'if';
 IN : 'in';
+MATCHES : 'matches';
 OR : 'or';
 AND : 'and';
 NOT : 'not';
@@ -376,19 +373,6 @@ NOT_EQ_1 : '<>';
 NOT_EQ_2 : '!=';
 AT : '@';
 ARROW : '->';
-ADD_ASSIGN : '+=';
-SUB_ASSIGN : '-=';
-MULT_ASSIGN : '*=';
-AT_ASSIGN : '@=';
-DIV_ASSIGN : '/=';
-MOD_ASSIGN : '%=';
-AND_ASSIGN : '&=';
-OR_ASSIGN : '|=';
-XOR_ASSIGN : '^=';
-LEFT_SHIFT_ASSIGN : '<<=';
-RIGHT_SHIFT_ASSIGN : '>>=';
-POWER_ASSIGN : '**=';
-IDIV_ASSIGN : '//=';
 
 SKIP_
  : ( SPACES | COMMENT ) -> skip

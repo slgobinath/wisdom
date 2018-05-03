@@ -3,8 +3,7 @@ package com.javahelps.wisdom.query.tree;
 public class KeyValueElement {
 
     private String key;
-    private Comparable value;
-    private boolean isVariable;
+    private Object value;
 
     public static KeyValueElement of(String key, Comparable value) {
         KeyValueElement element = new KeyValueElement();
@@ -21,19 +20,11 @@ public class KeyValueElement {
         return key;
     }
 
-    public Comparable getValue() {
+    public Object getValue() {
         return value;
     }
 
-    public void setValue(Comparable value) {
+    public void setValue(Object value) {
         this.value = value;
-    }
-
-    public void setVariable(boolean variable) {
-        isVariable = variable;
-    }
-
-    public boolean isVariable() {
-        return isVariable;
     }
 }

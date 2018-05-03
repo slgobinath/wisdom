@@ -18,6 +18,10 @@ public class Attribute extends Operator implements Supplier<Comparable> {
     private final String name;
     private final Supplier<Event> eventSupplier;
 
+    public static Function<Event, Comparable> of(String name) {
+        return event -> event.get(name);
+    }
+
     public Attribute(Event event, String name) {
         this(() -> event, name);
     }

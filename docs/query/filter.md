@@ -1,13 +1,16 @@
-Filter is an operator to filter events coming from a stream. In Wisdom query, a `filter` can be used anywhere in between `from` and `insert into` statements.
+Wisdom Filter filters events from a stream based on a given predicate. In Wisdom query, a `filter` can be used anywhere in between `from` and `insert into` or `update` statements.
 
-In Java API, the `filter` method accepts any `java.util.function.Predicate<Event>` as the argument. For user's convenient, Wisdom offers some built-in predicates:
+In Java API, the `filter` method accepts any `java.util.function.Predicate<Event>` as the argument. For user's convenient, Wisdom offers the following built-in predicates:
 
-- Operator.EQUALS
-- Operator.GREATER_THAN
-- Operator.GREATER_THAN_OR_EQUAL
-- Operator.LESS_THAN
-- Operator.LESS_THAN_OR_EQUAL
-- Operator.STR_IN_ATTR and its variants
+| Java API        | Query Operator           | Description  |
+| --------------------------------- |:-----------------:| :----------------------------------------------------------------|
+| Operator.EQUALS 					| `==` 		| Checks if left operand is equal to right operand |
+| Operator.GREATER_THAN 			| `>` 		| Checks if left operand is greater than right operand |
+| Operator.GREATER_THAN_OR_EQUAL 	| `>=` 		| Checks if left operand is greater than or equal to right operand |
+| Operator.LESS_THAN 				| `<` 		| Checks if left operand is less than right operand |
+| Operator.LESS_THAN_OR_EQUAL 	 	| `<=` 		| Checks if left operand is less than or equal to right operand |
+| Operator.IN 	 					| `in` 		| Checks if left operand is in right operand. Here the right operand can be a string or array |
+| Operator.MATCHES 					| `matches` | Checks if left regex matches in the right string |
 
 **Java API:**
 
@@ -25,7 +28,7 @@ Above code can be written using built-in `Operator.EQUALS` predicate as shown be
 ```java
 app.defineQuery("query1")
     .from("StockStream")
-    .filter(Operator.EQUALS("symbol", "AMAZON"))
+    .filter(Operator.EQUALS(Attribute.of("symbol"), "AMAZON"))
     .insertInto("OutputStream");
 ```
 
@@ -39,4 +42,4 @@ filter symbol == 'AMAZON'
 insert into OutputStream;
 ```
 
-Wisdom Query supports the following logical operators: `==`, `>`, `>=`, `<`, `<=` and `in`
+Wisdom Query supports the following logical operators: `==`, `>`, `>=`, `<`, `<=`, `in` and `matches`

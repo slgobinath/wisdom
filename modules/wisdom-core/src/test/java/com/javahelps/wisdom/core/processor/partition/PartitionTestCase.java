@@ -2,6 +2,7 @@ package com.javahelps.wisdom.core.processor.partition;
 
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.event.Attribute;
 import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
@@ -132,7 +133,7 @@ public class PartitionTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .filter(Operator.LESS_THAN("price", 700.0))
+                .filter(Operator.LESS_THAN(Attribute.of("price"), 700.0))
                 .partitionBy("symbol")
                 .aggregate(Operator.SUM("price", "price"))
                 .select("symbol", "price", "volume")

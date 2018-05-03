@@ -2,6 +2,7 @@ package com.javahelps.wisdom.core.processor.window;
 
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.event.Attribute;
 import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
@@ -89,7 +90,7 @@ public class ExternalTimeBatchWindowTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .filter(Operator.GREATER_THAN("price", 55.0))
+                .filter(Operator.GREATER_THAN(Attribute.of("price"), 55.0))
                 .window(Window.externalTimeBatch("timestamp", Duration.ofSeconds(1)))
                 .select("symbol", "price")
                 .insertInto("OutputStream");
