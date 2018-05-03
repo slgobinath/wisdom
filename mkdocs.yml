@@ -9,4 +9,5 @@ pages:
     - Use Cases:
         - Intrusion Detection: use-cases/intrusion-detection.md
         - TensorFlow Integration: use-cases/tensor-flow.md
+        - Self-Boosting Deployment: use-cases/self-boosting.md
 theme: readthedocs
