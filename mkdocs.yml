@@ -4,7 +4,19 @@ pages:
     - Why Wisdom?: why-wisdom.md
     - Getting Started: getting-started.md
     - Deploy Wisdom:   deploy-wisdom.md
-    - Wisdom Query Guide: query-guide.md
+    - Wisdom API:
+        - Query: query/query.md
+        - Stream: query/stream.md
+        - Variable: query/variable.md
+        - Filter: query/filter.md
+        - Select: query/select.md
+        - Map: query/map.md
+        - Window: query/window.md
+        - Aggregate: query/aggregate.md
+        - Partition: query/partition.md
+        - Pattern: query/pattern.md
+        - Source: query/source.md
+        - Sink: query/sink.md
     - Writing Extensions: wisdom-extensions.md
     - Use Cases:
         - Intrusion Detection: use-cases/intrusion-detection.md
