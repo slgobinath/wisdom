@@ -294,27 +294,33 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
     @Override
     public MapOperator visitMap_operator(WisdomQLParser.Map_operatorContext ctx) {
-        MapOperator operator = new MapOperator();
-        if (ctx.namespace == null) {
-            int noOfMappers = ctx.NAME().size();
-            if (noOfMappers == 2) {
-                operator.setNamespace("rename");
-                operator.addProperty(KeyValueElement.of(ATTR, ctx.NAME(0).getText()));
-                operator.setAttrName(ctx.attr.getText());
-            } else if (ctx.wisdom_primitive() != null) {
-                operator.setNamespace("constant");
-                operator.addProperty(KeyValueElement.of(VALUE, (Comparable) visit(ctx.wisdom_primitive())));
-                operator.setAttrName(ctx.attr.getText());
-            } else if (ctx.variable_reference() != null) {
-                operator.setNamespace("variable");
-                operator.addProperty(KeyValueElement.of(VARIABLE, (Comparable) visit(ctx.variable_reference())));
-                operator.setAttrName(ctx.attr.getText());
-            }
+        MapOperator operator;
+        if (ctx.IF() != null) {
+            operator = (MapOperator) visit(ctx.map_operator());
+            operator.setLogicalOperator((LogicalOperator) visit(ctx.logical_operator()));
         } else {
-            operator.setNamespace(ctx.namespace.getText());
-            operator.setAttrName(ctx.attr.getText());
-            for (ParseTree tree : ctx.optional_key_value_element()) {
-                operator.addProperty((KeyValueElement) visit(tree));
+            operator = new MapOperator();
+            if (ctx.namespace == null) {
+                int noOfMappers = ctx.NAME().size();
+                if (noOfMappers == 2) {
+                    operator.setNamespace("rename");
+                    operator.addProperty(KeyValueElement.of(ATTR, ctx.NAME(0).getText()));
+                    operator.setAttrName(ctx.attr.getText());
+                } else if (ctx.wisdom_primitive() != null) {
+                    operator.setNamespace("constant");
+                    operator.addProperty(KeyValueElement.of(VALUE, (Comparable) visit(ctx.wisdom_primitive())));
+                    operator.setAttrName(ctx.attr.getText());
+                } else if (ctx.variable_reference() != null) {
+                    operator.setNamespace("variable");
+                    operator.addProperty(KeyValueElement.of(VARIABLE, (Comparable) visit(ctx.variable_reference())));
+                    operator.setAttrName(ctx.attr.getText());
+                }
+            } else {
+                operator.setNamespace(ctx.namespace.getText());
+                operator.setAttrName(ctx.attr.getText());
+                for (ParseTree tree : ctx.optional_key_value_element()) {
+                    operator.addProperty((KeyValueElement) visit(tree));
+                }
             }
         }
         return operator;

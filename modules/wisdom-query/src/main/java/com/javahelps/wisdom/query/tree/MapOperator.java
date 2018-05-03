@@ -13,6 +13,7 @@ public class MapOperator implements OperatorElement {
     private String namespace;
     private String attrName;
     private List<KeyValueElement> keyValueElements = new ArrayList<>();
+    private LogicalOperator logicalOperator;
 
     public void addProperty(KeyValueElement element) {
         this.keyValueElements.add(element);
@@ -30,7 +31,15 @@ public class MapOperator implements OperatorElement {
         this.attrName = attrName;
     }
 
+    public void setLogicalOperator(LogicalOperator logicalOperator) {
+        this.logicalOperator = logicalOperator;
+    }
+
     public Mapper build(WisdomApp app, Query query) {
-        return Mapper.create(namespace, attrName, Utility.toProperties(app, keyValueElements));
+        Mapper mapper = Mapper.create(namespace, attrName, Utility.toProperties(app, keyValueElements));
+        if (logicalOperator != null) {
+            mapper.onlyIf(logicalOperator.build(app, query));
+        }
+        return mapper;
     }
 }

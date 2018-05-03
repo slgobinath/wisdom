@@ -39,7 +39,7 @@ public class BoolMapper extends Mapper {
     }
 
     @Override
-    public Event apply(Event event) {
+    public Event map(Event event) {
         return event.set(attrName, event.getAsBool(currentName));
     }
 }

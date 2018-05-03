@@ -49,7 +49,7 @@ public class FormatTimeMapper extends Mapper {
     }
 
     @Override
-    public Event apply(Event event) {
+    public Event map(Event event) {
         long timestamp = event.getAsLong(currentName);
         event.set(attrName, LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), systemZone).toString());
         return event;

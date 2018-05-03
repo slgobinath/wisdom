@@ -39,7 +39,7 @@ public class RenameMapper extends Mapper {
     }
 
     @Override
-    public Event apply(Event event) {
+    public Event map(Event event) {
         return event.rename(currentName, attrName);
     }
 }

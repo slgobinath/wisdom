@@ -44,7 +44,7 @@ public class VariableMapper extends Mapper implements Variable.OnUpdateListener<
     }
 
     @Override
-    public Event apply(Event event) {
+    public Event map(Event event) {
         return event.set(this.attrName, this.value);
     }
 

@@ -39,7 +39,7 @@ public class FloatMapper extends Mapper {
     }
 
     @Override
-    public Event apply(Event event) {
+    public Event map(Event event) {
         event.getData().put(attrName, event.getAsNumber(currentName).floatValue());
         return event;
     }

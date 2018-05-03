@@ -95,7 +95,7 @@ public class TensorFlowMapper extends Mapper {
     }
 
     @Override
-    public Event apply(Event event) {
+    public Event map(Event event) {
         Session.Runner runner = this.session.runner();
         for (Map.Entry<String, Comparable> attr : event.getData().entrySet()) {
             runner = runner.feed(attr.getKey(), Tensor.create(attr.getValue()));

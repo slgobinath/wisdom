@@ -39,7 +39,7 @@ public class IntMapper extends Mapper {
     }
 
     @Override
-    public Event apply(Event event) {
+    public Event map(Event event) {
         event.getData().put(attrName, event.getAsNumber(currentName).intValue());
         return event;
     }
