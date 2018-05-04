@@ -13,8 +13,6 @@ public class MultivariateOptimizer {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultivariateOptimizer.class);
 
     private final Function<Point, Double> function;
-    private double globalBestFitness;
-    private Point globalBestPoint;
     private final int DIMENSION;
     private final double ERROR_TOLERANCE;
     private final int MAX_ITERATION;
@@ -26,8 +24,9 @@ public class MultivariateOptimizer {
     private final double PHI_G;
     private final double PHI_P;
     private final double[] steps;
-
     Random generator = new Random();
+    private double globalBestFitness;
+    private Point globalBestPoint;
 
     public MultivariateOptimizer(Function<Point, Double> function, Constraint[] locationBounds, double[] steps) {
 

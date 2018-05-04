@@ -28,10 +28,9 @@ import static java.util.Map.entry;
 public class KafkaSource extends Source {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSource.class);
-
-    private WisdomApp wisdomApp;
     private final String topic;
     private final String bootstrapServers;
+    private WisdomApp wisdomApp;
     private KafkaConsumerThread consumerThread;
 
     public KafkaSource(String bootstrapServers) {

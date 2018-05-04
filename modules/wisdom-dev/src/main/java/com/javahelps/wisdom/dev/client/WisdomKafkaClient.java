@@ -15,9 +15,9 @@ import java.util.concurrent.ExecutionException;
 
 public class WisdomKafkaClient extends WisdomClient {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WisdomKafkaClient.class);
     private final KafkaProducer producer;
     private final String wisdomAppName;
-    private static final Logger LOGGER = LoggerFactory.getLogger(WisdomKafkaClient.class);
 
     public WisdomKafkaClient(String wisdomAppName, String bootstrapServers) {
         Properties props = new Properties();
@@ -30,7 +30,7 @@ public class WisdomKafkaClient extends WisdomClient {
     }
 
     @Override
-    public Response send(String topic, Map<String, Comparable> data) {
+    public Response send(String topic, Map<String, Object> data) {
 
         Response response;
         try {

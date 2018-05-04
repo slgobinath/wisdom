@@ -12,7 +12,7 @@ public class AdminStream extends Stream {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminStream.class);
 
-    private final Map<String, Set<Consumer<Map<String, Comparable>>>> consumers = new HashMap<>();
+    private final Map<String, Set<Consumer<Map<String, Object>>>> consumers = new HashMap<>();
 
     public AdminStream(WisdomApp wisdomApp, String id) {
         super(wisdomApp, id);
@@ -38,10 +38,10 @@ public class AdminStream extends Stream {
         String command = (String) event.get("command");
         if (command != null) {
             // Command is case sensitive
-            Set<Consumer<Map<String, Comparable>>> set = this.consumers.get(command);
+            Set<Consumer<Map<String, Object>>> set = this.consumers.get(command);
             if (set != null) {
-                Map<String, Comparable> data = Collections.unmodifiableMap(event.getData());
-                for (Consumer<Map<String, Comparable>> consumer : set) {
+                Map<String, Object> data = Collections.unmodifiableMap(event.getData());
+                for (Consumer<Map<String, Object>> consumer : set) {
                     try {
                         consumer.accept(data);
                     } catch (Exception ex) {
@@ -52,10 +52,10 @@ public class AdminStream extends Stream {
         }
     }
 
-    public void register(String command, Consumer<Map<String, Comparable>> consumer) {
+    public void register(String command, Consumer<Map<String, Object>> consumer) {
         Objects.requireNonNull(command, "Command cannot be null");
         Objects.requireNonNull(consumer, "Consumer cannot be null");
-        Set<Consumer<Map<String, Comparable>>> set = this.consumers.get(command);
+        Set<Consumer<Map<String, Object>>> set = this.consumers.get(command);
         if (set == null) {
             set = new LinkedHashSet<>();
             this.consumers.put(command, set);
@@ -63,10 +63,10 @@ public class AdminStream extends Stream {
         set.add(consumer);
     }
 
-    public void unregister(String command, Consumer<Map<String, Comparable>> consumer) {
+    public void unregister(String command, Consumer<Map<String, Object>> consumer) {
         Objects.requireNonNull(command, "Command cannot be null");
         Objects.requireNonNull(consumer, "Consumer cannot be null");
-        Set<Consumer<Map<String, Comparable>>> set = this.consumers.get(command);
+        Set<Consumer<Map<String, Object>>> set = this.consumers.get(command);
         if (set != null) {
             set.remove(consumer);
         }

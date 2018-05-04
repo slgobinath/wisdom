@@ -2,12 +2,7 @@ package com.javahelps.wisdom.core.pattern;
 
 import com.javahelps.wisdom.core.event.Event;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by gobinath on 7/4/17.

@@ -29,11 +29,11 @@ public class Pattern extends StreamProcessor implements Stateful {
     protected String name;
     protected Duration duration;
     protected List<String> streamIds = new ArrayList<>();
-    private boolean consumed = false;
-    private boolean accepting = true;
     protected Predicate<Event> predicate = FunctionalUtility.truePredicator();
     protected EventDistributor eventDistributor = new EventDistributor();
     protected Lock lock = new ReentrantLock();
+    private boolean consumed = false;
+    private boolean accepting = true;
     private TimestampGenerator timestampGenerator;
     private boolean batchPattern = false;
     private List<Event> events = new ArrayList<>();
@@ -50,7 +50,7 @@ public class Pattern extends StreamProcessor implements Stateful {
         return arrayList;
     };
     private CopyEventAttributes copyEventAttributes = (pattern, src, destination) -> {
-        for (Map.Entry<String, Comparable> entry : src.getData().entrySet()) {
+        for (Map.Entry<String, Object> entry : src.getData().entrySet()) {
             destination.set(this.name + "." + entry.getKey(), entry.getValue());
         }
     };

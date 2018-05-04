@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
+import static com.javahelps.wisdom.core.util.Commons.map;
 import static com.javahelps.wisdom.core.util.Commons.toProperties;
 import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 
@@ -43,10 +44,10 @@ public class TestStreamTracker {
         wisdomApp.getStream("OutputStream").setTracker(manager.createStreamTracker("OutputStream"));
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "FilteredStatisticsStream",
-                TestUtil.map("name", "StockStream", "throughput", 2.0),
-                TestUtil.map("name", "OutputStream", "throughput", 2.0),
-                TestUtil.map("name", "StockStream", "throughput", 0.0),
-                TestUtil.map("name", "OutputStream", "throughput", 0.0));
+                map("name", "StockStream", "throughput", 2.0),
+                map("name", "OutputStream", "throughput", 2.0),
+                map("name", "StockStream", "throughput", 0.0),
+                map("name", "OutputStream", "throughput", 0.0));
 
         wisdomApp.start();
 
@@ -89,8 +90,8 @@ public class TestStreamTracker {
                 .insertInto("FilteredStatisticsStream");
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "FilteredStatisticsStream",
-                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 2.0, "port", 8080L),
-                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 0.0, "port", 8080L));
+                map("app", "WisdomApp", "name", "OutputStream", "throughput", 2.0, "port", 8080L),
+                map("app", "WisdomApp", "name", "OutputStream", "throughput", 0.0, "port", 8080L));
 
         wisdomApp.start();
 

@@ -17,11 +17,11 @@ import static com.javahelps.wisdom.core.util.Commons.map;
 
 public class TestPcapFileSource {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestPcapFileSource.class);
+
     static {
         ImportsManager.INSTANCE.use(PcapFileSource.class);
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestPcapFileSource.class);
 
     @Test
     public void testPcapFileSource1() throws InterruptedException, IOException {

@@ -8,8 +8,8 @@ import java.util.function.Function;
 
 public abstract class AggregateOperator implements Function<Event, Comparable>, Stateful, Partitionable {
 
-    protected String attribute;
     protected final String newName;
+    protected String attribute;
 
     protected AggregateOperator(String attribute, String as) {
         this.attribute = attribute;

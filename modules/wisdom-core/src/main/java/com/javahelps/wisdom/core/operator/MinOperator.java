@@ -7,9 +7,9 @@ import java.util.Comparator;
 
 public class MinOperator extends AggregateOperator {
 
-    private Comparable min;
     private final Comparator<Comparable> naturalOrder = Comparator.naturalOrder();
     private final Comparator<Comparable> comparator = Comparator.nullsLast(naturalOrder);
+    private Comparable min;
 
     public MinOperator(String attribute, String as) {
         super(attribute, as);
@@ -22,7 +22,7 @@ public class MinOperator extends AggregateOperator {
             if (event.isReset()) {
                 value = null;
             } else {
-                Comparable newReference = event.get(attribute);
+                Comparable newReference = (Comparable) event.get(attribute);
                 if (comparator.compare(newReference, this.min) < 0) {
                     this.min = newReference;
                 }

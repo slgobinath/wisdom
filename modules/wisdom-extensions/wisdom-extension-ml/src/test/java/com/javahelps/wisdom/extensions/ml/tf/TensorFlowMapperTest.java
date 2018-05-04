@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.javahelps.wisdom.dev.util.Utility.map;
+import static com.javahelps.wisdom.core.util.Commons.map;
 import static com.javahelps.wisdom.extensions.ml.util.Constants.*;
 
 public class TensorFlowMapperTest {

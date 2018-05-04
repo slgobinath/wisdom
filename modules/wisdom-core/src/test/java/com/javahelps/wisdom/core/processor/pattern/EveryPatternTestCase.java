@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.javahelps.wisdom.core.TestUtil.map;
+import static com.javahelps.wisdom.core.util.Commons.map;
 
 /**
  * Test patterns with 'every' keyword.

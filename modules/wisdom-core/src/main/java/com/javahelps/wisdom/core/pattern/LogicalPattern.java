@@ -155,8 +155,15 @@ class LogicalPattern extends CustomPattern {
         this.patternY.setConsumed(false);
     }
 
-    public enum Type {
-        OR, AND
+    @Override
+    public void clear() {
+        try {
+            this.lock.lock();
+            this.patternX.clear();
+            this.patternY.clear();
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     //    @Override
@@ -167,14 +174,7 @@ class LogicalPattern extends CustomPattern {
 //        this.patternY.setMergePreviousEvents(this.patternY.getMergePreviousEvents().andThen(mergePreviousEvents));
 //    }
 
-    @Override
-    public void clear() {
-        try {
-            this.lock.lock();
-            this.patternX.clear();
-            this.patternY.clear();
-        } finally {
-            this.lock.unlock();
-        }
+    public enum Type {
+        OR, AND
     }
 }

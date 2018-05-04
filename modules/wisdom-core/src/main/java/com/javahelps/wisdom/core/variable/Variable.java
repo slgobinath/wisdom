@@ -23,8 +23,8 @@ public class Variable<T> implements Processor, Supplier<T> {
     private final String id;
     private final ReadWriteLock lock;
     private final List<OnUpdateListener<T>> listeners;
-    private T value;
     private final Properties properties;
+    private T value;
     private ThreadBarrier threadBarrier;
 
     public Variable(String id, T value) {
@@ -145,12 +145,12 @@ public class Variable<T> implements Processor, Supplier<T> {
 
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
+
     @FunctionalInterface
     public interface OnUpdateListener<T> {
         void update(T value);
-    }
-
-    public Properties getProperties() {
-        return properties;
     }
 }

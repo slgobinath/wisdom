@@ -27,7 +27,6 @@ public class LogicalOperator implements OperatorElement {
     }
 
 
-
     public Predicate<Event> build(WisdomApp app, Query query) {
         if (this.operator == null) {
             return ((LogicalOperator) this.left).build(app, query);

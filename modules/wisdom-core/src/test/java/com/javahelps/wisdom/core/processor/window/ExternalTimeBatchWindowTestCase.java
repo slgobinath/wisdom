@@ -14,7 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
-import static com.javahelps.wisdom.core.TestUtil.map;
+import static com.javahelps.wisdom.core.util.Commons.map;
+
 
 /**
  * Test the ExternalTimeBatchWindow of Wisdom.

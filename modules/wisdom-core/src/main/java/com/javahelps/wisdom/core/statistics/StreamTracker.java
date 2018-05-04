@@ -24,12 +24,12 @@ public class StreamTracker {
         this.count.set(0L);
     }
 
-    void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
     long getStartTime() {
         return startTime;
+    }
+
+    void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 
     public String getStreamId() {

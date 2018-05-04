@@ -73,6 +73,38 @@ public class WisdomManager {
         this.statisticsManager = new StatisticsManager("WisdomManager_" + managerPort, this.controller, configuration);
     }
 
+    public static void main(String[] args) {
+        // Define arguments
+        ArgumentParser parser = ArgumentParsers.newFor("wisdom-service")
+                .cjkWidthHack(true)
+                .noDestConversionForPositionalArgs(true)
+                .singleMetavar(true)
+                .terminalWidthDetection(true)
+                .build();
+        parser.addArgument("--port")
+                .required(false)
+                .setDefault(8080)
+                .type(Integer.class)
+                .dest("port")
+                .help("port number for Wisdom manager");
+        try {
+            // Parse arguments
+            final Namespace namespace = parser.parseArgs(args);
+            int managerPort = namespace.getInt("port");
+
+            WisdomManager manager;
+            try {
+                manager = new WisdomManager(managerPort);
+            } catch (IOException e) {
+                e.printStackTrace(System.err);
+                return;
+            }
+            manager.start();
+        } catch (ArgumentParserException e) {
+            e.printStackTrace(System.err);
+        }
+    }
+
     public void start() {
         LOGGER.info("Starting Wisdom Manager at {}", this.managerPort);
         Spark.port(this.managerPort);
@@ -130,37 +162,5 @@ public class WisdomManager {
             }
         }).start();
         return "Shutting down wisdom manager...";
-    }
-
-    public static void main(String[] args) {
-        // Define arguments
-        ArgumentParser parser = ArgumentParsers.newFor("wisdom-service")
-                .cjkWidthHack(true)
-                .noDestConversionForPositionalArgs(true)
-                .singleMetavar(true)
-                .terminalWidthDetection(true)
-                .build();
-        parser.addArgument("--port")
-                .required(false)
-                .setDefault(8080)
-                .type(Integer.class)
-                .dest("port")
-                .help("port number for Wisdom manager");
-        try {
-            // Parse arguments
-            final Namespace namespace = parser.parseArgs(args);
-            int managerPort = namespace.getInt("port");
-
-            WisdomManager manager;
-            try {
-                manager = new WisdomManager(managerPort);
-            } catch (IOException e) {
-                e.printStackTrace(System.err);
-                return;
-            }
-            manager.start();
-        } catch (ArgumentParserException e) {
-            e.printStackTrace(System.err);
-        }
     }
 }

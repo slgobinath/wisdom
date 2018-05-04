@@ -27,11 +27,10 @@ import static java.util.Map.entry;
 public class KafkaSink extends Sink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSink.class);
-
-    private String streamId;
     private final String topic;
     private final boolean batch;
     private final String bootstrapServers;
+    private String streamId;
     private Producer<String, String> producer;
 
     public KafkaSink(String bootstrapServers, String topic) {

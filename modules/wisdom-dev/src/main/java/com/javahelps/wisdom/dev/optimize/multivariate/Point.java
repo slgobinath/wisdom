@@ -2,9 +2,9 @@ package com.javahelps.wisdom.dev.optimize.multivariate;
 
 public class Point {
 
+    private final int dimension;
     private double[] coordinates;
     private Constraint[] constraints;
-    private final int dimension;
 
     public Point(Constraint... constraints) {
         this.dimension = constraints.length;

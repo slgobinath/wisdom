@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tensorflow.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -20,14 +21,13 @@ import static com.javahelps.wisdom.extensions.ml.util.Constants.*;
 @WisdomExtension("tensorFlow")
 public class TensorFlowMapper extends Mapper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TensorFlowMapper.class);
     private final String path;
     private final String operation;
     private final String type;
     private final Function<Tensor, Comparable> mapper;
     private SavedModelBundle savedModelBundle;
     private Session session;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TensorFlowMapper.class);
 
     public TensorFlowMapper(String attrName, Map<String, ?> properties) {
         super(attrName, properties);
@@ -59,6 +59,40 @@ public class TensorFlowMapper extends Mapper {
         }
     }
 
+    public static void main(String[] args) {
+        LOGGER.info("Loading TensorFlow version {}", TensorFlow.version());
+        try (SavedModelBundle savedModelBundle = SavedModelBundle.load("/home/gobinath/Workspace/tf_serve/models/hello_world/1", "serve")) {
+            System.out.println("Loaded");
+            Session session = savedModelBundle.session();
+            int[] result = new int[2];
+            session.runner().feed("x", Tensor.create(new int[]{10, 20}))
+                    .feed("y", Tensor.create(new int[]{1, 2}))
+                    .fetch("ans")
+                    .run().get(0).copyTo(result);
+            System.out.println(Arrays.toString(result));
+        }
+    }
+
+    private static Comparable toInt(Tensor tensor) {
+        return (long) tensor.intValue();
+    }
+
+    private static Comparable toFloat(Tensor tensor) {
+        return (double) tensor.floatValue();
+    }
+
+    private static Comparable toLong(Tensor tensor) {
+        return tensor.longValue();
+    }
+
+    private static Comparable toDouble(Tensor tensor) {
+        return tensor.doubleValue();
+    }
+
+    private static Comparable toBool(Tensor tensor) {
+        return tensor.booleanValue();
+    }
+
     @Override
     public void start() {
         LOGGER.debug("Loading TensorFlow model from {}", this.path);
@@ -85,43 +119,14 @@ public class TensorFlowMapper extends Mapper {
         }
     }
 
-    public static void main(String[] args) {
-        LOGGER.info("Loading TensorFlow version {}", TensorFlow.version());
-        try (SavedModelBundle savedModelBundle = SavedModelBundle.load("/home/gobinath/Workspace/tf_serve/models/hello_world/1", "serve")) {
-            System.out.println("Loaded");
-            Session session = savedModelBundle.session();
-            System.out.println(session.runner().feed("x", Tensor.create(10)).feed("y", Tensor.create(20)).fetch("ans").run().get(0));
-        }
-    }
-
     @Override
     public Event map(Event event) {
         Session.Runner runner = this.session.runner();
-        for (Map.Entry<String, Comparable> attr : event.getData().entrySet()) {
+        for (Map.Entry<String, Object> attr : event.getData().entrySet()) {
             runner = runner.feed(attr.getKey(), Tensor.create(attr.getValue()));
         }
         List<Tensor<?>> tensors = runner.fetch(this.operation).run();
         event.set(this.attrName, this.mapper.apply(tensors.get(0)));
         return event;
-    }
-
-    private static Comparable toInt(Tensor tensor) {
-        return (long) tensor.intValue();
-    }
-
-    private static Comparable toFloat(Tensor tensor) {
-        return (double) tensor.floatValue();
-    }
-
-    private static Comparable toLong(Tensor tensor) {
-        return tensor.longValue();
-    }
-
-    private static Comparable toDouble(Tensor tensor) {
-        return tensor.doubleValue();
-    }
-
-    private static Comparable toBool(Tensor tensor) {
-        return tensor.booleanValue();
     }
 }

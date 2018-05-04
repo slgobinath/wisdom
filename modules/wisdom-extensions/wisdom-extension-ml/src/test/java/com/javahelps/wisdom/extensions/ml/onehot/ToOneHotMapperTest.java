@@ -14,7 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import static com.javahelps.wisdom.dev.util.Utility.map;
+import static com.javahelps.wisdom.core.util.Commons.map;
+
 
 public class ToOneHotMapperTest {
 

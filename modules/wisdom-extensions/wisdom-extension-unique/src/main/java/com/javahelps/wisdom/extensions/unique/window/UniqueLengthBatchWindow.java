@@ -15,8 +15,8 @@ import java.util.Map;
 @WisdomExtension("unique:lengthBatch")
 public class UniqueLengthBatchWindow extends Window implements Variable.OnUpdateListener<Integer> {
 
-    private Map<Comparable, Event> eventMap;
     private final String uniqueKey;
+    private Map<Object, Event> eventMap;
     private int length;
     private Variable<Number> lengthVariable;
 
@@ -46,7 +46,7 @@ public class UniqueLengthBatchWindow extends Window implements Variable.OnUpdate
     public void process(Event event, Processor nextProcessor) {
 
         List<Event> eventsToSend = null;
-        Comparable uniqueValue = event.get(this.uniqueKey);
+        Object uniqueValue = event.get(this.uniqueKey);
         try {
             this.lock.lock();
             this.eventMap.put(uniqueValue, event);

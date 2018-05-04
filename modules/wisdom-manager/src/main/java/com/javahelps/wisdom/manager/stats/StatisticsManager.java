@@ -41,7 +41,7 @@ public class StatisticsManager implements StatisticsConsumer.StatsListener {
     }
 
     @Override
-    public void onStats(Map<String, Comparable> stats) {
+    public void onStats(Map<String, Object> stats) {
         LOGGER.debug("Received statistics {}", stats);
         String streamName = (String) stats.get("name");
         if (streamName != null) {
@@ -76,7 +76,7 @@ public class StatisticsManager implements StatisticsConsumer.StatsListener {
                 startable.add(artifact);
             } else if (pid != -1L && throughput <= MINIMUM_THROUGHPUT_THRESHOLD && artifact.getPriority() <= MINIMUM_PRIORITY_THRESHOLD) {
                 // Running but no longer required
-                    stopable.add(artifact);
+                stopable.add(artifact);
             }
         }
 

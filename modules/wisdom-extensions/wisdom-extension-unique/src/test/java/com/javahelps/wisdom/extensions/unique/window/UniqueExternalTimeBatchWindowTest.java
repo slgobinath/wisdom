@@ -11,16 +11,17 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.javahelps.wisdom.dev.util.Utility.map;
+import static com.javahelps.wisdom.core.util.Commons.map;
 
 public class UniqueExternalTimeBatchWindowTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UniqueExternalTimeBatchWindowTest.class);
-    private TestCallback callbackUtil = new TestCallback(LOGGER);
 
     static {
         ImportsManager.INSTANCE.use(UniqueExternalTimeBatchWindow.class);
     }
+
+    private TestCallback callbackUtil = new TestCallback(LOGGER);
 
     @Test
     public void testWindow1() throws InterruptedException {

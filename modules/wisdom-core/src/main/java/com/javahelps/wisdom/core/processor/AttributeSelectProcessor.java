@@ -4,7 +4,6 @@ import com.javahelps.wisdom.core.event.Event;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * {@link StreamProcessor} to create a new {@link Event} with a subset of the attributes of previous {@link Event}.

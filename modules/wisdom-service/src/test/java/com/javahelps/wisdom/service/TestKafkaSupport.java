@@ -20,18 +20,18 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 
-import static com.javahelps.wisdom.dev.util.Utility.map;
+import static com.javahelps.wisdom.core.util.Commons.map;
 
 public class TestKafkaSupport {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestKafkaSupport.class);
 
     static {
         ImportsManager.INSTANCE.use(KafkaSource.class);
         ImportsManager.INSTANCE.use(KafkaSink.class);
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestKafkaSupport.class);
-
-//    @Test
+    //    @Test
     public void testKafkaSource() throws IOException, InterruptedException {
 
         LOGGER.info("Test Kafka source");
@@ -77,14 +77,14 @@ public class TestKafkaSupport {
         Assert.assertEquals("First event was not received", "ORACLE", receivedEvents.get(2).get("symbol"));
     }
 
-//    @Test
+    //    @Test
     public void testKafkaSink() throws IOException, InterruptedException {
 
         LOGGER.info("Test Kafka sink");
 
         final String bootstrapServer = "localhost:9092";
         final String topic = "FilteredStocks";
-        final List<Map<String, Comparable>> receivedEvents = new ArrayList<>();
+        final List<Map<String, Object>> receivedEvents = new ArrayList<>();
 
         final Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);

@@ -29,11 +29,11 @@ import static com.javahelps.wisdom.manager.util.Constants.ARTIFACTS_DIR;
 
 public class ArtifactController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactController.class);
+
     static {
         ImportsManager.INSTANCE.scanClassPath();
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactController.class);
 
     private final Yaml yaml;
     private final File wisdomHome;
@@ -211,7 +211,7 @@ public class ArtifactController {
         return String.format("Wisdom app %s is successfully deleted", appName);
     }
 
-    public Map<String, Comparable> info(String appName) {
+    public Map<String, Object> info(String appName) {
 
         Objects.requireNonNull(appName, "Wisdom appName is not provided");
         Artifact artifact = deployedArtifacts.get(appName);
@@ -219,7 +219,7 @@ public class ArtifactController {
             throw new WisdomAppRuntimeException("Wisdom app: '%s' not found in deployed applications", appName);
         }
 
-        Map<String, Comparable> info = map("name", appName, "port", artifact.getPort(), "pid", artifact.getPid(), "running", false);
+        Map<String, Object> info = map("name", appName, "port", artifact.getPort(), "pid", artifact.getPid(), "running", false);
 
         // Test if it is running
         try (WisdomAdminClient client = new WisdomAdminClient(artifact.getHost(), artifact.getPort())) {
@@ -241,9 +241,9 @@ public class ArtifactController {
         if (artifact == null) {
             throw new WisdomAppRuntimeException("Wisdom app: '%s' not found in deployed applications", appName);
         }
-        Map<String, Map<String, Comparable>> trainableStreams = artifact.getInit();
+        Map<String, Map<String, Object>> trainableStreams = artifact.getInit();
         for (Map.Entry<String, Map<String, Comparable>> entry : values.entrySet()) {
-            Map<String, Comparable> variables = trainableStreams.get(entry.getKey());
+            Map<String, Object> variables = trainableStreams.get(entry.getKey());
             if (variables != null) {
                 for (Map.Entry<String, Comparable> varMapping : entry.getValue().entrySet()) {
                     variables.replace(varMapping.getKey(), varMapping.getValue());
@@ -255,8 +255,8 @@ public class ArtifactController {
         return "Initialized the artifact " + appName;
     }
 
-    public List<Map<String, Comparable>> info() {
-        List<Map<String, Comparable>> allInfo = new ArrayList<>(this.deployedArtifacts.size());
+    public List<Map<String, Object>> info() {
+        List<Map<String, Object>> allInfo = new ArrayList<>(this.deployedArtifacts.size());
         for (String appName : this.deployedArtifacts.keySet()) {
             allInfo.add(this.info(appName));
         }
@@ -268,7 +268,7 @@ public class ArtifactController {
         // Test if it is already running
         try (WisdomClient client = new WisdomHTTPClient(artifact.getHost(), artifact.getPort())) {
             // Initialize all variables
-            for (Map.Entry<String, Map<String, Comparable>> entry : artifact.getInit().entrySet()) {
+            for (Map.Entry<String, Map<String, Object>> entry : artifact.getInit().entrySet()) {
                 Response response = client.send(entry.getKey(), entry.getValue());
                 if (response.getStatus() != HTTP_OK) {
                     return response.getReason();

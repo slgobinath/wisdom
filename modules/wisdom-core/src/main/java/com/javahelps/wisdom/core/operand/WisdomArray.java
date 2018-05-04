@@ -1,21 +1,26 @@
 package com.javahelps.wisdom.core.operand;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-public class WisdomArray implements WisdomDataType<WisdomArray> {
+public class WisdomArray implements WisdomDataType<WisdomArray>, Iterable {
 
-    private final List<Comparable> list;
+    private final List<Object> list;
+    private final int size;
 
-    public WisdomArray(List<Comparable> list) {
-        this.list = list;
+    protected WisdomArray(List<Object> list) {
+        this.list = Collections.unmodifiableList(list);
+        this.size = this.list.size();
     }
 
-    public static WisdomArray of(Comparable... items) {
+    public static WisdomArray of(String... items) {
         return new WisdomArray(List.of(items));
     }
 
-    public static WisdomArray of(List<Comparable> items) {
+    public static WisdomArray of(int... items) {
+        return new IntWisdomArray(items);
+    }
+
+    public static WisdomArray of(List<Object> items) {
         return new WisdomArray(items);
     }
 
@@ -27,8 +32,30 @@ public class WisdomArray implements WisdomDataType<WisdomArray> {
         }
     }
 
-    public List<Comparable> toList() {
+    public int size() {
+        return this.list.size();
+    }
+
+    public <T> List<T> toList(Class<T> clz) {
+        List<T> lst = new ArrayList<>(this.size);
+        this.list.forEach(x -> lst.add((T) x));
+        return lst;
+    }
+
+    public List<Object> toList() {
         return list;
+    }
+
+    public Object toArray() {
+        return this.list.toArray();
+    }
+
+    public WisdomArray toIntArray() {
+        int[] array = new int[this.size];
+        for (int i = 0; i < this.size; i++) {
+            array[i] = ((Number) this.list.get(i)).intValue();
+        }
+        return new IntWisdomArray(array);
     }
 
     @Override
@@ -56,5 +83,10 @@ public class WisdomArray implements WisdomDataType<WisdomArray> {
     @Override
     public String toString() {
         return this.list.toString();
+    }
+
+    @Override
+    public Iterator iterator() {
+        return this.list.iterator();
     }
 }

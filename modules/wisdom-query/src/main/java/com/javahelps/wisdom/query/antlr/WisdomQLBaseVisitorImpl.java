@@ -16,6 +16,8 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.*;
@@ -263,7 +265,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             } else if (ctx.lft_var != null) {
                 operator.setLeft(visit(ctx.lft_var));
             } else if (ctx.lft_array != null) {
-                operator.setLeft(WisdomArray.of((Comparable[]) visit(ctx.lft_array)));
+                operator.setLeft(visit(ctx.lft_array));
             }
             if (ctx.rgt_name != null) {
                 operator.setRight(Attribute.of(ctx.rgt_name.getText()));
@@ -274,7 +276,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             } else if (ctx.rgt_var != null) {
                 operator.setRight(visit(ctx.rgt_var));
             } else if (ctx.rgt_array != null) {
-                operator.setRight(WisdomArray.of((Comparable[]) visit(ctx.rgt_array)));
+                operator.setRight(visit(ctx.rgt_array));
             }
         }
         return operator;
@@ -411,13 +413,13 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
-    public Comparable[] visitArray(WisdomQLParser.ArrayContext ctx) {
+    public WisdomArray visitArray(WisdomQLParser.ArrayContext ctx) {
         int size = ctx.wisdom_primitive().size();
-        Comparable[] array = new Comparable[size];
-        for (int i = 0; i < size; i++) {
-            array[i] = (Comparable) visit(ctx.wisdom_primitive(i));
+        List<Object> list = new ArrayList<>(size);
+        for (ParseTree tree : ctx.wisdom_primitive()) {
+            list.add(visit(tree));
         }
-        return array;
+        return WisdomArray.of(list);
     }
 
     @Override

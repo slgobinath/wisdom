@@ -15,9 +15,9 @@ import java.util.Map;
 @WisdomExtension("unique:externalTimeBatch")
 public class UniqueExternalTimeBatchWindow extends Window implements Variable.OnUpdateListener<Long> {
 
-    private Map<Comparable, Event> eventMap = new LinkedHashMap<>();
     private final String uniqueKey;
     private final String timestampKey;
+    private Map<Object, Event> eventMap = new LinkedHashMap<>();
     private long timeToKeep;
     private Variable<Number> timeToKeepVariable;
     private long endTime = -1;
@@ -54,7 +54,7 @@ public class UniqueExternalTimeBatchWindow extends Window implements Variable.On
     public void process(Event event, Processor nextProcessor) {
 
         List<Event> eventsToSend = null;
-        Comparable uniqueValue = event.get(this.uniqueKey);
+        Object uniqueValue = event.get(this.uniqueKey);
         long currentTimestamp = event.getAsLong(this.timestampKey);
 
         try {

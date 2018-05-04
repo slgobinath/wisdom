@@ -25,15 +25,15 @@ import java.util.function.Predicate;
  */
 public class Query implements Stateful {
 
+    private final Map<String, StreamProcessor> streamProcessorMap = new HashMap<>();
+    private final List<Stateful> statefulList = new ArrayList<>();
+    private final List<Mapper> mapperList = new ArrayList<>();
     private String id;
     private WisdomApp wisdomApp;
     private Stream inputStream;
     private Stream outputStream;
     private StreamProcessor lastStreamProcessor;
     private int processorIndex = 0;
-    private final Map<String, StreamProcessor> streamProcessorMap = new HashMap<>();
-    private final List<Stateful> statefulList = new ArrayList<>();
-    private final List<Mapper> mapperList = new ArrayList<>();
 
     public Query(WisdomApp wisdomApp, String id) {
 

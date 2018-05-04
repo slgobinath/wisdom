@@ -33,7 +33,7 @@ class CountPattern extends CustomPattern implements EmptiablePattern {
         });
         this.pattern.setEmitConditionMet(event -> pattern.getEvents().size() >= this.minCount);
         this.pattern.setCopyEventAttributes((pattern1, src, destination) -> {
-            for (Map.Entry<String, Comparable> entry : src.getData().entrySet()) {
+            for (Map.Entry<String, Object> entry : src.getData().entrySet()) {
                 destination.set(pattern.name + "[" + pattern.getEvents().size() + "]." + entry.getKey(),
                         entry.getValue());
             }

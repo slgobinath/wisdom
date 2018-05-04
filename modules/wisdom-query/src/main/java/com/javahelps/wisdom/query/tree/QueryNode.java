@@ -9,9 +9,9 @@ import java.util.UUID;
 
 public class QueryNode {
 
-    private String name;
     private final String input;
     private final List<Statement> statements = new ArrayList<>();
+    private String name;
 
     public QueryNode(String input) {
         this.input = input;

@@ -20,15 +20,15 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public abstract class Window implements Partitionable, Stateful {
 
+    static {
+        ImportsManager.INSTANCE.use(Window.class.getPackageName());
+    }
+
     protected final Lock lock = new ReentrantLock();
     protected final Map<String, ?> properties;
 
     public Window(Map<String, ?> properties) {
         this.properties = properties;
-    }
-
-    static {
-        ImportsManager.INSTANCE.use(Window.class.getPackageName());
     }
 
     public static Window create(String namespace, Map<String, ?> properties) {

@@ -20,11 +20,11 @@ public class StatisticsConsumer implements Runnable {
     private final String groupId;
     private final String topic;
     private final String bootstrapServers;
-    private transient boolean active = true;
-    private Consumer<String, String> consumer;
     private final StatsListener statsListener;
     private final Lock lock = new ReentrantLock();
     private final ExecutorService executorService;
+    private transient boolean active = true;
+    private Consumer<String, String> consumer;
 
     public StatisticsConsumer(String bootstrapServers, String topic, String groupId, ExecutorService executorService, StatsListener statsListener) {
         this.bootstrapServers = bootstrapServers;
@@ -92,6 +92,6 @@ public class StatisticsConsumer implements Runnable {
     }
 
     public interface StatsListener {
-        void onStats(Map<String, Comparable> stats);
+        void onStats(Map<String, Object> stats);
     }
 }

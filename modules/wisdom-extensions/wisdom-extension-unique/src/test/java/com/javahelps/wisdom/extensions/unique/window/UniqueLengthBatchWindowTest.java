@@ -10,16 +10,17 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.javahelps.wisdom.dev.util.Utility.map;
+import static com.javahelps.wisdom.core.util.Commons.map;
 
 public class UniqueLengthBatchWindowTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UniqueLengthBatchWindowTest.class);
-    private TestCallback callbackUtil = new TestCallback(LOGGER);
 
     static {
         ImportsManager.INSTANCE.use(UniqueLengthBatchWindow.class);
     }
+
+    private TestCallback callbackUtil = new TestCallback(LOGGER);
 
     @Test
     public void testWindow1() {

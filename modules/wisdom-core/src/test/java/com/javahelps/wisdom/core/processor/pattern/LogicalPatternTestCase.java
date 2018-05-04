@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-import static com.javahelps.wisdom.core.TestUtil.map;
+import static com.javahelps.wisdom.core.util.Commons.map;
 
 /**
  * Test logical patterns of Wisdom which includes AND, OR & NOT.

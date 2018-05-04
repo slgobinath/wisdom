@@ -4,27 +4,15 @@ import com.google.gson.Gson;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.dev.optimize.multivariate.Constraint;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Utility {
 
     private static final Gson gson = new Gson();
-//    private static final Type type = new TypeToken<Map<String, Comparable>>() {
-//    }.getType();
 
     private Utility() {
 
-    }
-
-    public static Map<String, Comparable> map(Comparable... entries) {
-        int count = entries.length;
-        Map<String, Comparable> map = new HashMap<>(count / 2);
-        for (int i = 0; i < count; i += 2) {
-            map.put((String) entries[i], entries[i + 1]);
-        }
-        return map;
     }
 
     public static Constraint[] velocityBound(Constraint... bounds) {
@@ -59,7 +47,7 @@ public class Utility {
      * @param jsonString
      * @return
      */
-    public static Map<String, Comparable> toMap(String jsonString) {
+    public static Map<String, Object> toMap(String jsonString) {
         return gson.fromJson(jsonString, Map.class);
     }
 
@@ -91,7 +79,7 @@ public class Utility {
      */
     public static String toJson(List<Event> events) {
         int length = events.size();
-        Map<String, Comparable>[] dataArray = new Map[length];
+        Map<String, Object>[] dataArray = new Map[length];
         for (int i = 0; i < length; i++) {
             dataArray[i] = events.get(i).getData();
         }

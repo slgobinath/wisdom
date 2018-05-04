@@ -16,7 +16,7 @@ public class Event {
     private long timestamp = -1;
     private Stream stream;
     private String name;
-    private Map<String, Comparable> data;
+    private Map<String, Object> data;
     private transient Map<String, String> alias;
     private boolean expired = false;
     private boolean reset = false;
@@ -39,7 +39,7 @@ public class Event {
         return new Attribute(this, attribute);
     }
 
-    public Event set(String attribute, Comparable value) {
+    public Event set(String attribute, Object value) {
         this.data.put(attribute, value);
         return this;
     }
@@ -54,13 +54,13 @@ public class Event {
         return this;
     }
 
-    public Comparable get(String attribute) {
+    public Object get(String attribute) {
         if (this.name != null) {
             if (!attribute.contains(".")) {
                 attribute = this.name + "." + attribute;
             }
         }
-        Comparable data = this.data.get(attribute);
+        Object data = this.data.get(attribute);
         if (data == null) {
             data = this.data.get(this.alias.get(attribute));
         }
@@ -68,21 +68,20 @@ public class Event {
     }
 
     public Number getAsNumber(String attribute) {
-        Comparable value = this.get(attribute);
+        Object value = this.get(attribute);
         if (value == null) {
             throw new AttributeNotFoundException(String.format("Attribute %s not found in event %s", attribute,
                     this.toString()));
         }
         if (!(value instanceof Number)) {
-            throw new WisdomAppRuntimeException(String.format("Cannot convert attribute %s from %s to java.lang" +
-                    ".Number", attribute, value.getClass().getSimpleName()));
+            throw new WisdomAppRuntimeException(String.format("Cannot convert attribute %s from %s to Number", attribute, value.getClass().getSimpleName()));
         }
         return ((Number) value);
     }
 
     public Boolean getAsBool(String attribute) {
         boolean bool;
-        Comparable value = this.get(attribute);
+        Object value = this.get(attribute);
         if (value == null) {
             bool = false;
         } else if (value instanceof Boolean) {
@@ -111,7 +110,7 @@ public class Event {
     }
 
     public Event rename(String attribute, String newAttribute) {
-        Comparable value = this.get(attribute);
+        Object value = this.get(attribute);
         this.remove(attribute);
         this.set(newAttribute, value);
         return this;
@@ -149,7 +148,7 @@ public class Event {
         this.original = original;
     }
 
-    public Map<String, Comparable> getData() {
+    public Map<String, Object> getData() {
         return data;
     }
 

@@ -20,10 +20,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.javahelps.wisdom.core.util.Commons.map;
 import static com.javahelps.wisdom.core.util.WisdomConstants.THRESHOLD_STREAM;
 import static com.javahelps.wisdom.dev.util.Constants.HTTP_OK;
 import static com.javahelps.wisdom.dev.util.Constants.MEDIA_APPLICATION_JSON;
-import static com.javahelps.wisdom.dev.util.Utility.map;
 
 public class WisdomManagerClient implements AutoCloseable {
 

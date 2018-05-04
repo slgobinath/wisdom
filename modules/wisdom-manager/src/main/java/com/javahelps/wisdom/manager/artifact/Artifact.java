@@ -17,7 +17,7 @@ public class Artifact {
     private int priority = 10;
     private boolean stoppedByManager;
     private List<String> requires = new ArrayList<>();
-    private Map<String, Map<String, Comparable>> init = new HashMap<>();
+    private Map<String, Map<String, Object>> init = new HashMap<>();
     private List<Double> throughputs = new ArrayList<>(THROUGHPUT_WINDOW_LENGTH);
 
     public Artifact() {
@@ -30,7 +30,7 @@ public class Artifact {
         this.host = (String) map.get("host");
         this.priority = (int) map.get("priority");
         this.pid = ((Number) map.getOrDefault("pid", -1L)).longValue();
-        this.init = (Map<String, Map<String, Comparable>>) map.getOrDefault("init", this.init);
+        this.init = (Map<String, Map<String, Object>>) map.getOrDefault("init", this.init);
         List<String> requires = (List<String>) map.get("requires");
         List<Double> throughputs = (List<Double>) map.get("throughputs");
         if (throughputs != null) {
@@ -43,12 +43,12 @@ public class Artifact {
         }
     }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
-
     public String getHost() {
         return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
 
     public long getPid() {
@@ -71,12 +71,12 @@ public class Artifact {
         return name;
     }
 
-    public String getFileName() {
-        return this.name + ".wisdomql";
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getFileName() {
+        return this.name + ".wisdomql";
     }
 
     public int getPriority() {
@@ -92,36 +92,40 @@ public class Artifact {
         this.priority = priority;
     }
 
-    public Map<String, Map<String, Comparable>> getInit() {
+    public Map<String, Map<String, Object>> getInit() {
         return init;
     }
 
-    public void setInit(Map<String, Map<String, Comparable>> init) {
+    public void setInit(Map<String, Map<String, Object>> init) {
         this.init = init;
-    }
-
-    public void setStoppedByManager(boolean stoppedByManager) {
-        this.stoppedByManager = stoppedByManager;
     }
 
     public boolean isStoppedByManager() {
         return stoppedByManager;
     }
 
+    public void setStoppedByManager(boolean stoppedByManager) {
+        this.stoppedByManager = stoppedByManager;
+    }
+
     public List<Double> getThroughputs() {
         return throughputs;
     }
 
-    public void setRequires(List<String> requires) {
-        this.requires = requires;
+    public void setThroughputs(List<Double> throughputs) {
+        this.throughputs = throughputs;
     }
 
     public List<String> getRequires() {
         return requires;
     }
 
-    public void addInit(String streamId, String variableId, Comparable value) {
-        Map<String, Comparable> map = this.init.get(streamId);
+    public void setRequires(List<String> requires) {
+        this.requires = requires;
+    }
+
+    public void addInit(String streamId, String variableId, Object value) {
+        Map<String, Object> map = this.init.get(streamId);
         if (map == null) {
             map = new HashMap<>();
             this.init.put(streamId, map);
@@ -155,10 +159,6 @@ public class Artifact {
                 this.throughputs.remove(0);
             }
         }
-    }
-
-    public void setThroughputs(List<Double> throughputs) {
-        this.throughputs = throughputs;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.javahelps.wisdom.core;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.ExceptionListener;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.operand.WisdomArray;
 import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.processor.Stateful;
 import com.javahelps.wisdom.core.query.Query;
@@ -37,12 +38,9 @@ public class WisdomApp implements Stateful {
     private final String version;
 
     private final int bufferSize;
-    private long reportFrequency;
-    private String statisticStream;
     private final Properties properties;
     private final WisdomContext wisdomContext;
     private final ThreadBarrier threadBarrier;
-    private StatisticsManager statisticsManager;
     private final List<Sink> sinks = new ArrayList<>();
     private final List<Source> sources = new ArrayList<>();
     private final List<Variable> trainable = new ArrayList<>();
@@ -51,6 +49,9 @@ public class WisdomApp implements Stateful {
     private final Map<String, Variable> variableMap = new HashMap<>();
     private final List<Consumer<WisdomApp>> initConsumers = new ArrayList<>();
     private final Map<Class<? extends Exception>, ExceptionListener> exceptionListenerMap = new HashMap<>();
+    private long reportFrequency;
+    private String statisticStream;
+    private StatisticsManager statisticsManager;
 
     public WisdomApp() {
         this(WISDOM_APP_NAME, WISDOM_APP_VERSION);
@@ -72,9 +73,15 @@ public class WisdomApp implements Stateful {
         String statisticStream = properties.getProperty(STATISTICS);
         if (statisticStream != null) {
             long freq = ((Number) properties.getOrDefault(STATISTICS_REPORT_FREQUENCY, WisdomConfig.STATISTICS_REPORT_FREQUENCY)).longValue();
-            Comparable[] env = (Comparable[]) properties.get(STATISTICS_CONTEXT_VARIABLES);
-            if (env == null) {
+            Object statsVar = properties.get(STATISTICS_CONTEXT_VARIABLES);
+            Comparable[] env;
+
+            if (statsVar == null) {
                 env = new String[0];
+            } else if (statsVar instanceof WisdomArray) {
+                env = ((WisdomArray) statsVar).toList(Comparable.class).toArray(new Comparable[0]);
+            } else {
+                env = (Comparable[]) statsVar;
             }
             this.enableStatistics(statisticStream, freq, env);
         }

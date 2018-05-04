@@ -31,16 +31,16 @@ import static com.javahelps.wisdom.dev.util.Constants.MAPPING;
 
 public class WisdomService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WisdomService.class);
+
     static {
         ImportsManager.INSTANCE.scanClassPath();
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WisdomService.class);
-
-    private boolean running;
     private final int wisdomPort;
     private final WisdomApp wisdomApp;
     private final Gson gson = new Gson();
+    private boolean running;
 
 
     public WisdomService(WisdomApp wisdomApp, int port) {
@@ -51,50 +51,6 @@ public class WisdomService {
             wisdomApp.addSource(THRESHOLD_STREAM, Source.create("http", Commons.map(MAPPING, JSON)));
         }
         wisdomApp.getProperties().put("port", port);
-    }
-
-    public void start() {
-        this.running = true;
-        Spark.port(this.wisdomPort);
-        Spark.exception(WisdomServiceException.class, new WisdomServiceExceptionHandler());
-        Spark.exception(JsonSyntaxException.class, new JsonSyntaxExceptionHandler());
-        Spark.post("/WisdomApp/admin/shutdown", (request, response) -> {
-            new Thread(() -> {
-                try {
-                    Thread.sleep(50L);
-                } catch (InterruptedException e) {
-                    // Do nothing
-                }
-                try {
-                    this.stop();
-                } finally {
-                    // System.exit(0);
-                }
-            }).start();
-            return "Shutting down wisdom service...";
-        });
-        Spark.get("/WisdomApp/admin/info", (request, response) -> this.info(), gson::toJson);
-        this.wisdomApp.start();
-    }
-
-    public void stop() {
-        LOGGER.debug("Shutting down Wisdom server");
-        Spark.stop();
-        this.wisdomApp.shutdown();
-        this.running = false;
-    }
-
-    public boolean isRunning() {
-        return this.running;
-    }
-
-    public Map<String, Comparable> info() {
-        RuntimeMXBean rb = ManagementFactory.getRuntimeMXBean();
-        return Commons.map("running", this.running,
-                "name", this.wisdomApp.getName(),
-                "version", this.wisdomApp.getVersion(),
-                "port", this.wisdomPort,
-                "uptime", rb.getUptime());
     }
 
     public static void main(String[] args) {
@@ -138,5 +94,49 @@ public class WisdomService {
         } catch (ArgumentParserException e) {
             e.printStackTrace(System.err);
         }
+    }
+
+    public void start() {
+        this.running = true;
+        Spark.port(this.wisdomPort);
+        Spark.exception(WisdomServiceException.class, new WisdomServiceExceptionHandler());
+        Spark.exception(JsonSyntaxException.class, new JsonSyntaxExceptionHandler());
+        Spark.post("/WisdomApp/admin/shutdown", (request, response) -> {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(50L);
+                } catch (InterruptedException e) {
+                    // Do nothing
+                }
+                try {
+                    this.stop();
+                } finally {
+                    // System.exit(0);
+                }
+            }).start();
+            return "Shutting down wisdom service...";
+        });
+        Spark.get("/WisdomApp/admin/info", (request, response) -> this.info(), gson::toJson);
+        this.wisdomApp.start();
+    }
+
+    public void stop() {
+        LOGGER.debug("Shutting down Wisdom server");
+        Spark.stop();
+        this.wisdomApp.shutdown();
+        this.running = false;
+    }
+
+    public boolean isRunning() {
+        return this.running;
+    }
+
+    public Map<String, Object> info() {
+        RuntimeMXBean rb = ManagementFactory.getRuntimeMXBean();
+        return Commons.map("running", this.running,
+                "name", this.wisdomApp.getName(),
+                "version", this.wisdomApp.getVersion(),
+                "port", this.wisdomPort,
+                "uptime", rb.getUptime());
     }
 }

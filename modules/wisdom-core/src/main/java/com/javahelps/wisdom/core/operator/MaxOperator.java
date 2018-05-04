@@ -7,9 +7,9 @@ import java.util.Comparator;
 
 public class MaxOperator extends AggregateOperator {
 
-    private Comparable max;
     private final Comparator<Comparable> naturalOrder = Comparator.naturalOrder();
     private final Comparator<Comparable> comparator = Comparator.nullsFirst(naturalOrder);
+    private Comparable max;
 
     public MaxOperator(String attribute, String as) {
         super(attribute, as);
@@ -22,7 +22,7 @@ public class MaxOperator extends AggregateOperator {
             if (event.isReset()) {
                 value = null;
             } else {
-                Comparable newReference = event.get(attribute);
+                Comparable newReference = (Comparable) event.get(attribute);
                 if (comparator.compare(newReference, this.max) > 0) {
                     this.max = newReference;
                 }

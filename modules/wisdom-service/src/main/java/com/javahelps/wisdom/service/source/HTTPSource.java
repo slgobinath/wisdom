@@ -26,10 +26,10 @@ public class HTTPSource extends Source {
     private static final Logger LOGGER = LoggerFactory.getLogger(WisdomService.class);
 
     private final Gson gson = new Gson();
+    private final Function<String, Map<String, Object>> mapper;
     private String endpoint;
     private InputHandler inputHandler;
     private String streamId;
-    private final Function<String, Map<String, Comparable>> mapper;
 
     public HTTPSource(Map<String, ?> properties) {
         super(properties);
@@ -63,7 +63,7 @@ public class HTTPSource extends Source {
 
     private Response send(Request request, Response response) {
 
-        Map<String, Comparable> data = this.mapper.apply(request.body());
+        Map<String, Object> data = this.mapper.apply(request.body());
         LOGGER.debug("Received event for {}:{}", this.streamId, data);
         if (inputHandler != null) {
             inputHandler.send(EventGenerator.generate(data));

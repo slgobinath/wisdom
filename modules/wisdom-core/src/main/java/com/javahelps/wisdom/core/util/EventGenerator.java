@@ -33,7 +33,7 @@ public class EventGenerator {
         }
     }
 
-    public static Event generate(Map<String, Comparable> map) {
+    public static Event generate(Map<String, Object> map) {
         Event event = new Event(System.currentTimeMillis());
         event.getData().putAll(map);
         return event;

@@ -25,7 +25,7 @@ public class WisdomHTTPClient extends WisdomClient {
     }
 
     @Override
-    public Response send(String streamId, Map<String, Comparable> data) throws IOException {
+    public Response send(String streamId, Map<String, Object> data) throws IOException {
 
         HttpPost post = new HttpPost(this.endpoint + streamId);
         StringEntity input = new StringEntity(Utility.toJson(data));

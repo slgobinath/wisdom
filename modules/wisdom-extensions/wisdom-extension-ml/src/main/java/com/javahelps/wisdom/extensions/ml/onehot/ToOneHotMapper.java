@@ -8,8 +8,10 @@ import com.javahelps.wisdom.core.map.Mapper;
 import com.javahelps.wisdom.core.operand.WisdomArray;
 import com.javahelps.wisdom.core.util.Commons;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.javahelps.wisdom.core.util.WisdomConstants.ATTR;
 
@@ -30,7 +32,15 @@ public class ToOneHotMapper extends Mapper {
         if (items instanceof List) {
             this.items = new ArrayList<>((List<Comparable>) items);
         } else if (items instanceof WisdomArray) {
-            this.items = new ArrayList<>(((WisdomArray) items).toList());
+            WisdomArray array = (WisdomArray) items;
+            this.items = new ArrayList<>(array.size());
+            for (Object item : array) {
+                if (item instanceof Comparable) {
+                    this.items.add((Comparable) item);
+                } else {
+                    throw new WisdomAppValidationException("Every item in ToOneHot items must be a java.lang.Comparable object");
+                }
+            }
         } else {
             throw new WisdomAppValidationException("items must be either java.util.List or WisdomArray");
         }
@@ -60,8 +70,7 @@ public class ToOneHotMapper extends Mapper {
     public Event map(Event event) {
         int[] oneHot = new int[size];
         oneHot[items.indexOf(event.get(this.currentName))] = 1;
-        List<Comparable> list = Arrays.stream(oneHot).boxed().collect(Collectors.toList());
-        event.set(this.attrName, WisdomArray.of(list));
+        event.set(this.attrName, WisdomArray.of(oneHot));
         return event;
     }
 }

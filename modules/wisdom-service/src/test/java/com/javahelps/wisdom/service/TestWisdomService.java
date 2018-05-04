@@ -25,17 +25,17 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import static com.javahelps.wisdom.dev.util.Utility.map;
+import static com.javahelps.wisdom.core.util.Commons.map;
 
 
 public class TestWisdomService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestWisdomService.class);
 
     static {
         ImportsManager.INSTANCE.use(HTTPSource.class);
         ImportsManager.INSTANCE.use(HTTPSink.class);
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestWisdomService.class);
 
     @Before
     public void createEmptyLogFile() throws IOException {

@@ -7,23 +7,13 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestUtil {
 
-    public static Map<String, Comparable> map(Comparable... entries) {
-        int count = entries.length;
-        Map<String, Comparable> map = new HashMap<>(count / 2);
-        for (int i = 0; i < count; i += 2) {
-            map.put((String) entries[i], entries[i + 1]);
-        }
-        return map;
-    }
-
     public static TestCallback addStreamCallback(Logger logger, WisdomApp wisdomApp, String query, Map<String,
-            Comparable>... expectedEvents) {
+            Object>... expectedEvents) {
         TestCallback testCallback = new TestCallback(logger);
         testCallback.addCallback(wisdomApp, query, expectedEvents);
         return testCallback;
@@ -39,7 +29,7 @@ public class TestUtil {
             this.logger = logger;
         }
 
-        private void addCallback(WisdomApp wisdomApp, String stream, Map<String, Comparable>... expectedEvents) {
+        private void addCallback(WisdomApp wisdomApp, String stream, Map<String, Object>... expectedEvents) {
 
             wisdomApp.addCallback(stream, new StreamCallback() {
 

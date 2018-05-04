@@ -23,11 +23,11 @@ import static com.javahelps.wisdom.core.util.Commons.map;
 
 public class TestTextFileSink {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestTextFileSink.class);
+
     static {
         ImportsManager.INSTANCE.use(TextFileSink.class);
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestTextFileSink.class);
 
     @BeforeClass
     public static void init() throws IOException, URISyntaxException {

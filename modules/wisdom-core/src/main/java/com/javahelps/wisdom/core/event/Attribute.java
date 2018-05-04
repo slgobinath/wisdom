@@ -13,14 +13,10 @@ import java.util.function.Supplier;
  *
  * @see AttributeSelectProcessor
  */
-public class Attribute extends Operator implements Supplier<Comparable> {
+public class Attribute extends Operator implements Supplier<Object> {
 
     private final String name;
     private final Supplier<Event> eventSupplier;
-
-    public static Function<Event, Comparable> of(String name) {
-        return event -> event.get(name);
-    }
 
     public Attribute(Event event, String name) {
         this(() -> event, name);
@@ -31,8 +27,12 @@ public class Attribute extends Operator implements Supplier<Comparable> {
         this.eventSupplier = eventSupplier;
     }
 
+    public static Function<Event, Object> of(String name) {
+        return event -> event.get(name);
+    }
+
     @Override
-    public Comparable get() {
+    public Object get() {
         return this.eventSupplier.get().get(this.name);
     }
 }

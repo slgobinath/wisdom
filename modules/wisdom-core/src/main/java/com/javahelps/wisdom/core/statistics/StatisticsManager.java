@@ -19,16 +19,16 @@ import static com.javahelps.wisdom.core.util.Commons.map;
 
 public class StatisticsManager {
 
+    private final String statisticStream;
+    private final long reportFrequency;
+    private final Comparable[] environmentVariables;
+    private final List<StreamTracker> streamTrackers = new ArrayList<>();
     private boolean active;
     private WisdomApp app;
     private WisdomContext context;
     private InputHandler inputHandler;
     private Scheduler scheduler;
-    private final String statisticStream;
-    private final long reportFrequency;
     private TimestampGenerator timestampGenerator;
-    private final Comparable[] environmentVariables;
-    private final List<StreamTracker> streamTrackers = new ArrayList<>();
 
     public StatisticsManager(String statisticStream, long reportFrequency, Comparable... env) {
         this.statisticStream = statisticStream;
@@ -81,7 +81,7 @@ public class StatisticsManager {
         for (StreamTracker tracker : this.streamTrackers) {
             double duration = (currentTime - tracker.getStartTime()) / 1000;
             double throughput = tracker.getCount() / duration;
-            Map<String, Comparable> data = map("app", this.app.getName(), "name", tracker.getStreamId(), "throughput", throughput, "timestamp", currentTime);
+            Map<String, Object> data = map("app", this.app.getName(), "name", tracker.getStreamId(), "throughput", throughput, "timestamp", currentTime);
             for (Comparable variable : this.environmentVariables) {
                 data.put(variable.toString(), this.context.getProperty(variable));
             }
