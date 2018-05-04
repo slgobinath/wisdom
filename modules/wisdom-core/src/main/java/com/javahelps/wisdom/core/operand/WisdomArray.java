@@ -15,12 +15,20 @@ public class WisdomArray implements WisdomDataType<WisdomArray> {
         return new WisdomArray(List.of(items));
     }
 
+    public static WisdomArray of(List<Comparable> items) {
+        return new WisdomArray(items);
+    }
+
     public boolean contains(Comparable item) {
         if (item instanceof WisdomArray) {
             return this.list.containsAll(((WisdomArray) item).list);
         } else {
             return this.list.contains(item);
         }
+    }
+
+    public List<Comparable> toList() {
+        return list;
     }
 
     @Override
@@ -43,5 +51,10 @@ public class WisdomArray implements WisdomDataType<WisdomArray> {
         if (o == null || getClass() != o.getClass()) return false;
         WisdomArray that = (WisdomArray) o;
         return Objects.equals(list, that.list);
+    }
+
+    @Override
+    public String toString() {
+        return this.list.toString();
     }
 }
