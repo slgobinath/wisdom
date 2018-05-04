@@ -106,6 +106,7 @@ query_statement
     : select_statement
     | filter_statement
     | window_statement
+    | limit_statement
     | partition_statement
     | aggregate_statement
     | map_statement
@@ -118,6 +119,10 @@ select_statement
 
 filter_statement
     : FILTER logical_operator END_OF_STATEMENT?
+    ;
+
+limit_statement
+    : LIMIT NUMBER (COMMA NUMBER)* END_OF_STATEMENT?
     ;
 
 partition_statement
@@ -264,6 +269,7 @@ INSERT : 'insert';
 UPDATE : 'update';
 INTO : 'into';
 FILTER : 'filter';
+LIMIT : 'limit';
 PARTITION : 'partition';
 AGGREGATE : 'aggregate';
 MAP : 'map';
