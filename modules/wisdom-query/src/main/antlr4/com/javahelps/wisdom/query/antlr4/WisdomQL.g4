@@ -82,7 +82,7 @@ annotation_element
     ;
 
 optional_key_value_element
-    : (NAME ASSIGN)? (wisdom_primitive|variable_reference)
+    : (NAME ASSIGN)? (wisdom_primitive|variable_reference|array)
     ;
 
 definition

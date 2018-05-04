@@ -6,6 +6,7 @@ import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.map.Mapper;
+import com.javahelps.wisdom.core.operand.WisdomArray;
 import com.javahelps.wisdom.core.util.Commons;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +124,11 @@ public class TensorFlowMapper extends Mapper {
     public Event map(Event event) {
         Session.Runner runner = this.session.runner();
         for (Map.Entry<String, Object> attr : event.getData().entrySet()) {
-            runner = runner.feed(attr.getKey(), Tensor.create(attr.getValue()));
+            Object value = attr.getValue();
+            if (value instanceof WisdomArray) {
+                value = ((WisdomArray) value).toArray();
+            }
+            runner = runner.feed(attr.getKey(), Tensor.create(value));
         }
         List<Tensor<?>> tensors = runner.fetch(this.operation).run();
         event.set(this.attrName, this.mapper.apply(tensors.get(0)));

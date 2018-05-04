@@ -117,6 +117,8 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             element.setValue(visit(ctx.wisdom_primitive()));
         } else if (ctx.variable_reference() != null) {
             element.setValue(visit(ctx.variable_reference()));
+        } else if (ctx.array() != null) {
+            element.setValue(visit(ctx.array()));
         }
         return element;
     }
