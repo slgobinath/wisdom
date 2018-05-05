@@ -3,7 +3,6 @@ package com.javahelps.wisdom.query.antlr;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Attribute;
 import com.javahelps.wisdom.core.operand.WisdomArray;
-import com.javahelps.wisdom.core.operator.AggregateOperator;
 import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.query.antlr4.WisdomQLBaseVisitor;
 import com.javahelps.wisdom.query.antlr4.WisdomQLParser;
@@ -370,6 +369,35 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             throw new WisdomParserException(ctx, "invalid time unit");
         }
         return Duration.of(value, unit).toMillis();
+    }
+
+    @Override
+    public Object visitWisdom_operand(WisdomQLParser.Wisdom_operandContext ctx) {
+        return super.visitWisdom_operand(ctx);
+    }
+
+    @Override
+    public EventFunctionNode visitEvent_funtion(WisdomQLParser.Event_funtionContext ctx) {
+        EventFunctionNode node = new EventFunctionNode();
+        if (ctx.namespace == null) {
+            node.setNamespace("constant");
+            node.addProperty(KeyValueElement.of(VALUE, visit(ctx.wisdom_constant())));
+        } else {
+            node.setNamespace(ctx.namespace.getText());
+            for (ParseTree tree : ctx.optional_key_value_element()) {
+                node.addProperty((KeyValueElement) visit(tree));
+            }
+        }
+        return node;
+    }
+
+    @Override
+    public Object visitWisdom_constant(WisdomQLParser.Wisdom_constantContext ctx) {
+        if (ctx.wisdom_primitive() != null) {
+            return visit(ctx.wisdom_primitive());
+        } else {
+            return visit(ctx.array());
+        }
     }
 
     @Override

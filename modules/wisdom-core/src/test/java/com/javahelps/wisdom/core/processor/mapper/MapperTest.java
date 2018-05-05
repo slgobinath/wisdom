@@ -3,6 +3,7 @@ package com.javahelps.wisdom.core.processor.mapper;
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.map.Mapper;
+import com.javahelps.wisdom.core.operand.WisdomArray;
 import com.javahelps.wisdom.core.processor.partition.PartitionTestCase;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
@@ -19,7 +20,7 @@ public class MapperTest {
 
     @Test
     public void testMapName() throws InterruptedException {
-        LOGGER.info("Test mapper 1 - OUT 2");
+        LOGGER.info("Test rename mapper - OUT 2");
 
         WisdomApp wisdomApp = new WisdomApp();
         wisdomApp.defineStream("StockStream");
@@ -50,7 +51,7 @@ public class MapperTest {
 
     @Test
     public void testMapTimestamp() throws InterruptedException {
-        LOGGER.info("Test mapper 2 - OUT 1");
+        LOGGER.info("Test timestamp mapper - OUT 1");
 
         WisdomApp wisdomApp = new WisdomApp();
         wisdomApp.defineStream("StockStream");
@@ -80,4 +81,38 @@ public class MapperTest {
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
+
+    @Test
+    public void testMapLength() throws InterruptedException {
+        LOGGER.info("Test length mapper - OUT 1");
+
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream");
+
+        long timestamp = 1524789758000L;
+
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .map(Mapper.LENGTH("symbols", "no_of_symbols"))
+                .select("no_of_symbols")
+                .insertInto("OutputStream");
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("no_of_symbols", 2),
+                map("no_of_symbols", 3));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbols", WisdomArray.of(10, 20)));
+        stockStreamInputHandler.send(EventGenerator.generate("symbols", WisdomArray.of("WSO2", "IBM", "ORACLE")));
+
+        Thread.sleep(100);
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
 }

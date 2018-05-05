@@ -5,7 +5,7 @@ public class KeyValueElement {
     private String key;
     private Object value;
 
-    public static KeyValueElement of(String key, Comparable value) {
+    public static KeyValueElement of(String key, Object value) {
         KeyValueElement element = new KeyValueElement();
         element.setKey(key);
         element.setValue(value);

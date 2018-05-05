@@ -1,6 +1,7 @@
 package com.javahelps.wisdom.core.extension;
 
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.function.event.EventFunction;
 import com.javahelps.wisdom.core.map.Mapper;
 import com.javahelps.wisdom.core.operator.AggregateOperator;
 import com.javahelps.wisdom.core.operator.logical.LogicalOperator;
@@ -29,6 +30,7 @@ public enum ImportsManager {
     private final Map<String, Constructor> mappers = new HashMap();
     private final Map<String, Constructor> logicalOperators = new HashMap();
     private final Map<String, Constructor> aggregateOperators = new HashMap();
+    private final Map<String, Constructor> eventFunctions = new HashMap();
 
     public void use(Class<?> clazz) {
 
@@ -73,6 +75,12 @@ public enum ImportsManager {
                 this.aggregateOperators.put(namespace, clazz.getConstructor(String.class, Map.class));
             } catch (NoSuchMethodException e) {
                 throw new WisdomAppValidationException("<init>(java.lang.String, java.util.Map<String, ?>) not found in %s", clazz.getCanonicalName());
+            }
+        } else if (EventFunction.class.isAssignableFrom(clazz)) {
+            try {
+                this.eventFunctions.put(namespace, clazz.getConstructor(Map.class));
+            } catch (NoSuchMethodException e) {
+                throw new WisdomAppValidationException("<init>(java.util.Map<String, ?>) not found in %s", clazz.getCanonicalName());
             }
         }
     }
@@ -155,6 +163,18 @@ public enum ImportsManager {
             return (AggregateOperator) constructor.newInstance(newName, properties);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new WisdomAppValidationException(e.getCause(), "Failed to create %s aggregator operator instance", namespace);
+        }
+    }
+
+    public EventFunction createEventFunction(String namespace, Map<String, ?> properties) {
+        Constructor constructor = this.eventFunctions.get(namespace);
+        if (constructor == null) {
+            throw new WisdomAppValidationException("Class to create %s event function was not imported", namespace);
+        }
+        try {
+            return (EventFunction) constructor.newInstance(properties);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new WisdomAppValidationException(e.getCause(), "Failed to create %s event function instance", namespace);
         }
     }
 

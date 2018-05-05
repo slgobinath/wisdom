@@ -178,6 +178,22 @@ logical_operator
     | logical_operator OR logical_operator
     ;
 
+wisdom_operand
+    : event_funtion
+    | variable_reference
+    ;
+
+wisdom_constant
+    : wisdom_primitive
+    | array
+    ;
+
+event_funtion
+    : namespace=NAME OPEN_PAREN CLOSE_PAREN
+    | namespace=NAME OPEN_PAREN (optional_key_value_element (COMMA optional_key_value_element)*)? CLOSE_PAREN
+    | wisdom_constant
+    ;
+
 wisdom_primitive
     : STRING
     | NUMBER

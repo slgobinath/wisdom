@@ -31,6 +31,10 @@ public abstract class Mapper implements Function<Event, Event> {
         return new FormatTimeMapper(newName, Map.of(ATTR, currentName));
     }
 
+    public static Mapper LENGTH(String currentName, String newName) {
+        return new LengthMapper(newName, Map.of(ATTR, currentName));
+    }
+
     public static Mapper RENAME(String currentName, String newName) {
         return new RenameMapper(newName, Map.of(ATTR, currentName));
     }
