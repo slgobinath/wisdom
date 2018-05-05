@@ -597,7 +597,7 @@ public class WisdomCompilerTest {
                 "from StockStream " +
                 "partition by symbol " +
                 "window.lengthBatch(2) " +
-                "aggregate sum(price) as price " +
+                "aggregate sum('price') as price " +
                 "select symbol, price " +
                 "insert into OutputStream;";
 

@@ -1,20 +1,34 @@
 package com.javahelps.wisdom.core.operator;
 
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.partition.Partitionable;
+import com.javahelps.wisdom.core.util.Commons;
 import com.javahelps.wisdom.core.util.WisdomConfig;
 
+import java.util.Map;
+
+import static com.javahelps.wisdom.core.util.WisdomConstants.ATTR;
+
+@WisdomExtension("avg")
 public class AvgOperator extends AggregateOperator {
 
+    private String attribute;
     private double sum;
     private long count;
 
-    public AvgOperator(String attribute, String as) {
-        super(attribute, as);
+
+    public AvgOperator(String as, Map<String, ?> properties) {
+        super(as, properties);
+        this.attribute = Commons.getProperty(properties, ATTR, 0);
+        if (this.attribute == null) {
+            throw new WisdomAppValidationException("Required property %s of Avg operator not found", ATTR);
+        }
     }
 
     @Override
-    public Comparable apply(Event event) {
+    public Object apply(Event event) {
         double value;
         synchronized (this) {
             if (event.isReset()) {
@@ -43,7 +57,7 @@ public class AvgOperator extends AggregateOperator {
 
     @Override
     public Partitionable copy() {
-        return new AvgOperator(this.attribute, this.newName);
+        return new AvgOperator(this.newName, Map.of(ATTR, this.attribute));
     }
 
     @Override

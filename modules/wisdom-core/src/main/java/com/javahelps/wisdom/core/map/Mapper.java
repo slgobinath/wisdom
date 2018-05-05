@@ -27,12 +27,20 @@ public abstract class Mapper implements Function<Event, Event> {
         return ImportsManager.INSTANCE.createMapper(namespace, newName, properties);
     }
 
-    public static Mapper formatTime(String currentName, String newName) {
+    public static Mapper FORMAT_TIME(String currentName, String newName) {
         return new FormatTimeMapper(newName, Map.of(ATTR, currentName));
     }
 
-    public static Mapper rename(String currentName, String newName) {
+    public static Mapper RENAME(String currentName, String newName) {
         return new RenameMapper(newName, Map.of(ATTR, currentName));
+    }
+
+    public static Mapper TO_INT(String currentName, String newName) {
+        return new IntMapper(newName, Map.of(ATTR, currentName));
+    }
+
+    public static Mapper TO_DOUBLE(String currentName, String newName) {
+        return new DoubleMapper(newName, Map.of(ATTR, currentName));
     }
 
     public abstract void start();

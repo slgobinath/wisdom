@@ -6,15 +6,14 @@ import com.javahelps.wisdom.core.map.Mapper;
 import com.javahelps.wisdom.core.operand.WisdomArray;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
-import com.javahelps.wisdom.extensions.ml.TestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Map;
-
-import static com.javahelps.wisdom.core.util.Commons.map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class ToOneHotMapperTest {
@@ -36,11 +35,19 @@ public class ToOneHotMapperTest {
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
                 .map(Mapper.create("toOneHot", "symbol", Map.of("attr", "symbol", "items", WisdomArray.of("IBM", "WSO2", "ORACLE"))))
+                .select("symbol")
                 .insertInto("OutputStream");
 
-        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
-                map("symbol", WisdomArray.of(1, 0, 0), "price", 15.0),
-                map("symbol", WisdomArray.of(0, 0, 1), "price", 25.0));
+        AtomicInteger count = new AtomicInteger();
+        wisdomApp.addCallback("OutputStream", events -> {
+            LOGGER.info(Arrays.toString(events));
+            int received = count.addAndGet(events.length);
+            if (received == 1) {
+                Assert.assertArrayEquals("Incorrect one hot mapping", new int[]{1, 0, 0}, (int[]) events[0].get("symbol"));
+            } else {
+                Assert.assertArrayEquals("Incorrect one hot mapping", new int[]{0, 0, 1}, (int[]) events[0].get("symbol"));
+            }
+        });
 
         wisdomApp.start();
 
@@ -52,6 +59,6 @@ public class ToOneHotMapperTest {
 
         wisdomApp.shutdown();
 
-        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+        Assert.assertEquals("Incorrect number of events", 2, count.get());
     }
 }

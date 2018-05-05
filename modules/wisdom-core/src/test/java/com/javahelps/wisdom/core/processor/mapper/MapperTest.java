@@ -27,7 +27,7 @@ public class MapperTest {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .map(Mapper.rename("symbol", "name"), Mapper.rename("price", "cost"))
+                .map(Mapper.RENAME("symbol", "name"), Mapper.RENAME("price", "cost"))
                 .select("name", "cost")
                 .insertInto("OutputStream");
 
@@ -60,7 +60,7 @@ public class MapperTest {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .map(Mapper.formatTime("timestamp", "time"))
+                .map(Mapper.FORMAT_TIME("timestamp", "time"))
                 .select("name", "time")
                 .insertInto("OutputStream");
 

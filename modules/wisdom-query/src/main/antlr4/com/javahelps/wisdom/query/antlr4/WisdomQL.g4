@@ -138,11 +138,8 @@ map_statement
     ;
 
 aggregate_operator
-    : sum_operator
-    | avg_operator
-    | max_operator
-    | min_operator
-    | count_operator
+    : namespace=NAME OPEN_PAREN CLOSE_PAREN AS attr=NAME
+    | namespace=NAME OPEN_PAREN optional_key_value_element (COMMA optional_key_value_element)* CLOSE_PAREN AS attr=NAME
     ;
 
 map_operator
@@ -151,26 +148,6 @@ map_operator
     | wisdom_primitive AS attr=NAME
     | variable_reference AS attr=NAME
     | namespace=NAME OPEN_PAREN optional_key_value_element (COMMA optional_key_value_element)* CLOSE_PAREN AS attr=NAME
-    ;
-
-sum_operator
-    : SUM OPEN_PAREN NAME CLOSE_PAREN AS NAME
-    ;
-
-avg_operator
-    : AVG OPEN_PAREN NAME CLOSE_PAREN AS NAME
-    ;
-
-max_operator
-    : MAX OPEN_PAREN NAME CLOSE_PAREN AS NAME
-    ;
-
-min_operator
-    : MIN OPEN_PAREN NAME CLOSE_PAREN AS NAME
-    ;
-
-count_operator
-    : COUNT OPEN_PAREN CLOSE_PAREN AS NAME
     ;
 
 window_statement
@@ -274,11 +251,6 @@ PARTITION : 'partition';
 AGGREGATE : 'aggregate';
 MAP : 'map';
 BY : 'by';
-SUM : 'sum';
-AVG : 'avg';
-MAX : 'max';
-MIN : 'min';
-COUNT : 'count';
 WINDOW : 'window';
 MICROSECOND: 'micros' | 'microsecond' | 'microseconds';
 MILLISECOND: 'millis' | 'millisecond' | 'milliseconds';

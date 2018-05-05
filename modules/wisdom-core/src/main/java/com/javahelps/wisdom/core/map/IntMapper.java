@@ -2,8 +2,10 @@ package com.javahelps.wisdom.core.map;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.exception.AttributeNotFoundException;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.extension.WisdomExtension;
+import com.javahelps.wisdom.core.operand.WisdomArray;
 import com.javahelps.wisdom.core.util.Commons;
 
 import java.util.Map;
@@ -40,18 +42,16 @@ public class IntMapper extends Mapper {
 
     @Override
     public Event map(Event event) {
-        event.getData().put(attrName, event.getAsNumber(currentName).intValue());
-//        Object value = event.get(currentName);
-//        if (value == null) {
-//            throw new AttributeNotFoundException(String.format("Attribute %s not found in event %s", currentName,
-//                    this.toString()));
-//        }
-//        if (value instanceof Number) {
-//            event.set(attrName, event.getAsNumber(currentName).intValue());
-//            throw new WisdomAppRuntimeException(String.format("Cannot convert attribute %s from %s to Number", currentName, value.getClass().getSimpleName()));
-//        } else if (value instanceof WisdomArray) {
-//            event.set(attrName, ((WisdomArray) value).toIntArray());
-//        }
+        Object value = event.get(currentName);
+        if (value == null) {
+            throw new AttributeNotFoundException(String.format("Attribute %s not found in event %s", currentName,
+                    this.toString()));
+        }
+        if (value instanceof Number) {
+            event.set(attrName, ((Number) value).intValue());
+        } else if (value instanceof WisdomArray) {
+            event.set(attrName, ((WisdomArray) value).toIntArray());
+        }
         return event;
     }
 }

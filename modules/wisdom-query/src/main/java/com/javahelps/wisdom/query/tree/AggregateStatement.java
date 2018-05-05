@@ -9,15 +9,20 @@ import java.util.List;
 
 public class AggregateStatement implements Statement {
 
-    private List<AggregateOperator> operators = new ArrayList<>();
+    private List<AggregateOperatorNode> operators = new ArrayList<>();
 
 
-    public void addOperator(AggregateOperator operator) {
+    public void addOperator(AggregateOperatorNode operator) {
         this.operators.add(operator);
     }
 
     @Override
     public void addTo(WisdomApp app, Query query) {
-        query.aggregate(this.operators.toArray(new AggregateOperator[0]));
+        int noOfOperators = operators.size();
+        AggregateOperator[] aggregateOperators = new AggregateOperator[noOfOperators];
+        for (int i = 0; i < noOfOperators; i++) {
+            aggregateOperators[i] = this.operators.get(i).build(app, query);
+        }
+        query.aggregate(aggregateOperators);
     }
 }

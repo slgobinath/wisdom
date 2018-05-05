@@ -4,16 +4,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class IntWisdomArray extends WisdomArray {
+public class LongWisdomArray extends WisdomArray {
 
-    private int[] array;
+    private long[] array;
 
-    public IntWisdomArray(int... items) {
+    public LongWisdomArray(long... items) {
         this(Arrays.stream(items).boxed().collect(Collectors.toList()), items);
         this.array = items;
     }
 
-    public IntWisdomArray(List<Object> original, int... items) {
+    public LongWisdomArray(List<Object> original, long... items) {
         super(original);
         this.array = items;
     }

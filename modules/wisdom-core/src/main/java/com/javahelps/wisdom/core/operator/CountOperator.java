@@ -1,18 +1,23 @@
 package com.javahelps.wisdom.core.operator;
 
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.partition.Partitionable;
 
+import java.util.Collections;
+import java.util.Map;
+
+@WisdomExtension("count")
 public class CountOperator extends AggregateOperator {
 
     private long count;
 
-    public CountOperator(String as) {
-        super("", as);
+    public CountOperator(String as, Map<String, ?> properties) {
+        super(as, properties);
     }
 
     @Override
-    public Comparable apply(Event event) {
+    public Object apply(Event event) {
         long value;
         synchronized (this) {
             if (event.isReset()) {
@@ -34,7 +39,7 @@ public class CountOperator extends AggregateOperator {
 
     @Override
     public Partitionable copy() {
-        return new CountOperator(this.newName);
+        return new CountOperator(this.newName, Collections.EMPTY_MAP);
     }
 
     @Override

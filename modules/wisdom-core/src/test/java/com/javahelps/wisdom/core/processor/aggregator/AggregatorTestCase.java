@@ -2,6 +2,8 @@ package com.javahelps.wisdom.core.processor.aggregator;
 
 import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.map.Mapper;
+import com.javahelps.wisdom.core.operand.WisdomArray;
 import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
@@ -21,8 +23,8 @@ public class AggregatorTestCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregatorTestCase.class);
 
     @Test
-    public void testWindow1() throws InterruptedException {
-        LOGGER.info("Test sum 1 - OUT 1");
+    public void testSumAfterWindow() throws InterruptedException {
+        LOGGER.info("Test sum after window - OUT 1");
 
         WisdomApp wisdomApp = new WisdomApp();
         wisdomApp.defineStream("StockStream");
@@ -51,8 +53,8 @@ public class AggregatorTestCase {
     }
 
     @Test
-    public void testWindow2() throws InterruptedException {
-        LOGGER.info("Test min 2 - OUT 1");
+    public void testMinAfterWindow() throws InterruptedException {
+        LOGGER.info("Test min after window - OUT 1");
 
         WisdomApp wisdomApp = new WisdomApp();
         wisdomApp.defineStream("StockStream");
@@ -81,8 +83,8 @@ public class AggregatorTestCase {
     }
 
     @Test
-    public void testWindow3() throws InterruptedException {
-        LOGGER.info("Test max 3 - OUT 1");
+    public void testMaxAfterWindow() throws InterruptedException {
+        LOGGER.info("Test max after window - OUT 1");
 
         WisdomApp wisdomApp = new WisdomApp();
         wisdomApp.defineStream("StockStream");
@@ -111,8 +113,8 @@ public class AggregatorTestCase {
     }
 
     @Test
-    public void testWindow4() throws InterruptedException {
-        LOGGER.info("Test avg 4 - OUT 1");
+    public void testAvgAfterWindow() throws InterruptedException {
+        LOGGER.info("Test avg after window - OUT 1");
 
         WisdomApp wisdomApp = new WisdomApp();
         wisdomApp.defineStream("StockStream");
@@ -127,6 +129,37 @@ public class AggregatorTestCase {
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("symbol",
                 "ORACLE", "price", 61.6667));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 55.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
+    }
+
+    @Test
+    public void testCollectAfterWindow() throws InterruptedException {
+        LOGGER.info("Test collect after window - OUT 1");
+
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream");
+
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .window(Window.lengthBatch(3))
+                .aggregate(Operator.COLLECT("symbol", "symbol"), Operator.COLLECT("price", "price"))
+                .map(Mapper.TO_DOUBLE("price", "price"))
+                .select("symbol", "price")
+                .insertInto("OutputStream");
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("symbol",
+                WisdomArray.of("IBM", "WSO2", "ORACLE"), "price", WisdomArray.of(55.0, 60.0, 70.0)));
 
         wisdomApp.start();
 

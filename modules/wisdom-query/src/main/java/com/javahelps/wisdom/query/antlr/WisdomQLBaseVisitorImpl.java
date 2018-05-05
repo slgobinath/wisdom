@@ -4,7 +4,6 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Attribute;
 import com.javahelps.wisdom.core.operand.WisdomArray;
 import com.javahelps.wisdom.core.operator.AggregateOperator;
-import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.query.antlr4.WisdomQLBaseVisitor;
 import com.javahelps.wisdom.query.antlr4.WisdomQLParser;
@@ -193,7 +192,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     public Statement visitAggregate_statement(WisdomQLParser.Aggregate_statementContext ctx) {
         AggregateStatement statement = new AggregateStatement();
         for (ParseTree tree : ctx.aggregate_operator()) {
-            statement.addOperator((AggregateOperator) visit(tree));
+            statement.addOperator((AggregateOperatorNode) visit(tree));
         }
         return statement;
     }
@@ -331,45 +330,15 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
-    public AggregateOperator visitSum_operator(WisdomQLParser.Sum_operatorContext ctx) {
-        return Operator.SUM(ctx.NAME(0).getText(), ctx.NAME(1).getText());
-    }
+    public AggregateOperatorNode visitAggregate_operator(WisdomQLParser.Aggregate_operatorContext ctx) {
 
-    @Override
-    public AggregateOperator visitAvg_operator(WisdomQLParser.Avg_operatorContext ctx) {
-        return Operator.AVG(ctx.NAME(0).getText(), ctx.NAME(1).getText());
-    }
-
-    @Override
-    public AggregateOperator visitMax_operator(WisdomQLParser.Max_operatorContext ctx) {
-        return Operator.MAX(ctx.NAME(0).getText(), ctx.NAME(1).getText());
-    }
-
-    @Override
-    public AggregateOperator visitMin_operator(WisdomQLParser.Min_operatorContext ctx) {
-        return Operator.MIN(ctx.NAME(0).getText(), ctx.NAME(1).getText());
-    }
-
-    @Override
-    public AggregateOperator visitCount_operator(WisdomQLParser.Count_operatorContext ctx) {
-        return Operator.COUNT(ctx.NAME().getText());
-    }
-
-    @Override
-    public AggregateOperator visitAggregate_operator(WisdomQLParser.Aggregate_operatorContext ctx) {
-        if (ctx.avg_operator() != null) {
-            return (AggregateOperator) visit(ctx.avg_operator());
-        } else if (ctx.sum_operator() != null) {
-            return (AggregateOperator) visit(ctx.sum_operator());
-        } else if (ctx.max_operator() != null) {
-            return (AggregateOperator) visit(ctx.max_operator());
-        } else if (ctx.min_operator() != null) {
-            return (AggregateOperator) visit(ctx.min_operator());
-        } else if (ctx.count_operator() != null) {
-            return (AggregateOperator) visit(ctx.count_operator());
-        } else {
-            throw new WisdomParserException(ctx, "unknown aggregate operation");
+        AggregateOperatorNode node = new AggregateOperatorNode();
+        node.setNamespace(ctx.namespace.getText());
+        node.setAttrName(ctx.attr.getText());
+        for (ParseTree tree : ctx.optional_key_value_element()) {
+            node.addProperty((KeyValueElement) visit(tree));
         }
+        return node;
     }
 
     @Override

@@ -1,6 +1,9 @@
 package com.javahelps.wisdom.core.operand;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
 public class WisdomArray implements WisdomDataType<WisdomArray>, Iterable {
 
@@ -8,7 +11,7 @@ public class WisdomArray implements WisdomDataType<WisdomArray>, Iterable {
     private final int size;
 
     protected WisdomArray(List<Object> list) {
-        this.list = Collections.unmodifiableList(list);
+        this.list = new ArrayList<>(list);
         this.size = this.list.size();
     }
 
@@ -18,6 +21,10 @@ public class WisdomArray implements WisdomDataType<WisdomArray>, Iterable {
 
     public static WisdomArray of(int... items) {
         return new IntWisdomArray(items);
+    }
+
+    public static WisdomArray of(double... items) {
+        return new DoubleWisdomArray(items);
     }
 
     public static WisdomArray of(List<Object> items) {
@@ -55,7 +62,31 @@ public class WisdomArray implements WisdomDataType<WisdomArray>, Iterable {
         for (int i = 0; i < this.size; i++) {
             array[i] = ((Number) this.list.get(i)).intValue();
         }
-        return new IntWisdomArray(array);
+        return new IntWisdomArray(this.list, array);
+    }
+
+    public WisdomArray toLongArray() {
+        long[] array = new long[this.size];
+        for (int i = 0; i < this.size; i++) {
+            array[i] = ((Number) this.list.get(i)).longValue();
+        }
+        return new LongWisdomArray(this.list, array);
+    }
+
+    public WisdomArray toDoubleArray() {
+        double[] array = new double[this.size];
+        for (int i = 0; i < this.size; i++) {
+            array[i] = ((Number) this.list.get(i)).doubleValue();
+        }
+        return new DoubleWisdomArray(this.list, array);
+    }
+
+    public WisdomArray toFloatArray() {
+        float[] array = new float[this.size];
+        for (int i = 0; i < this.size; i++) {
+            array[i] = ((Number) this.list.get(i)).floatValue();
+        }
+        return new FloatWisdomArray(this.list, array);
     }
 
     @Override

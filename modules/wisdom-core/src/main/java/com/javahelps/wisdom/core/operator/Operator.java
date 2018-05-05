@@ -4,8 +4,11 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.operator.logical.*;
 import com.javahelps.wisdom.core.processor.AttributeSelectProcessor;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
+
+import static com.javahelps.wisdom.core.util.WisdomConstants.ATTR;
 
 /**
  * {@link Operator} provides some built-in operations on the given attribute of an {@link Event} at the
@@ -18,23 +21,27 @@ import java.util.function.Function;
 public class Operator {
 
     public static AggregateOperator SUM(final String attribute, final String as) {
-        return new SumOperator(attribute, as);
+        return new SumOperator(as, Map.of(ATTR, attribute));
     }
 
     public static AggregateOperator AVG(final String attribute, final String as) {
-        return new AvgOperator(attribute, as);
+        return new AvgOperator(as, Map.of(ATTR, attribute));
     }
 
     public static AggregateOperator MIN(final String attribute, final String as) {
-        return new MinOperator(attribute, as);
+        return new MinOperator(as, Map.of(ATTR, attribute));
     }
 
     public static AggregateOperator MAX(final String attribute, final String as) {
-        return new MaxOperator(attribute, as);
+        return new MaxOperator(as, Map.of(ATTR, attribute));
     }
 
     public static AggregateOperator COUNT(String as) {
-        return new CountOperator(as);
+        return new CountOperator(as, Collections.EMPTY_MAP);
+    }
+
+    public static AggregateOperator COLLECT(final String attribute, final String as) {
+        return new CollectOperator(as, Map.of(ATTR, attribute));
     }
 
     public static LogicalOperator IN(Object left, Object right) {

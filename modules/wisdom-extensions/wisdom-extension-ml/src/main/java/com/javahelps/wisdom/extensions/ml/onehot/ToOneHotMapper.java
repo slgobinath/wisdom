@@ -70,7 +70,7 @@ public class ToOneHotMapper extends Mapper {
     public Event map(Event event) {
         int[] oneHot = new int[size];
         oneHot[items.indexOf(event.get(this.currentName))] = 1;
-        event.set(this.attrName, WisdomArray.of(oneHot));
+        event.set(this.attrName, oneHot);
         return event;
     }
 }

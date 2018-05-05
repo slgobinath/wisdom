@@ -2,6 +2,7 @@ package com.javahelps.wisdom.core.extension;
 
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.map.Mapper;
+import com.javahelps.wisdom.core.operator.AggregateOperator;
 import com.javahelps.wisdom.core.operator.logical.LogicalOperator;
 import com.javahelps.wisdom.core.stream.input.Source;
 import com.javahelps.wisdom.core.stream.output.Sink;
@@ -27,6 +28,7 @@ public enum ImportsManager {
     private final Map<String, Constructor> sources = new HashMap();
     private final Map<String, Constructor> mappers = new HashMap();
     private final Map<String, Constructor> logicalOperators = new HashMap();
+    private final Map<String, Constructor> aggregateOperators = new HashMap();
 
     public void use(Class<?> clazz) {
 
@@ -62,9 +64,15 @@ public enum ImportsManager {
             }
         } else if (LogicalOperator.class.isAssignableFrom(clazz)) {
             try {
-                this.mappers.put(namespace, clazz.getConstructor(Map.class));
+                this.logicalOperators.put(namespace, clazz.getConstructor(Map.class));
             } catch (NoSuchMethodException e) {
                 throw new WisdomAppValidationException("<init>(java.util.Map<String, ?>) not found in %s", clazz.getCanonicalName());
+            }
+        } else if (AggregateOperator.class.isAssignableFrom(clazz)) {
+            try {
+                this.aggregateOperators.put(namespace, clazz.getConstructor(String.class, Map.class));
+            } catch (NoSuchMethodException e) {
+                throw new WisdomAppValidationException("<init>(java.lang.String, java.util.Map<String, ?>) not found in %s", clazz.getCanonicalName());
             }
         }
     }
@@ -127,14 +135,26 @@ public enum ImportsManager {
     }
 
     public LogicalOperator createLogicalOperator(String namespace, Map<String, ?> properties) {
-        Constructor constructor = this.mappers.get(namespace);
+        Constructor constructor = this.logicalOperators.get(namespace);
         if (constructor == null) {
             throw new WisdomAppValidationException("Class to create %s mapper was not imported", namespace);
         }
         try {
             return (LogicalOperator) constructor.newInstance(properties);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new WisdomAppValidationException(e.getCause(), "Failed to create %s filter instance", namespace);
+            throw new WisdomAppValidationException(e.getCause(), "Failed to create %s logical operator instance", namespace);
+        }
+    }
+
+    public AggregateOperator createAggregateOperator(String namespace, String newName, Map<String, ?> properties) {
+        Constructor constructor = this.aggregateOperators.get(namespace);
+        if (constructor == null) {
+            throw new WisdomAppValidationException("Class to create %s mapper was not imported", namespace);
+        }
+        try {
+            return (AggregateOperator) constructor.newInstance(newName, properties);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new WisdomAppValidationException(e.getCause(), "Failed to create %s aggregator operator instance", namespace);
         }
     }
 
