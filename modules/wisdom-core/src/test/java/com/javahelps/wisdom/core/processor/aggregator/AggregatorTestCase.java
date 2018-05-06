@@ -158,8 +158,9 @@ public class AggregatorTestCase {
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
-        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("symbol",
-                WisdomArray.of("IBM", "WSO2", "ORACLE"), "price", WisdomArray.of(55.0, 60.0, 70.0)));
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", WisdomArray.of("IBM", "WSO2", "ORACLE"), "price", WisdomArray.of(55.0, 60.0, 70.0)),
+                map("symbol", WisdomArray.of("GOOGLE", "UWO", "UBER"), "price", WisdomArray.of(75.0, 80.0, 85.0)));
 
         wisdomApp.start();
 
@@ -168,9 +169,13 @@ public class AggregatorTestCase {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
 
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "GOOGLE", "price", 75.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "UWO", "price", 80.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "UBER", "price", 85.0, "volume", 20));
+
         Thread.sleep(100);
 
-        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
+        Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
 
     @Test

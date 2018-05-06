@@ -1132,4 +1132,39 @@ public class WisdomCompilerTest {
 
         Assert.assertEquals("Incorrect number of events", 4, callback.getEventCount());
     }
+
+    @Test
+    public void testEnsure() throws InterruptedException {
+        LOGGER.info("Test ensure - OUT 4");
+
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "window.lengthBatch(2) " +
+                "ensure 4 " +
+                "map 'UNKNOWN' as symbol if symbol == null, 0.0 as price if price == null " +
+                "select symbol, price " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "IBM", "price", 50.0),
+                map("symbol", "WSO2", "price", 60.0),
+                map("symbol", "UNKNOWN", "price", 0.0),
+                map("symbol", "UNKNOWN", "price", 0.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "volume", 15));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("Incorrect number of events", 4, callback.getEventCount());
+    }
 }

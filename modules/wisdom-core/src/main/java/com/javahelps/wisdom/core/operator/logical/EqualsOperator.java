@@ -24,14 +24,19 @@ public class EqualsOperator extends LogicalOperator {
         if (left instanceof Comparable) {
             // constant == right
             if (right instanceof Comparable) {
+                // constant == constant
                 boolean result = test(left, right);
                 predicate = event -> result;
             } else if (right instanceof Function) {
-                // function(attribute) in String
+                // constant == function(attribute)
                 predicate = event -> test(left, ((Function) right).apply(event));
             } else if (right instanceof Supplier) {
-                // supplier(variable) in String
+                // constant == supplier(variable)
                 predicate = event -> test(left, ((Supplier) right).get());
+            } else if (right == null) {
+                // constant == null
+                boolean result = left == null;
+                predicate = event -> result;
             } else {
                 throw new WisdomAppValidationException("java.lang.Comparable == %s is not supported", right.getClass().getCanonicalName());
             }
@@ -46,6 +51,9 @@ public class EqualsOperator extends LogicalOperator {
             } else if (right instanceof Supplier) {
                 // function(attribute) == supplier(variable)
                 predicate = event -> test(((Function) left).apply(event), ((Supplier) right).get());
+            } else if (right == null) {
+                // function(attribute) == null
+                predicate = event -> ((Function) left).apply(event) == null;
             } else {
                 throw new WisdomAppValidationException("java.util.function.Function == %s is not supported", right.getClass().getCanonicalName());
             }
@@ -60,6 +68,9 @@ public class EqualsOperator extends LogicalOperator {
             } else if (right instanceof Supplier) {
                 // supplier(variable) == supplier(variable)
                 predicate = event -> test(((Supplier) left).get(), ((Supplier) right).get());
+            } else if (right == null) {
+                // supplier(variable) == null
+                predicate = event -> ((Supplier) left).get() == null;
             } else {
                 throw new WisdomAppValidationException("java.util.function.Supplier == %s is not supported", right.getClass().getCanonicalName());
             }

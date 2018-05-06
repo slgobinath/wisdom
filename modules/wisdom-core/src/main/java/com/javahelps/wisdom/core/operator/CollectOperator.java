@@ -23,7 +23,7 @@ public class CollectOperator extends AggregateOperator {
         super(as, properties);
         this.attribute = Commons.getProperty(properties, ATTR, 0);
         if (this.attribute == null) {
-            throw new WisdomAppValidationException("Required property %s of Sum operator not found", ATTR);
+            throw new WisdomAppValidationException("Required property %s of collect operator not found", ATTR);
         }
     }
 

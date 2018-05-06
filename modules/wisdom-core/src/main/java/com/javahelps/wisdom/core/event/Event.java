@@ -158,6 +158,14 @@ public class Event {
         return event;
     }
 
+    public Event emptyEvent() {
+        Event event = new Event(this.stream, this.timestamp);
+        event.data = new HashMap<>();
+        event.expired = this.expired;
+        event.original = this;
+        return event;
+    }
+
     public void setAlias(String key, String as) {
         this.alias.put(as, key);
     }

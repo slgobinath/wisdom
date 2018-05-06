@@ -102,6 +102,19 @@ public class Query implements Stateful {
         return this;
     }
 
+    public Query ensure(int... bounds) {
+
+        EnsureProcessor ensureProcessor = new EnsureProcessor(generateId(), bounds);
+        if (this.lastStreamProcessor == null) {
+            this.inputStream.addProcessor(ensureProcessor);
+        } else {
+            this.lastStreamProcessor.setNextProcessor(ensureProcessor);
+        }
+        this.addStreamProcessor(ensureProcessor);
+        this.lastStreamProcessor = ensureProcessor;
+        return this;
+    }
+
     public Query limit(int... bounds) {
 
         LimitProcessor limitProcessor = new LimitProcessor(generateId(), bounds);

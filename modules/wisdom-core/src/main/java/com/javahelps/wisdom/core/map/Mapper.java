@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.javahelps.wisdom.core.util.WisdomConstants.ATTR;
+import static com.javahelps.wisdom.core.util.WisdomConstants.VALUE;
 
 public abstract class Mapper implements Function<Event, Event> {
 
@@ -45,6 +46,10 @@ public abstract class Mapper implements Function<Event, Event> {
 
     public static Mapper TO_DOUBLE(String currentName, String newName) {
         return new DoubleMapper(newName, Map.of(ATTR, currentName));
+    }
+
+    public static Mapper CONSTANT(Object value, String newName) {
+        return new ConstantMapper(newName, Map.of(VALUE, value));
     }
 
     public abstract void start();

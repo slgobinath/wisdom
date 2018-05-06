@@ -4,6 +4,7 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.WisdomAppRuntimeException;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.operand.WisdomArray;
 import com.javahelps.wisdom.core.util.Commons;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 
 import static com.javahelps.wisdom.core.util.WisdomConstants.ATTR;
 
+@WisdomExtension("len")
 public class LengthMapper extends Mapper {
 
     private final String currentName;

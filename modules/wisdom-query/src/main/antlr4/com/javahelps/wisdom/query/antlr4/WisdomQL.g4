@@ -107,6 +107,7 @@ query_statement
     | filter_statement
     | window_statement
     | limit_statement
+    | ensure_statement
     | partition_statement
     | aggregate_statement
     | map_statement
@@ -123,6 +124,10 @@ filter_statement
 
 limit_statement
     : LIMIT NUMBER (COMMA NUMBER)* END_OF_STATEMENT?
+    ;
+
+ensure_statement
+    : ENSURE NUMBER (COMMA NUMBER)* END_OF_STATEMENT?
     ;
 
 partition_statement
@@ -199,6 +204,7 @@ wisdom_primitive
     | NUMBER
     | TRUE
     | FALSE
+    | NULL
     | time_duration
     ;
 
@@ -254,6 +260,7 @@ IS : 'is';
 NONE : 'None';
 TRUE : 'true';
 FALSE : 'false';
+NULL : 'null';
 DEL : 'del';
 STREAM : 'stream';
 VARIABLE : 'variable';
@@ -263,6 +270,7 @@ UPDATE : 'update';
 INTO : 'into';
 FILTER : 'filter';
 LIMIT : 'limit';
+ENSURE : 'ensure';
 PARTITION : 'partition';
 AGGREGATE : 'aggregate';
 MAP : 'map';

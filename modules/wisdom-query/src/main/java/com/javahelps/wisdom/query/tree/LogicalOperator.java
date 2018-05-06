@@ -4,8 +4,9 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.query.Query;
 
-import java.util.Map;
 import java.util.function.Predicate;
+
+import static com.javahelps.wisdom.core.util.Commons.map;
 
 public class LogicalOperator implements OperatorElement {
 
@@ -43,7 +44,7 @@ public class LogicalOperator implements OperatorElement {
             if (right instanceof VariableReference) {
                 right = ((VariableReference) right).build(app);
             }
-            return com.javahelps.wisdom.core.operator.logical.LogicalOperator.create(this.operator, Map.of("left", left, "right", right));
+            return com.javahelps.wisdom.core.operator.logical.LogicalOperator.create(this.operator, map("left", left, "right", right));
         }
 //        switch (this.operation) {
 //            case IDENTICAL:

@@ -157,6 +157,16 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
+    public Statement visitEnsure_statement(WisdomQLParser.Ensure_statementContext ctx) {
+        final int noOfBounds = ctx.NUMBER().size();
+        int[] bounds = new int[noOfBounds];
+        for (int i = 0; i < noOfBounds; i++) {
+            bounds[i] = Integer.parseInt(ctx.NUMBER(i).getText());
+        }
+        return new EnsureStatement(bounds);
+    }
+
+    @Override
     public Statement visitWindow_statement(WisdomQLParser.Window_statementContext ctx) {
         WindowStatement statement = new WindowStatement(ctx.name.getText());
         if (ctx.type != null) {
@@ -221,6 +231,8 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             return (Statement) visit(ctx.map_statement());
         } else if (ctx.limit_statement() != null) {
             return (Statement) visit(ctx.limit_statement());
+        } else if (ctx.ensure_statement() != null) {
+            return (Statement) visit(ctx.ensure_statement());
         } else {
             throw new WisdomParserException(ctx, "unknown query statement");
         }
@@ -417,6 +429,8 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             value = false;
         } else if (ctx.time_duration() != null) {
             value = (Comparable) visit(ctx.time_duration());
+        } else if (ctx.NULL() != null) {
+            return null;
         } else {
             throw new WisdomParserException(ctx, "invalid primitive data");
         }

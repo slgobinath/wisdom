@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.javahelps.wisdom.core.util.Commons.map;
 import static com.javahelps.wisdom.core.util.WisdomConstants.ATTR;
 
 /**
@@ -48,12 +49,16 @@ public class Operator {
         return new InOperator(Map.of("left", left, "right", right));
     }
 
+    public static LogicalOperator IN(Object left) {
+        return new InOperator(Map.of("left", left));
+    }
+
     public static LogicalOperator MATCHES(Object regex, Object right) {
         return new RegexInOperator(Map.of("left", regex, "right", right));
     }
 
     public static LogicalOperator EQUALS(Object left, Object right) {
-        return new EqualsOperator(Map.of("left", left, "right", right));
+        return new EqualsOperator(map("left", left, "right", right));
     }
 
     public static LogicalOperator GREATER_THAN(Object left, Object right) {

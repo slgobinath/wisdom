@@ -29,7 +29,7 @@ public class HTTPSink extends Sink {
 
     private final String endpoint;
     private final boolean batch;
-    private final CloseableHttpClient client = HttpClientBuilder.create().build();
+    private CloseableHttpClient client;
 
     public HTTPSink(String endpoint) {
         this(endpoint, false);
@@ -50,7 +50,7 @@ public class HTTPSink extends Sink {
 
     @Override
     public void start() {
-
+        this.client = HttpClientBuilder.create().build();
     }
 
     @Override
@@ -78,7 +78,9 @@ public class HTTPSink extends Sink {
     public void stop() {
         LOGGER.info("Closing HTTP sink");
         try {
-            this.client.close();
+            if (this.client != null) {
+                this.client.close();
+            }
         } catch (IOException e) {
             // Do nothing
         }
