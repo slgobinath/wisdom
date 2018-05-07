@@ -11,35 +11,49 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TimeBatchWindow expires events after a given idle period of external timestamp.
+ * BatchWindow expires events after a given idle period of external timestamp or length.
  */
-@WisdomExtension("externalIdleTimeBatch")
-public class ExternalIdleTimeBatchWindow extends Window implements Variable.OnUpdateListener<Number> {
+@WisdomExtension("externalIdleTimeLengthBatch")
+public class ExternalIdleTimeLengthBatchWindow extends Window {
 
     private final String timestampKey;
     private long minIdleTime;
     private List<Event> events = new ArrayList<>();
     private long lastTime = -1;
     private Variable<Number> timeVariable;
+    private int length;
+    private Variable<Number> lengthVariable;
+    private Variable.OnUpdateListener<Number> timeUpdater;
+    private Variable.OnUpdateListener<Number> lengthUpdater;
 
-    public ExternalIdleTimeBatchWindow(Map<String, ?> properties) {
+    public ExternalIdleTimeLengthBatchWindow(Map<String, ?> properties) {
         super(properties);
         Object keyVal = this.getProperty("timestampKey", 0);
         Object durationVal = this.getProperty("duration", 1);
+        Object lengthVal = this.getProperty("length", 2);
         if (keyVal instanceof String) {
             this.timestampKey = (String) keyVal;
         } else {
-            throw new WisdomAppValidationException("timestampKey of ExternalIdleTimeBatchWindow must be java.lang.String but found %d", keyVal.getClass().getSimpleName());
+            throw new WisdomAppValidationException("timestampKey of ExternalIdleTimeLengthBatchWindow must be java.lang.String but found %d", keyVal.getClass().getSimpleName());
         }
         if (durationVal instanceof Number) {
             this.minIdleTime = ((Number) durationVal).longValue();
         } else if (durationVal instanceof Variable) {
             this.timeVariable = (Variable<Number>) durationVal;
             this.minIdleTime = this.timeVariable.get().longValue();
-            this.timeVariable.addOnUpdateListener(this);
+            this.timeVariable.addOnUpdateListener(this.timeUpdater);
         } else {
-            throw new WisdomAppValidationException("duration of ExternalIdleTimeBatchWindow must be long but found %d",
+            throw new WisdomAppValidationException("duration of ExternalIdleTimeLengthBatchWindow must be long but found %d",
                     keyVal.getClass().getSimpleName());
+        }
+        if (lengthVal instanceof Variable) {
+            this.lengthVariable = (Variable<Number>) lengthVal;
+            this.length = this.lengthVariable.get().intValue();
+            this.lengthVariable.addOnUpdateListener(this.lengthUpdater);
+        } else if (lengthVal instanceof Number) {
+            this.length = ((Number) lengthVal).intValue();
+        } else {
+            throw new WisdomAppValidationException("length of ExternalIdleTimeLengthBatchWindow must be java.lang.Integer but found %s", lengthVal.getClass().getCanonicalName());
         }
     }
 
@@ -51,11 +65,12 @@ public class ExternalIdleTimeBatchWindow extends Window implements Variable.OnUp
 
         try {
             this.lock.lock();
-            if (events.isEmpty()) {
+            int noOfEvents = events.size();
+            if (noOfEvents == 0) {
                 this.lastTime = currentTimestamp;
             }
 
-            if (currentTimestamp - this.lastTime >= this.minIdleTime) {
+            if (noOfEvents >= this.length || currentTimestamp - this.lastTime >= this.minIdleTime) {
                 // Timeout happened
                 eventsToSend = new ArrayList<>(this.events);
                 this.events.clear();
@@ -73,7 +88,7 @@ public class ExternalIdleTimeBatchWindow extends Window implements Variable.OnUp
 
     @Override
     public Window copy() {
-        return new ExternalIdleTimeBatchWindow(this.properties);
+        return new ExternalIdleTimeLengthBatchWindow(this.properties);
     }
 
     @Override
@@ -90,17 +105,27 @@ public class ExternalIdleTimeBatchWindow extends Window implements Variable.OnUp
     @Override
     public void destroy() {
         if (this.timeVariable != null) {
-            this.timeVariable.removeOnUpdateListener(this);
+            this.timeVariable.removeOnUpdateListener(this.timeUpdater);
+            this.lengthVariable.removeOnUpdateListener(this.lengthUpdater);
         }
         this.events = null;
     }
 
-    @Override
-    public void update(Number value) {
+    public void updateTime(Number value) {
         try {
             this.lock.lock();
             long val = value.longValue();
             this.minIdleTime = val;
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    public void updateLength(Number value) {
+        try {
+            this.lock.lock();
+            int val = value.intValue();
+            this.length = val;
         } finally {
             this.lock.unlock();
         }
