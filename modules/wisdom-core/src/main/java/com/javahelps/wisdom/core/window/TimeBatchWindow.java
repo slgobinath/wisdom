@@ -110,20 +110,21 @@ public class TimeBatchWindow extends Window implements Variable.OnUpdateListener
 
     @Override
     public void execute(long timestamp) {
+        List<Event> eventsToSend = null;
         Processor nextProcessor;
         try {
             this.lock.lock();
             nextProcessor = this.nextProcessor;
+            if (timestamp >= this.endTime && !this.events.isEmpty()) {
+                // Timeout happened
+                eventsToSend = new ArrayList<>(this.events);
+                this.events.clear();
+            }
         } finally {
             this.lock.unlock();
         }
-        if (timestamp >= this.endTime && nextProcessor != null) {
-            // Timeout happened
-            List<Event> eventsToSend = new ArrayList<>(this.events);
-            this.events.clear();
-            if (!eventsToSend.isEmpty()) {
-                nextProcessor.process(eventsToSend);
-            }
+        if (eventsToSend != null && nextProcessor != null) {
+            nextProcessor.process(eventsToSend);
         }
     }
 }

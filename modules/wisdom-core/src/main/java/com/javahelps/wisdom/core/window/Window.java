@@ -65,6 +65,10 @@ public abstract class Window implements Partitionable, Stateful, Initializable {
         return new ExternalIdleTimeBatchWindow(Commons.map("timestampKey", timestampKey, "duration", duration.toMillis()));
     }
 
+    public static Window idleTimeLengthBatch(Duration duration, int length) {
+        return new IdleTimeLengthBatchWindow(Commons.map("duration", duration.toMillis(), "length", length));
+    }
+
     public abstract void process(Event event, Processor nextProcessor);
 
     @Override

@@ -1,11 +1,16 @@
 package com.javahelps.wisdom.core.window;
 
+import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.extension.WisdomExtension;
 import com.javahelps.wisdom.core.processor.Processor;
+import com.javahelps.wisdom.core.time.Executor;
+import com.javahelps.wisdom.core.time.Scheduler;
+import com.javahelps.wisdom.core.time.TimestampGenerator;
 import com.javahelps.wisdom.core.variable.Variable;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,38 +18,34 @@ import java.util.Map;
 /**
  * BatchWindow expires events after a given idle period of external timestamp or length.
  */
-@WisdomExtension("externalIdleTimeLengthBatch")
-public class ExternalIdleTimeLengthBatchWindow extends Window {
+@WisdomExtension("idleTimeLengthBatch")
+public class IdleTimeLengthBatchWindow extends Window implements Executor {
 
-    private final String timestampKey;
     private long minIdleTime;
     private List<Event> events = new ArrayList<>();
     private long lastTime = -1;
-    private Variable<Number> timeVariable;
     private int length;
+    private Variable<Number> timeVariable;
     private Variable<Number> lengthVariable;
+    private Scheduler scheduler;
+    private TimestampGenerator timestampGenerator;
+    private Processor nextProcessor;
     private Variable.OnUpdateListener<Number> timeUpdater = this::updateTime;
     private Variable.OnUpdateListener<Number> lengthUpdater = this::updateLength;
 
-    public ExternalIdleTimeLengthBatchWindow(Map<String, ?> properties) {
+    public IdleTimeLengthBatchWindow(Map<String, ?> properties) {
         super(properties);
-        Object keyVal = this.getProperty("timestampKey", 0);
         Object durationVal = this.getProperty("duration", 1);
         Object lengthVal = this.getProperty("length", 2);
-        if (keyVal instanceof String) {
-            this.timestampKey = (String) keyVal;
-        } else {
-            throw new WisdomAppValidationException("timestampKey of ExternalIdleTimeLengthBatchWindow must be java.lang.String but found %d", keyVal.getClass().getSimpleName());
-        }
+
         if (durationVal instanceof Number) {
             this.minIdleTime = ((Number) durationVal).longValue();
         } else if (durationVal instanceof Variable) {
             this.timeVariable = (Variable<Number>) durationVal;
             this.minIdleTime = this.timeVariable.get().longValue();
-            this.timeVariable.addOnUpdateListener(this.timeUpdater);
         } else {
-            throw new WisdomAppValidationException("duration of ExternalIdleTimeLengthBatchWindow must be long but found %d",
-                    keyVal.getClass().getSimpleName());
+            throw new WisdomAppValidationException("duration of IdleTimeLengthBatchWindow must be long but found %d",
+                    durationVal.getClass().getSimpleName());
         }
         if (lengthVal instanceof Variable) {
             this.lengthVariable = (Variable<Number>) lengthVal;
@@ -53,15 +54,21 @@ public class ExternalIdleTimeLengthBatchWindow extends Window {
         } else if (lengthVal instanceof Number) {
             this.length = ((Number) lengthVal).intValue();
         } else {
-            throw new WisdomAppValidationException("length of ExternalIdleTimeLengthBatchWindow must be java.lang.Integer but found %s", lengthVal.getClass().getCanonicalName());
+            throw new WisdomAppValidationException("length of IdleTimeLengthBatchWindow must be java.lang.Integer but found %s", lengthVal.getClass().getCanonicalName());
         }
+    }
+
+    @Override
+    public void init(WisdomApp app) {
+        this.scheduler = app.getContext().getScheduler();
+        this.timestampGenerator = app.getContext().getTimestampGenerator();
     }
 
     @Override
     public void process(Event event, Processor nextProcessor) {
 
         List<Event> eventsToSend = null;
-        long currentTimestamp = event.getAsLong(this.timestampKey);
+        long currentTimestamp = timestampGenerator.currentTimestamp();
 
         try {
             this.lock.lock();
@@ -69,7 +76,6 @@ public class ExternalIdleTimeLengthBatchWindow extends Window {
             if (noOfEvents == 0) {
                 this.lastTime = currentTimestamp;
             }
-
             if (noOfEvents + 1 >= this.length) {
                 // Reached length
                 this.events.add(event);
@@ -79,9 +85,13 @@ public class ExternalIdleTimeLengthBatchWindow extends Window {
                 // Timeout happened
                 eventsToSend = new ArrayList<>(this.events);
                 this.events.clear();
+            } else {
+                this.scheduler.schedule(Duration.ofMillis(this.minIdleTime), this);
             }
+
             this.events.add(event);
             this.lastTime = currentTimestamp;
+            this.nextProcessor = nextProcessor;
         } finally {
             this.lock.unlock();
         }
@@ -93,7 +103,7 @@ public class ExternalIdleTimeLengthBatchWindow extends Window {
 
     @Override
     public Window copy() {
-        return new ExternalIdleTimeLengthBatchWindow(this.properties);
+        return new IdleTimeLengthBatchWindow(this.properties);
     }
 
     @Override
@@ -114,6 +124,26 @@ public class ExternalIdleTimeLengthBatchWindow extends Window {
             this.lengthVariable.removeOnUpdateListener(this.lengthUpdater);
         }
         this.events = null;
+    }
+
+    @Override
+    public void execute(long timestamp) {
+        List<Event> eventsToSend = null;
+        Processor nextProcessor;
+        try {
+            this.lock.lock();
+            nextProcessor = this.nextProcessor;
+            if (timestamp - this.lastTime >= minIdleTime && !this.events.isEmpty()) {
+                // Timeout happened
+                eventsToSend = new ArrayList<>(this.events);
+                this.events.clear();
+            }
+        } finally {
+            this.lock.unlock();
+        }
+        if (eventsToSend != null && nextProcessor != null) {
+            nextProcessor.process(eventsToSend);
+        }
     }
 
     private void updateTime(Number value) {
