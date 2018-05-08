@@ -6,7 +6,7 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Stateful;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
 import com.javahelps.wisdom.core.util.FunctionalUtility;
-import com.javahelps.wisdom.core.util.TimestampGenerator;
+import com.javahelps.wisdom.core.time.TimestampGenerator;
 import com.javahelps.wisdom.core.util.WisdomConstants;
 
 import java.time.Duration;

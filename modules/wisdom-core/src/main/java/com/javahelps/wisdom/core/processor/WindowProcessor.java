@@ -1,5 +1,6 @@
 package com.javahelps.wisdom.core.processor;
 
+import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.window.Window;
 
@@ -16,6 +17,11 @@ public class WindowProcessor extends StreamProcessor implements Stateful {
     public WindowProcessor(String id, Window window) {
         super(id);
         this.window = window;
+    }
+
+    @Override
+    public void init(WisdomApp wisdomApp) {
+        this.window.init(wisdomApp);
     }
 
     @Override

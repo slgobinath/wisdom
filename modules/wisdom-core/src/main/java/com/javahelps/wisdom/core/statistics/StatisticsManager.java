@@ -6,8 +6,8 @@ import com.javahelps.wisdom.core.WisdomContext;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.stream.InputHandler;
 import com.javahelps.wisdom.core.util.EventGenerator;
-import com.javahelps.wisdom.core.util.Scheduler;
-import com.javahelps.wisdom.core.util.TimestampGenerator;
+import com.javahelps.wisdom.core.time.Scheduler;
+import com.javahelps.wisdom.core.time.TimestampGenerator;
 
 import java.time.Duration;
 import java.util.ArrayList;

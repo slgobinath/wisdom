@@ -1,4 +1,4 @@
-package com.javahelps.wisdom.core.util;
+package com.javahelps.wisdom.core.time;
 
 /**
  * A {@link TimestampGenerator} which returns the system timestamp.

@@ -1,9 +1,11 @@
 package com.javahelps.wisdom.core.window;
 
+import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.extension.ImportsManager;
 import com.javahelps.wisdom.core.partition.Partitionable;
+import com.javahelps.wisdom.core.processor.Initializable;
 import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.processor.Stateful;
 import com.javahelps.wisdom.core.util.Commons;
@@ -18,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * A utility to construct Windows.
  */
-public abstract class Window implements Partitionable, Stateful {
+public abstract class Window implements Partitionable, Stateful, Initializable {
 
     static {
         ImportsManager.INSTANCE.use(Window.class.getPackageName());
@@ -51,6 +53,10 @@ public abstract class Window implements Partitionable, Stateful {
         return new LengthBatchWindow(Collections.singletonMap("length", length));
     }
 
+    public static Window timeBatch(Duration duration) {
+        return new TimeBatchWindow(Commons.map("duration", duration.toMillis()));
+    }
+
     public static Window externalTimeBatch(String timestampKey, Duration duration) {
         return new ExternalTimeBatchWindow(Commons.map("timestampKey", timestampKey, "duration", duration.toMillis()));
     }
@@ -73,5 +79,10 @@ public abstract class Window implements Partitionable, Stateful {
             }
         }
         return value;
+    }
+
+    @Override
+    public void init(WisdomApp app) {
+        // Do nothing
     }
 }

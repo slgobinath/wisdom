@@ -7,7 +7,7 @@ import com.javahelps.wisdom.core.stream.Stream;
  * A {@link Processor} that comes in a {@link com.javahelps.wisdom.core.query.Query} following {@link Stream}.
  * In technical aspect, a {@link com.javahelps.wisdom.core.query.Query} is a linked list of these processors.
  */
-public abstract class StreamProcessor implements Processor {
+public abstract class StreamProcessor implements Processor, Initializable {
 
     protected String id;
     private Processor previousProcessor;
@@ -29,6 +29,7 @@ public abstract class StreamProcessor implements Processor {
         this.nextProcessor = nextProcessor;
     }
 
+    @Override
     public void init(WisdomApp wisdomApp) {
 
     }

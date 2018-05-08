@@ -3,7 +3,7 @@ package com.javahelps.wisdom.core.pattern;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
-import com.javahelps.wisdom.core.util.Scheduler;
+import com.javahelps.wisdom.core.time.Scheduler;
 
 import java.util.ArrayList;
 import java.util.Collections;
