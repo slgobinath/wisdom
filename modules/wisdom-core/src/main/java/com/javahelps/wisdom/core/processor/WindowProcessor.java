@@ -13,6 +13,7 @@ public class WindowProcessor extends StreamProcessor implements Stateful {
 
 
     private Window window;
+    private WisdomApp wisdomApp;
 
     public WindowProcessor(String id, Window window) {
         super(id);
@@ -22,6 +23,7 @@ public class WindowProcessor extends StreamProcessor implements Stateful {
     @Override
     public void init(WisdomApp wisdomApp) {
         this.window.init(wisdomApp);
+        this.wisdomApp = wisdomApp;
     }
 
     @Override
@@ -45,6 +47,7 @@ public class WindowProcessor extends StreamProcessor implements Stateful {
 
         WindowProcessor windowProcessor = new WindowProcessor(this.id, this.window.copy());
         windowProcessor.setNextProcessor(this.getNextProcessor().copy());
+        windowProcessor.init(this.wisdomApp);
         return windowProcessor;
     }
 

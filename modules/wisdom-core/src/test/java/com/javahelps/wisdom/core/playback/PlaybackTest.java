@@ -45,8 +45,8 @@ public class PlaybackTest {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "timestamp", 1000L));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "timestamp", 1500L));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "timestamp", 2000L));
-
-        Thread.sleep(1000);
+        Thread.sleep(100);
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
@@ -81,6 +81,7 @@ public class PlaybackTest {
         wisdomApp.getInputHandler("ExternalTimeStream").send(EventGenerator.generate("timestamp", 5000L));
 
         Thread.sleep(100);
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
@@ -112,6 +113,7 @@ public class PlaybackTest {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "AMAZON", "price", 75.0, "timestamp", 3000L));
 
         Thread.sleep(100);
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }

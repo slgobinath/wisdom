@@ -42,9 +42,12 @@ public class EventBasedScheduler implements Scheduler, EventBasedTimestampGenera
             Iterator<Map.Entry<Long, Executor>> iterator = this.executorMap.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<Long, Executor> entry = iterator.next();
-                if (entry.getKey().longValue() <= timestamp) {
+                long schduledTime = entry.getKey().longValue();
+                if (schduledTime <= timestamp) {
                     executors.add(entry.getValue());
                     iterator.remove();
+                } else {
+                    this.nextSchedule = schduledTime;
                 }
             }
         }

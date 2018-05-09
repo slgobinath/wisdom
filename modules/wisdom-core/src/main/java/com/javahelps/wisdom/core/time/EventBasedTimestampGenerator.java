@@ -21,13 +21,18 @@ public class EventBasedTimestampGenerator implements TimestampGenerator {
     }
 
     public void setCurrentTimestamp(long currentTimestamp) {
-        this.currentTimestamp = currentTimestamp;
+        synchronized (this) {
+            if (this.currentTimestamp >= currentTimestamp) {
+                return;
+            }
+            this.currentTimestamp = currentTimestamp;
+        }
         for (TimeChangeListener listener : this.timeChangeListeners) {
             listener.onTimeChange(currentTimestamp);
         }
     }
 
-    public long currentTimestamp() {
+    public synchronized long currentTimestamp() {
         return this.currentTimestamp;
     }
 

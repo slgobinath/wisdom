@@ -35,8 +35,8 @@ public class IdleTimeLengthBatchWindow extends Window implements Executor {
 
     public IdleTimeLengthBatchWindow(Map<String, ?> properties) {
         super(properties);
-        Object durationVal = this.getProperty("duration", 1);
-        Object lengthVal = this.getProperty("length", 2);
+        Object durationVal = this.getProperty("duration", 0);
+        Object lengthVal = this.getProperty("length", 1);
 
         if (durationVal instanceof Number) {
             this.minIdleTime = ((Number) durationVal).longValue();

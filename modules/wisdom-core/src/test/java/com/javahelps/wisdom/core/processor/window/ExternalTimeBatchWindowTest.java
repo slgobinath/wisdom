@@ -48,7 +48,7 @@ public class ExternalTimeBatchWindowTest {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "timestamp", 1000L));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "timestamp", 1500L));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "timestamp", 2000L));
-
+        wisdomApp.shutdown();
         Thread.sleep(100);
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
@@ -75,7 +75,7 @@ public class ExternalTimeBatchWindowTest {
         InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "timestamp", 1000L));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "timestamp", 1500L));
-
+        wisdomApp.shutdown();
         Thread.sleep(100);
 
         Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
@@ -107,7 +107,7 @@ public class ExternalTimeBatchWindowTest {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "timestamp", 1500L));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "timestamp", 2000L));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "GOOGLE", "price", 80.0, "timestamp", 2500L));
-
+        wisdomApp.shutdown();
         Thread.sleep(100);
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
@@ -139,7 +139,7 @@ public class ExternalTimeBatchWindowTest {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "timestamp", 1500L));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "timestamp", 1800L));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "GOOGLE", "price", 80.0, "timestamp", 2500L));
-
+        wisdomApp.shutdown();
         Thread.sleep(100);
 
         Assert.assertEquals("Incorrect number of events", 3, callback.getEventCount());

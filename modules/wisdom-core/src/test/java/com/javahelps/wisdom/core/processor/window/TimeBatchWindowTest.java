@@ -48,8 +48,7 @@ public class TimeBatchWindowTest {
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "timestamp", 1500L));
         Thread.sleep(1100);
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "timestamp", 2000L));
-
-        Thread.sleep(100);
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }
@@ -75,7 +74,7 @@ public class TimeBatchWindowTest {
         InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "timestamp", 1000L));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "WSO2", "price", 60.0, "timestamp", 1500L));
-        Thread.sleep(100);
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
     }
@@ -107,8 +106,8 @@ public class TimeBatchWindowTest {
         Thread.sleep(1100);
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "timestamp", 2000L));
         stockStreamInputHandler.send(EventGenerator.generate("symbol", "GOOGLE", "price", 80.0, "timestamp", 2500L));
-
         Thread.sleep(1100);
+        wisdomApp.shutdown();
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
     }

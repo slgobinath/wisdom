@@ -9,7 +9,6 @@ import com.javahelps.wisdom.core.processor.Processor;
 import com.javahelps.wisdom.core.statistics.StatisticsManager;
 import com.javahelps.wisdom.core.statistics.StreamTracker;
 import com.javahelps.wisdom.core.stream.async.EventHolder;
-import com.javahelps.wisdom.core.time.EventBasedTimestampGenerator;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
@@ -41,8 +40,6 @@ public class Stream implements Processor {
     private boolean disabled = false;
     private StreamTracker tracker;
     private ThreadBarrier threadBarrier;
-    private EventBasedTimestampGenerator timestampGenerator;
-    private String playbackTimestamp;
 
 
     public Stream(WisdomApp wisdomApp, String id) {
@@ -74,10 +71,6 @@ public class Stream implements Processor {
                 throw new WisdomAppValidationException("App level statistic stream must be defined before enabling stream stats");
             }
             this.setTracker(statisticsManager.createStreamTracker(id));
-        }
-        if (wisdomApp.getContext().isPlaybackEnabled()) {
-            this.timestampGenerator = (EventBasedTimestampGenerator) wisdomApp.getContext().getTimestampGenerator();
-            this.playbackTimestamp = wisdomApp.getContext().getPlaybackAttribute();
         }
     }
 
@@ -126,12 +119,6 @@ public class Stream implements Processor {
             this.tracker.inEvent(events.size());
         }
         if (this.disruptor == null) {
-            if (this.timestampGenerator != null) {
-                events.stream().map(event -> event.get(this.playbackTimestamp))
-                        .filter(x -> x instanceof Long)
-                        .mapToLong(x -> ((Long) x).longValue())
-                        .forEach(this.timestampGenerator::setCurrentTimestamp);
-            }
             for (Processor processor : this.processors) {
                 List<Event> newEvents = this.convertEvent(events);
                 try {
@@ -150,12 +137,6 @@ public class Stream implements Processor {
     }
 
     private void sendToProcessors(Event event) {
-        if (this.timestampGenerator != null) {
-            Object timestamp = event.get(this.playbackTimestamp);
-            if (timestamp != null && timestamp instanceof Long) {
-                this.timestampGenerator.setCurrentTimestamp(((Long) timestamp).longValue());
-            }
-        }
         for (Processor processor : this.processors) {
             Event newEvent = this.convertEvent(event);
             try {

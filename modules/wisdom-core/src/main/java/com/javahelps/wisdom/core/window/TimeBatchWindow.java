@@ -31,7 +31,7 @@ public class TimeBatchWindow extends Window implements Variable.OnUpdateListener
 
     public TimeBatchWindow(Map<String, ?> properties) {
         super(properties);
-        Object durationVal = this.getProperty("duration", 1);
+        Object durationVal = this.getProperty("duration", 0);
 
         if (durationVal instanceof Number) {
             this.timeToKeep = ((Number) durationVal).longValue();
@@ -61,9 +61,6 @@ public class TimeBatchWindow extends Window implements Variable.OnUpdateListener
             if (this.endTime == -1) {
                 this.endTime = currentTimestamp + this.timeToKeep;
                 this.scheduler.schedule(Duration.ofMillis(this.timeToKeep), this);
-            } else if (currentTimestamp >= this.endTime) {
-                this.endTime += this.timeToKeep;
-                this.scheduler.schedule(Duration.ofMillis(this.endTime - currentTimestamp), this);
             }
             this.events.add(event);
             this.nextProcessor = nextProcessor;
@@ -119,6 +116,8 @@ public class TimeBatchWindow extends Window implements Variable.OnUpdateListener
                 // Timeout happened
                 eventsToSend = new ArrayList<>(this.events);
                 this.events.clear();
+                this.endTime = this.findEndTime(timestamp, this.endTime, this.timeToKeep);
+                this.scheduler.schedule(Duration.ofMillis(this.endTime - timestamp), this);
             }
         } finally {
             this.lock.unlock();
@@ -126,5 +125,11 @@ public class TimeBatchWindow extends Window implements Variable.OnUpdateListener
         if (eventsToSend != null && nextProcessor != null) {
             nextProcessor.process(eventsToSend);
         }
+    }
+
+    private long findEndTime(long currentTime, long preEndTime, long timeToKeep) {
+        // returns the next emission time based on system clock round time values.
+        long elapsedTimeSinceLastEmit = (currentTime - preEndTime) % timeToKeep;
+        return (currentTime + (timeToKeep - elapsedTimeSinceLastEmit));
     }
 }
