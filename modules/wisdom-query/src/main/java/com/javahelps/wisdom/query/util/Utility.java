@@ -54,8 +54,8 @@ public class Utility {
 
     public static Map<String, Comparable> toMap(Properties properties) {
         Map<String, Comparable> map = new HashMap<String, Comparable>();
-        for (String key : properties.stringPropertyNames()) {
-            map.put(key, (Comparable) properties.get(key));
+        for (Object key : properties.keySet()) {
+            map.put(key.toString(), (Comparable) properties.get(key));
         }
         return map;
     }

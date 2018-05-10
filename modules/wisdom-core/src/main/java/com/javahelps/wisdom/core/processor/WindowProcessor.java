@@ -33,13 +33,12 @@ public class WindowProcessor extends StreamProcessor implements Stateful {
 
     @Override
     public void process(Event event) {
-
         this.window.process(event, getNextProcessor());
     }
 
     @Override
     public void process(List<Event> events) {
-
+        this.window.process(events, getNextProcessor());
     }
 
     @Override

@@ -13,6 +13,7 @@ public class Constants {
     public static final int HTTP_OK = 200;
     public static final int HTTP_BAD_REQUEST = 400;
     public static final String ENDPOINT = "endpoint";
+    public static final String PORT = "port";
     public static final String MAPPING = "mapping";
     public static final String JSON = "json";
     public static final String BATCH = "batch";

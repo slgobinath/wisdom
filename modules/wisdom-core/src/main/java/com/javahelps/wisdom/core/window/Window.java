@@ -13,6 +13,7 @@ import com.javahelps.wisdom.core.variable.Variable;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -70,6 +71,12 @@ public abstract class Window implements Partitionable, Stateful, Initializable {
     }
 
     public abstract void process(Event event, Processor nextProcessor);
+
+    public void process(List<Event> events, Processor nextProcessor) {
+        for (Event event : events) {
+            this.process(event, nextProcessor);
+        }
+    }
 
     @Override
     public abstract Window copy();

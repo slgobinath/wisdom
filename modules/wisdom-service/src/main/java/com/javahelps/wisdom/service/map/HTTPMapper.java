@@ -56,6 +56,9 @@ public class HTTPMapper extends Mapper {
         if (!this.method.equals("POST") && !this.method.equals("GET")) {
             throw new WisdomAppValidationException("HTTP mapper property 'method' expects 'POST' or 'GET' but found '%s'", method);
         }
+        if (this.select == null) {
+            throw new WisdomAppValidationException("Required property select for HTTP mapper not found");
+        }
     }
 
     @Override
