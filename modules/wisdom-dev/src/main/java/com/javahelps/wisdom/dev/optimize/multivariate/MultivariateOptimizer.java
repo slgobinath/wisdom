@@ -120,6 +120,7 @@ public class MultivariateOptimizer {
 
         double[] optimizedPoints = globalBestPoint.getCoordinates();
         Constraint[] constraints = globalBestPoint.getConstraints();
+        int maxIteration = MAX_ITERATION + 50;
         for (int i = 0; i < DIMENSION; i++) {
             Point point = new Point(globalBestPoint.getCoordinates(), constraints);
             double[] currentPoint = point.getCoordinates();
@@ -132,7 +133,7 @@ public class MultivariateOptimizer {
             } else {
                 boundary = constraints[i].getLow();
             }
-            while (true) {
+            while (iteration <= maxIteration && error > ERROR_TOLERANCE) {
 
                 double step = (boundary - currentPoint[i]) / 2;
                 if (Math.abs(step) < Math.abs(direction)) {

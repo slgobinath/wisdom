@@ -127,6 +127,9 @@ public class InOperator extends LogicalOperator {
     }
 
     private boolean test(Comparable value, Comparable container) {
+        if (container == null) {
+            return false;
+        }
         if (container instanceof WisdomArray) {
             return ((WisdomArray) container).contains(value);
         } else if (container instanceof String) {
@@ -136,7 +139,7 @@ public class InOperator extends LogicalOperator {
                 return false;
             }
         } else {
-            throw new WisdomAppRuntimeException("%s IN %s is not supported", value.getClass().getCanonicalName(), container.getClass().getCanonicalName());
+            throw new WisdomAppRuntimeException("%s IN %s is not supported", value, container);
         }
     }
 }

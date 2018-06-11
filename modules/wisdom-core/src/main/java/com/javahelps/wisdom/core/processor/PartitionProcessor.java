@@ -101,17 +101,22 @@ public class PartitionProcessor extends StreamProcessor implements Stateful {
     private String calculateKey(Event event) {
         if (this.attributes.length == 1) {
             return Objects.toString(event.get(this.attributes[0]));
-        } else {
-//            StringBuilder builder = new StringBuilder();
-//            for (String attribute : this.attributes) {
-//                builder.append(Objects.toString(event.get(attribute)));
-//            }
-//            return builder.toString();
-            int hash = 0;
-            for (String attribute : this.attributes) {
-                hash += Objects.toString(event.get(attribute)).hashCode();
+        } else if (this.attributes.length == 2) {
+            String attr1 = Objects.toString(event.get(this.attributes[0]));
+            String attr2 = Objects.toString(event.get(this.attributes[1]));
+            String key1 = attr1 + attr2;
+            String key2 = attr2 + attr1;
+            if (this.processorMap.containsKey(key2)) {
+                return key2;
+            } else {
+                return key1;
             }
-            return Integer.toString(hash);
+        } else {
+            StringBuilder builder = new StringBuilder();
+            for (String attribute : this.attributes) {
+                builder.append(Objects.toString(event.get(attribute)));
+            }
+            return builder.toString();
         }
 
     }
