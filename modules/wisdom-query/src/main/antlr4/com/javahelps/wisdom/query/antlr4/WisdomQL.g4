@@ -132,6 +132,7 @@ ensure_statement
 
 partition_statement
     : PARTITION BY NAME (COMMA NAME)* END_OF_STATEMENT?
+    | PARTITION BY NAME (ADD NAME)* END_OF_STATEMENT?
     ;
 
 aggregate_statement

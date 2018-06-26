@@ -190,7 +190,12 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
     @Override
     public Statement visitPartition_statement(WisdomQLParser.Partition_statementContext ctx) {
-        PartitionStatement statement = new PartitionStatement();
+        PartitionStatement statement;
+        if (ctx.ADD() != null && ctx.ADD().size() > 0) {
+            statement = new UnorderedPartitionStatement();
+        } else {
+            statement = new OrderedPartitionStatement();
+        }
         for (TerminalNode node : ctx.NAME()) {
             statement.addAttribute(node.getText());
         }

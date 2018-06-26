@@ -242,7 +242,21 @@ public class Query implements Stateful {
 
     public Query partitionBy(String... attributes) {
 
-        PartitionProcessor partitionProcessor = new PartitionProcessor(generateId(), attributes);
+        PartitionProcessor partitionProcessor = new OrderedPartitionProcessor(generateId(), attributes);
+        if (this.lastStreamProcessor == null) {
+            this.inputStream.addProcessor(partitionProcessor);
+        } else {
+            this.lastStreamProcessor.setNextProcessor(partitionProcessor);
+        }
+        this.lastStreamProcessor = partitionProcessor;
+        this.addStreamProcessor(partitionProcessor);
+
+        return this;
+    }
+
+    public Query unOrderedPartitionBy(String... attributes) {
+
+        PartitionProcessor partitionProcessor = new UnorderedPartitionProcessor(generateId(), attributes);
         if (this.lastStreamProcessor == null) {
             this.inputStream.addProcessor(partitionProcessor);
         } else {

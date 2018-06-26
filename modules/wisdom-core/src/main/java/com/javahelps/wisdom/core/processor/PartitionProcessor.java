@@ -12,13 +12,12 @@ import com.lmax.disruptor.dsl.ProducerType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class PartitionProcessor extends StreamProcessor implements Stateful {
+public abstract class PartitionProcessor extends StreamProcessor implements Stateful {
 
-    private final String[] attributes;
+    protected final String[] attributes;
     private final Map<String, Processor> processorMap = new HashMap<>();
     private final Lock lock = new ReentrantLock();
     private Disruptor<EventHolder> disruptor;
@@ -98,33 +97,9 @@ public class PartitionProcessor extends StreamProcessor implements Stateful {
         }
     }
 
-    private String calculateKey(Event event) {
-        if (this.attributes.length == 1) {
-            return Objects.toString(event.get(this.attributes[0]));
-        } else if (this.attributes.length == 2) {
-            String attr1 = Objects.toString(event.get(this.attributes[0]));
-            String attr2 = Objects.toString(event.get(this.attributes[1]));
-            String key1 = attr1 + attr2;
-            String key2 = attr2 + attr1;
-            if (this.processorMap.containsKey(key2)) {
-                return key2;
-            } else {
-                return key1;
-            }
-        } else {
-            StringBuilder builder = new StringBuilder();
-            for (String attribute : this.attributes) {
-                builder.append(Objects.toString(event.get(attribute)));
-            }
-            return builder.toString();
-        }
+    protected abstract String calculateKey(Event event);
 
-    }
-
-    @Override
-    public Processor copy() {
-        return null;
-    }
+    public abstract Processor copy();
 
     @Override
     public void destroy() {

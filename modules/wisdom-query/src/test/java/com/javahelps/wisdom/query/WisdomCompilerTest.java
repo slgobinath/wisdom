@@ -588,8 +588,8 @@ public class WisdomCompilerTest {
     }
 
     @Test
-    public void testPartition() throws InterruptedException {
-        LOGGER.info("Test partition - OUT 2");
+    public void testPartition1() throws InterruptedException {
+        LOGGER.info("Test partition 1 - OUT 2");
 
         String query = "def stream StockStream; " +
                 "def stream OutputStream; " +
@@ -618,6 +618,107 @@ public class WisdomCompilerTest {
         Thread.sleep(100);
 
         Assert.assertEquals("Incorrect number of events", 2, callback.getEventCount());
+    }
+
+    @Test
+    public void testPartition2() throws InterruptedException {
+        LOGGER.info("Test partition 2 - OUT 1");
+
+        String query = "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "partition by symbol, volume " +
+                "window.lengthBatch(2) " +
+                "aggregate sum('price') as price " +
+                "select symbol, price " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
+                map("symbol", "IBM", "price", 110.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "volume", 20));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 60.0, "volume", 10));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 80.0, "volume", 25));
+
+        Thread.sleep(100);
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
+    }
+
+    @Test
+    public void testPartition3() throws InterruptedException {
+        LOGGER.info("Test partition 3 - OUT 0");
+
+        String query = "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "partition by symbol, group " +
+                "window.lengthBatch(2) " +
+                "aggregate sum('price') as price " +
+                "select symbol, price " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "group", "GOOGLE"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "group", "IBM"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 60.0, "group", "ORACLE"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 80.0, "group", "GOOGLE"));
+
+        Thread.sleep(100);
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
+    }
+
+    @Test
+    public void testPartition4() throws InterruptedException {
+        LOGGER.info("Test partition 4 - OUT 1");
+
+        String query = "def stream StockStream; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream " +
+                "partition by symbol + group " +
+                "window.lengthBatch(2) " +
+                "aggregate sum('price') as price " +
+                "select symbol, price " +
+                "insert into OutputStream;";
+
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("symbol",
+                "IBM", "price", 130.0));
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "group", "GOOGLE"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "group", "IBM"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 60.0, "group", "ORACLE"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 80.0, "group", "GOOGLE"));
+
+        Thread.sleep(100);
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
     }
 
     @Test

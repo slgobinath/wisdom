@@ -160,70 +160,71 @@ public class PartitionTestCase {
     }
 
 
-    /*
-        executionRuntime.addCallback("OutStockStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    count.incrementAndGet();
-                    eventArrived = true;
-                    if (count.get() == 1) {
-                        Assert.assertEquals(75.5999984741211, event.getData()[1]);
-                    } else if (count.get() == 2) {
-                        Assert.assertEquals(151.1999969482422, event.getData()[1]);
-                    } else if (count.get() == 3) {
-                        Assert.assertEquals(75.5999984741211, event.getData()[1]);
-                    }
-                }
-            }
-        });
+    @Test
+    public void testPartition5() throws InterruptedException {
+        LOGGER.info("Test partition 5 - OUT 0");
 
-        InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStreamOne");
-        executionRuntime.start();
-        inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-        inputHandler.send(new Object[]{"WSO2", 70005.6f, 100});
-        inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-        inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
-        SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count.get());
-        executionRuntime.shutdown();
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream");
 
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .partitionBy("symbol", "group")
+                .window(Window.lengthBatch(2))
+                .aggregate(Operator.SUM("price", "price"))
+                .select("symbol", "price")
+                .insertInto("OutputStream");
+
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
+
+        wisdomApp.start();
+
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "group", "GOOGLE"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "group", "IBM"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 60.0, "group", "ORACLE"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 80.0, "group", "GOOGLE"));
+
+        Thread.sleep(100);
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 0, callback.getEventCount());
     }
 
     @Test
-    public void testPartitionQuery2() throws InterruptedException {
-        log.info("Partition test2");
-        SiddhiManager siddhiManager = new SiddhiManager();
+    public void testPartition6() throws InterruptedException {
+        LOGGER.info("Test partition 6 - OUT 1");
 
-        String siddhiApp = "@app:name('PartitionTest2') " +
-                "define stream cseEventStream (symbol string, price float,volume int);"
-                + "define stream StockStream1 (symbol string, price float,volume int);"
-                + "partition with (symbol of cseEventStream , symbol of StockStream1) begin @info(name = 'query1') " +
-                "from cseEventStream[700>price] select symbol,sum(price) attrName price,volume insert into OutStockStream ;" +
-                "  end ";
+        WisdomApp wisdomApp = new WisdomApp();
+        wisdomApp.defineStream("StockStream");
+        wisdomApp.defineStream("OutputStream");
 
+        wisdomApp.defineQuery("query1")
+                .from("StockStream")
+                .unOrderedPartitionBy("symbol", "group")
+                .window(Window.lengthBatch(2))
+                .aggregate(Operator.SUM("price", "price"))
+                .select("symbol", "price")
+                .insertInto("OutputStream");
 
-        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("symbol",
+                "IBM", "price", 130.0));
 
+        wisdomApp.start();
 
-        executionRuntime.addCallback("OutStockStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                count.addAndGet(events.length);
-                eventArrived = true;
-            }
-        });
-        InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
-        executionRuntime.start();
-        inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-        inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
-        inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-        inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
-        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
-        Assert.assertEquals(4, count.get());
-        executionRuntime.shutdown();
-    }*/
+        InputHandler stockStreamInputHandler = wisdomApp.getInputHandler("StockStream");
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 50.0, "group", "GOOGLE"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 70.0, "group", "IBM"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "IBM", "price", 60.0, "group", "ORACLE"));
+        stockStreamInputHandler.send(EventGenerator.generate("symbol", "ORACLE", "price", 80.0, "group", "GOOGLE"));
+
+        Thread.sleep(100);
+
+        wisdomApp.shutdown();
+
+        Assert.assertEquals("Incorrect number of events", 1, callback.getEventCount());
+    }
 
 }
