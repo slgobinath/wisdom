@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>TensorFlow Integration - Wisdom Stream Processor</title>
+  <title>Sink - Wisdom Stream Processor</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,9 +17,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "TensorFlow Integration";
-    var mkdocs_page_input_path = "use-cases/tensor-flow.md";
-    var mkdocs_page_url = "/use-cases/tensor-flow/";
+    var mkdocs_page_name = "Sink";
+    var mkdocs_page_input_path = "query/sink.md";
+    var mkdocs_page_url = "/query/sink/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -73,51 +73,54 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../query/query/">Query</a>
+    <a class="" href="../query/">Query</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/stream/">Stream</a>
+    <a class="" href="../stream/">Stream</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/variable/">Variable</a>
+    <a class="" href="../variable/">Variable</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/filter/">Filter</a>
+    <a class="" href="../filter/">Filter</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/select/">Select</a>
+    <a class="" href="../select/">Select</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/map/">Map</a>
+    <a class="" href="../map/">Map</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/window/">Window</a>
+    <a class="" href="../window/">Window</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/aggregate/">Aggregate</a>
+    <a class="" href="../aggregate/">Aggregate</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/partition/">Partition</a>
+    <a class="" href="../partition/">Partition</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/pattern/">Pattern</a>
+    <a class="" href="../pattern/">Pattern</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/source/">Source</a>
+    <a class="" href="../source/">Source</a>
                 </li>
-                <li class="">
+                <li class=" current">
                     
-    <a class="" href="../../query/sink/">Sink</a>
+    <a class="current" href="./">Sink</a>
+    <ul class="subnav">
+            
+    </ul>
                 </li>
     </ul>
 	    </li>
@@ -133,29 +136,15 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../intrusion-detection/">Intrusion Detection</a>
-                </li>
-                <li class=" current">
-                    
-    <a class="current" href="./">TensorFlow Integration</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l3"><a href="#tensorflow-integration">TensorFlow Integration</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l4" href="#build-model">Build Model</a></li>
-        
-            <li><a class="toctree-l4" href="#wisdom-query">Wisdom Query</a></li>
-        
-        </ul>
-    
-
-    </ul>
+    <a class="" href="../../use-cases/intrusion-detection/">Intrusion Detection</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../self-boosting/">Self-Boosting Deployment</a>
+    <a class="" href="../../use-cases/tensor-flow/">TensorFlow Integration</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../use-cases/self-boosting/">Self-Boosting Deployment</a>
                 </li>
     </ul>
 	    </li>
@@ -182,11 +171,11 @@
     
       
         
-          <li>Use Cases &raquo;</li>
+          <li>Wisdom API &raquo;</li>
         
       
     
-    <li>TensorFlow Integration</li>
+    <li>Sink</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -196,65 +185,34 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="tensorflow-integration">TensorFlow Integration</h1>
-<p>Stream Processors often require to support machine learning. Wisdom comes with built-in support to serve TensorFlow models. To serve a TensorFlow model, build a model first in Python (or whatever the way you prefer) and export it to a file. Then, Wisdom can serve that model within the Wisdom environment.</p>
-<h2 id="build-model">Build Model</h2>
-<p>Execute the following Python 3 script to export a TensorFlow model to <code>/tmp/tf_add_model</code> which receives two integers <code>x</code> and <code>y</code> and produce <code>ans</code> which is the sum of <code>x</code> and <code>y</code>.</p>
-<pre><code class="python">#!/usr/bin/env python3
-import tensorflow as tf
-from tensorflow.python.saved_model import builder as saved_model_builder
-from tensorflow.python.saved_model import signature_constants
-from tensorflow.python.saved_model import signature_def_utils
-from tensorflow.python.saved_model import tag_constants
-from tensorflow.python.saved_model.utils import build_tensor_info
+                <p>Sink receives events from a stream and send them to the relative receiver. Currently Wisdom supports the following sinks:</p>
+<ul>
+<li>HTTP</li>
+<li>Kafka</li>
+<li>Text File</li>
+<li>Console</li>
+</ul>
+<p><strong>Java API:</strong></p>
+<p>Define HTTP sink in Java.</p>
+<pre><code class="java">wisdomApp.defineQuery(&quot;query1&quot;)
+        .from(&quot;StockStream&quot;)
+        .select(&quot;symbol&quot;, &quot;price&quot;)
+        .insertInto(&quot;OutputStream&quot;);
 
-x = tf.placeholder(tf.int32, name='x')
-y = tf.placeholder(tf.int32, name='y')
-
-# This is our model
-add = tf.add(x, y, name='ans')
-
-with tf.Session() as sess:
-    # Pick out the model input and output
-    x_tensor = sess.graph.get_tensor_by_name('x:0')
-    y_tensor = sess.graph.get_tensor_by_name('y:0')
-    ans_tensor = sess.graph.get_tensor_by_name('ans:0')
-
-    x_info = build_tensor_info(x_tensor)
-    y_info = build_tensor_info(y_tensor)
-    ans_info = build_tensor_info(ans_tensor)
-
-    # Create a signature definition for tfserving
-    signature_definition = signature_def_utils.build_signature_def(
-        inputs={'x': x_info, 'y': y_info},
-        outputs={'ans': ans_info},
-        method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME)
-
-    builder = saved_model_builder.SavedModelBuilder('/tmp/tf_add_model')
-
-    builder.add_meta_graph_and_variables(
-        sess, [tag_constants.SERVING],
-        signature_def_map={
-            signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
-                signature_definition
-        })
-
-    # Save the model so we can serve it with a model server :)
-    builder.save()
+wisdomApp.addSink(&quot;OutputStream&quot;, new HTTPSink(&quot;http://localhost:9999/streamReceiver&quot;));
 </code></pre>
 
-<h2 id="wisdom-query">Wisdom Query</h2>
-<pre><code class="java">def stream EventStream;
+<p><strong>Wisdom Query:</strong></p>
+<p>Define HTTP sink in Wisdom Query.</p>
+<pre><code class="java">def stream StockStream;
+
+@sink(type='http', mapping='json', endpoint='http://localhost:9999/streamReceiver')
 def stream OutputStream;
 
-from EventStream
-map int('x') as x, int('y') as y
-map tensorFlow(path='/tmp/tf_add_model', operation='ans', type='int') as result
+from StockStream
+select symbol, price
 insert into OutputStream;
 </code></pre>
-
-<p>Above query feeds <code>x</code> and <code>y</code> to the TensorFlow model and inject the output <code>ans</code> as <code>result</code> in the output event. In this query, <code>path</code> is the location of the model, <code>operation</code> is the output Tensor name, and <code>type</code> is the data type of the output Tensor. The <code>type</code> must be any of the following: <code>int</code>, <code>long</code>, <code>float</code>, <code>double</code>, <code>bool</code>.</p>
-<p>Sending an event <code>{x: 10, y: 20}</code> to EventStream will emit <code>{x: 10, y: 20, result: 30}</code> in the OutputStream.</p>
               
             </div>
           </div>
@@ -262,10 +220,10 @@ insert into OutputStream;
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../self-boosting/" class="btn btn-neutral float-right" title="Self-Boosting Deployment">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../wisdom-extensions/" class="btn btn-neutral float-right" title="Writing Extensions">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../intrusion-detection/" class="btn btn-neutral" title="Intrusion Detection"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../source/" class="btn btn-neutral" title="Source"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -291,10 +249,10 @@ insert into OutputStream;
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../intrusion-detection/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../source/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../self-boosting/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../../wisdom-extensions/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

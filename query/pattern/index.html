@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Pattern - Wisdom Stream Processor</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Pattern";
+    var mkdocs_page_input_path = "query/pattern.md";
+    var mkdocs_page_url = "/query/pattern/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Wisdom Stream Processor</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../why-wisdom/">Why Wisdom?</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../getting-started/">Getting Started</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../deploy-wisdom/">Deploy Wisdom</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Wisdom API</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../query/">Query</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../stream/">Stream</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../variable/">Variable</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../filter/">Filter</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../select/">Select</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../map/">Map</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../window/">Window</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../aggregate/">Aggregate</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../partition/">Partition</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">Pattern</a>
+    <ul class="subnav">
+            
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../source/">Source</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../sink/">Sink</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../wisdom-extensions/">Writing Extensions</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Use Cases</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../use-cases/intrusion-detection/">Intrusion Detection</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../use-cases/tensor-flow/">TensorFlow Integration</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../use-cases/self-boosting/">Self-Boosting Deployment</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Wisdom Stream Processor</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Wisdom API &raquo;</li>
+        
+      
+    
+    <li>Pattern</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p>Patterns are another important aspect of stream processing. Wisdom supports regular patterns, count patterns and logical patterns.</p>
+<p><strong>Java API:</strong></p>
+<p>Wisdom pattern to detect <code>IBM</code> followed by <code>GOOGLE</code>.</p>
+<pre><code class="java">app.defineStream(&quot;StockStream&quot;);
+app.defineStream(&quot;OutputStream&quot;);
+
+// e1 -&gt; e2
+Pattern e1 = Pattern.pattern(&quot;Pattern1&quot;, &quot;e1&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;IBM&quot;));
+Pattern e2 = Pattern.pattern(&quot;Pattern2&quot;, &quot;e2&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;GOOGLE&quot;));
+
+Pattern finalPattern = Pattern.followedBy(e1, e2);
+
+app.defineQuery(&quot;query1&quot;)
+    .from(finalPattern)
+    .select(&quot;e1.symbol&quot;, &quot;e2.symbol&quot;)
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p>Wisdom pattern to detect <code>IBM</code> followed by <code>GOOGLE</code> within five minutes.</p>
+<pre><code class="java">app.defineStream(&quot;StockStream&quot;);
+app.defineStream(&quot;OutputStream&quot;);
+
+// e1 -&gt; e2 within 300,000 milliseconds
+Pattern e1 = Pattern.pattern(&quot;Pattern1&quot;, &quot;e1&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;IBM&quot;));
+Pattern e2 = Pattern.pattern(&quot;Pattern2&quot;, &quot;e2&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;GOOGLE&quot;));
+
+Pattern finalPattern = Pattern.followedBy(e1, e2, 5*60*1000);
+
+app.defineQuery(&quot;query1&quot;)
+    .from(finalPattern)
+    .select(&quot;e1.symbol&quot;, &quot;e2.symbol&quot;)
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p>Wisdom pattern to detect <code>IBM</code> or <code>GOOGLE</code> followed by <code>ORACLE</code>.</p>
+<pre><code class="java">app.defineStream(&quot;StockStream&quot;);
+app.defineStream(&quot;OutputStream&quot;);
+
+// e1 or e2 -&gt; e3
+Pattern e1 = Pattern.pattern(&quot;Pattern1&quot;, &quot;e1&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;IBM&quot;));
+Pattern e2 = Pattern.pattern(&quot;Pattern2&quot;, &quot;e2&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;GOOGLE&quot;));
+Pattern e3 = Pattern.pattern(&quot;Pattern3&quot;, &quot;e3&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;ORACLE&quot;));
+
+Pattern finalPattern = Pattern.followedBy(Pattern.or(e1, e2), e3);
+
+app.defineQuery(&quot;query1&quot;)
+    .from(finalPattern)
+    .select(&quot;e1.symbol&quot;, &quot;e2.symbol&quot;, &quot;e3.symbol&quot;)
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p>Wisdom pattern to detect <code>IBM</code> and <code>GOOGLE</code> followed by <code>ORACLE</code>.</p>
+<pre><code class="java">app.defineStream(&quot;StockStream&quot;);
+app.defineStream(&quot;OutputStream&quot;);
+
+// e1 and e2 -&gt; e3
+Pattern e1 = Pattern.pattern(&quot;Pattern1&quot;, &quot;e1&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;IBM&quot;));
+Pattern e2 = Pattern.pattern(&quot;Pattern2&quot;, &quot;e2&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;GOOGLE&quot;));
+Pattern e3 = Pattern.pattern(&quot;Pattern3&quot;, &quot;e3&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;ORACLE&quot;));
+
+Pattern finalPattern = Pattern.followedBy(Pattern.and(e1, e2), e3);
+
+app.defineQuery(&quot;query1&quot;)
+    .from(finalPattern)
+    .select(&quot;e1.symbol&quot;, &quot;e2.symbol&quot;, &quot;e3.symbol&quot;)
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p>Wisdom pattern to detect <code>IBM</code> but no <code>GOOGLE</code> before <code>IBM</code>.</p>
+<pre><code class="java">app.defineStream(&quot;StockStream&quot;);
+app.defineStream(&quot;OutputStream&quot;);
+
+// not e1 -&gt; e2
+Pattern e1 = Pattern.pattern(&quot;Pattern1&quot;, &quot;e1&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;IBM&quot;));
+Pattern e2 = Pattern.pattern(&quot;Pattern2&quot;, &quot;e2&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;GOOGLE&quot;));
+
+Pattern finalPattern = Pattern.followedBy(Pattern.not(e1), e2);
+
+app.defineQuery(&quot;query1&quot;)
+    .from(finalPattern)
+    .select(&quot;e2.symbol&quot;)
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p>Wisdom pattern to detect two to five number of <code>IBM</code> followed by <code>GOOGLE</code>.</p>
+<pre><code class="java">app.defineStream(&quot;StockStream&quot;);
+app.defineStream(&quot;OutputStream&quot;);
+
+// e1&lt;2:5&gt; -&gt; e2
+Pattern e1 = Pattern.pattern(&quot;Pattern1&quot;, &quot;e1&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;IBM&quot;))
+        .times(2, 5);
+Pattern e2 = Pattern.pattern(&quot;Pattern2&quot;, &quot;e2&quot;, &quot;StockStream&quot;)
+        .filter(event -&gt; event.get(&quot;symbol&quot;).equals(&quot;GOOGLE&quot;));
+
+Pattern finalPattern = Pattern.followedBy(e1, e2);
+
+app.defineQuery(&quot;query1&quot;)
+    .from(finalPattern)
+    .select(&quot;e1.symbol&quot;, &quot;e2.symbol&quot;)
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p>Still I have not implemented Wisdom Query for pattern. Therefore, patterns can be used only in Java.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../source/" class="btn btn-neutral float-right" title="Source">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../partition/" class="btn btn-neutral" title="Partition"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../partition/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../source/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/require.js"></script>
+      <script src="../../search/search.js"></script>
+
+</body>
+</html>

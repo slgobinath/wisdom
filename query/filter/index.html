@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>TensorFlow Integration - Wisdom Stream Processor</title>
+  <title>Filter - Wisdom Stream Processor</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,9 +17,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "TensorFlow Integration";
-    var mkdocs_page_input_path = "use-cases/tensor-flow.md";
-    var mkdocs_page_url = "/use-cases/tensor-flow/";
+    var mkdocs_page_name = "Filter";
+    var mkdocs_page_input_path = "query/filter.md";
+    var mkdocs_page_url = "/query/filter/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -73,51 +73,54 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../query/query/">Query</a>
+    <a class="" href="../query/">Query</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/stream/">Stream</a>
+    <a class="" href="../stream/">Stream</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/variable/">Variable</a>
+    <a class="" href="../variable/">Variable</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">Filter</a>
+    <ul class="subnav">
+            
+    </ul>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/filter/">Filter</a>
+    <a class="" href="../select/">Select</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/select/">Select</a>
+    <a class="" href="../map/">Map</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/map/">Map</a>
+    <a class="" href="../window/">Window</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/window/">Window</a>
+    <a class="" href="../aggregate/">Aggregate</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/aggregate/">Aggregate</a>
+    <a class="" href="../partition/">Partition</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/partition/">Partition</a>
+    <a class="" href="../pattern/">Pattern</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/pattern/">Pattern</a>
+    <a class="" href="../source/">Source</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../query/source/">Source</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../../query/sink/">Sink</a>
+    <a class="" href="../sink/">Sink</a>
                 </li>
     </ul>
 	    </li>
@@ -133,29 +136,15 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../intrusion-detection/">Intrusion Detection</a>
-                </li>
-                <li class=" current">
-                    
-    <a class="current" href="./">TensorFlow Integration</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l3"><a href="#tensorflow-integration">TensorFlow Integration</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l4" href="#build-model">Build Model</a></li>
-        
-            <li><a class="toctree-l4" href="#wisdom-query">Wisdom Query</a></li>
-        
-        </ul>
-    
-
-    </ul>
+    <a class="" href="../../use-cases/intrusion-detection/">Intrusion Detection</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../self-boosting/">Self-Boosting Deployment</a>
+    <a class="" href="../../use-cases/tensor-flow/">TensorFlow Integration</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../use-cases/self-boosting/">Self-Boosting Deployment</a>
                 </li>
     </ul>
 	    </li>
@@ -182,11 +171,11 @@
     
       
         
-          <li>Use Cases &raquo;</li>
+          <li>Wisdom API &raquo;</li>
         
       
     
-    <li>TensorFlow Integration</li>
+    <li>Filter</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -196,65 +185,77 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="tensorflow-integration">TensorFlow Integration</h1>
-<p>Stream Processors often require to support machine learning. Wisdom comes with built-in support to serve TensorFlow models. To serve a TensorFlow model, build a model first in Python (or whatever the way you prefer) and export it to a file. Then, Wisdom can serve that model within the Wisdom environment.</p>
-<h2 id="build-model">Build Model</h2>
-<p>Execute the following Python 3 script to export a TensorFlow model to <code>/tmp/tf_add_model</code> which receives two integers <code>x</code> and <code>y</code> and produce <code>ans</code> which is the sum of <code>x</code> and <code>y</code>.</p>
-<pre><code class="python">#!/usr/bin/env python3
-import tensorflow as tf
-from tensorflow.python.saved_model import builder as saved_model_builder
-from tensorflow.python.saved_model import signature_constants
-from tensorflow.python.saved_model import signature_def_utils
-from tensorflow.python.saved_model import tag_constants
-from tensorflow.python.saved_model.utils import build_tensor_info
-
-x = tf.placeholder(tf.int32, name='x')
-y = tf.placeholder(tf.int32, name='y')
-
-# This is our model
-add = tf.add(x, y, name='ans')
-
-with tf.Session() as sess:
-    # Pick out the model input and output
-    x_tensor = sess.graph.get_tensor_by_name('x:0')
-    y_tensor = sess.graph.get_tensor_by_name('y:0')
-    ans_tensor = sess.graph.get_tensor_by_name('ans:0')
-
-    x_info = build_tensor_info(x_tensor)
-    y_info = build_tensor_info(y_tensor)
-    ans_info = build_tensor_info(ans_tensor)
-
-    # Create a signature definition for tfserving
-    signature_definition = signature_def_utils.build_signature_def(
-        inputs={'x': x_info, 'y': y_info},
-        outputs={'ans': ans_info},
-        method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME)
-
-    builder = saved_model_builder.SavedModelBuilder('/tmp/tf_add_model')
-
-    builder.add_meta_graph_and_variables(
-        sess, [tag_constants.SERVING],
-        signature_def_map={
-            signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
-                signature_definition
-        })
-
-    # Save the model so we can serve it with a model server :)
-    builder.save()
+                <p>Wisdom Filter filters events from a stream based on a given predicate. In Wisdom query, a <code>filter</code> can be used anywhere in between <code>from</code> and <code>insert into</code> or <code>update</code> statements.</p>
+<p>In Java API, the <code>filter</code> method accepts any <code>java.util.function.Predicate&lt;Event&gt;</code> as the argument. For user's convenient, Wisdom offers the following built-in predicates:</p>
+<table>
+<thead>
+<tr>
+<th>Java API</th>
+<th align="center">Query Operator</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Operator.EQUALS</td>
+<td align="center"><code>==</code></td>
+<td align="left">Checks if left operand is equal to right operand</td>
+</tr>
+<tr>
+<td>Operator.GREATER_THAN</td>
+<td align="center"><code>&gt;</code></td>
+<td align="left">Checks if left operand is greater than right operand</td>
+</tr>
+<tr>
+<td>Operator.GREATER_THAN_OR_EQUAL</td>
+<td align="center"><code>&gt;=</code></td>
+<td align="left">Checks if left operand is greater than or equal to right operand</td>
+</tr>
+<tr>
+<td>Operator.LESS_THAN</td>
+<td align="center"><code>&lt;</code></td>
+<td align="left">Checks if left operand is less than right operand</td>
+</tr>
+<tr>
+<td>Operator.LESS_THAN_OR_EQUAL</td>
+<td align="center"><code>&lt;=</code></td>
+<td align="left">Checks if left operand is less than or equal to right operand</td>
+</tr>
+<tr>
+<td>Operator.IN</td>
+<td align="center"><code>in</code></td>
+<td align="left">Checks if left operand is in right operand. Here the right operand can be a string or array</td>
+</tr>
+<tr>
+<td>Operator.MATCHES</td>
+<td align="center"><code>matches</code></td>
+<td align="left">Checks if left regex matches in the right string</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Java API:</strong></p>
+<p>Filter events having <code>symbol</code> equal to <code>AMAZON</code>.</p>
+<pre><code class="java">app.defineQuery(&quot;query1&quot;)
+    .from(&quot;StockStream&quot;)
+    .filter(event -&gt; &quot;UWO&quot;.equals(event.get(&quot;symbol&quot;)))
+    .insertInto(&quot;OutputStream&quot;);
 </code></pre>
 
-<h2 id="wisdom-query">Wisdom Query</h2>
-<pre><code class="java">def stream EventStream;
-def stream OutputStream;
+<p>Above code can be written using built-in <code>Operator.EQUALS</code> predicate as shown below:</p>
+<pre><code class="java">app.defineQuery(&quot;query1&quot;)
+    .from(&quot;StockStream&quot;)
+    .filter(Operator.EQUALS(Attribute.of(&quot;symbol&quot;), &quot;AMAZON&quot;))
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
 
-from EventStream
-map int('x') as x, int('y') as y
-map tensorFlow(path='/tmp/tf_add_model', operation='ans', type='int') as result
+<p><strong>Wisdom Query:</strong></p>
+<p>Filter events having <code>symbol</code> equal to <code>AMAZON</code>.</p>
+<pre><code class="java">from StockStream
+filter symbol == 'AMAZON'
 insert into OutputStream;
 </code></pre>
 
-<p>Above query feeds <code>x</code> and <code>y</code> to the TensorFlow model and inject the output <code>ans</code> as <code>result</code> in the output event. In this query, <code>path</code> is the location of the model, <code>operation</code> is the output Tensor name, and <code>type</code> is the data type of the output Tensor. The <code>type</code> must be any of the following: <code>int</code>, <code>long</code>, <code>float</code>, <code>double</code>, <code>bool</code>.</p>
-<p>Sending an event <code>{x: 10, y: 20}</code> to EventStream will emit <code>{x: 10, y: 20, result: 30}</code> in the OutputStream.</p>
+<p>Wisdom Query supports the following logical operators: <code>==</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>in</code> and <code>matches</code></p>
               
             </div>
           </div>
@@ -262,10 +263,10 @@ insert into OutputStream;
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../self-boosting/" class="btn btn-neutral float-right" title="Self-Boosting Deployment">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../select/" class="btn btn-neutral float-right" title="Select">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../intrusion-detection/" class="btn btn-neutral" title="Intrusion Detection"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../variable/" class="btn btn-neutral" title="Variable"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -291,10 +292,10 @@ insert into OutputStream;
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../intrusion-detection/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../variable/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../self-boosting/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../select/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

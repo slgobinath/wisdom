@@ -1,74 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-    
     <url>
      <loc>/</loc>
-     <lastmod>2018-05-02</lastmod>
+     <lastmod>2018-06-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
-    
     <url>
      <loc>/why-wisdom/</loc>
-     <lastmod>2018-05-02</lastmod>
+     <lastmod>2018-06-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
-    
     <url>
      <loc>/getting-started/</loc>
-     <lastmod>2018-05-02</lastmod>
+     <lastmod>2018-06-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
-    
     <url>
      <loc>/deploy-wisdom/</loc>
-     <lastmod>2018-05-02</lastmod>
+     <lastmod>2018-06-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
-    
     <url>
-     <loc>/query-guide/</loc>
-     <lastmod>2018-05-02</lastmod>
+     <loc>/query/query/</loc>
+     <lastmod>2018-06-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
-    
+    <url>
+     <loc>/query/stream/</loc>
+     <lastmod>2018-06-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
+     <loc>/query/variable/</loc>
+     <lastmod>2018-06-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
+     <loc>/query/filter/</loc>
+     <lastmod>2018-06-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
+     <loc>/query/select/</loc>
+     <lastmod>2018-06-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
+     <loc>/query/map/</loc>
+     <lastmod>2018-06-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
+     <loc>/query/window/</loc>
+     <lastmod>2018-06-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
+     <loc>/query/aggregate/</loc>
+     <lastmod>2018-06-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
+     <loc>/query/partition/</loc>
+     <lastmod>2018-06-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
+     <loc>/query/pattern/</loc>
+     <lastmod>2018-06-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
+     <loc>/query/source/</loc>
+     <lastmod>2018-06-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
+     <loc>/query/sink/</loc>
+     <lastmod>2018-06-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
     <url>
      <loc>/wisdom-extensions/</loc>
-     <lastmod>2018-05-02</lastmod>
+     <lastmod>2018-06-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
-    
-        
     <url>
      <loc>/use-cases/intrusion-detection/</loc>
-     <lastmod>2018-05-02</lastmod>
+     <lastmod>2018-06-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
      <loc>/use-cases/tensor-flow/</loc>
-     <lastmod>2018-05-02</lastmod>
+     <lastmod>2018-06-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
      <loc>/use-cases/self-boosting/</loc>
-     <lastmod>2018-05-02</lastmod>
+     <lastmod>2018-06-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
-    
-
 </urlset>
