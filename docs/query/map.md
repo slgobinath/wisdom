@@ -2,12 +2,14 @@
 
 Wisdom map is used to map events from one format to another format. In Java API, mapper accepts any `java.util.function.Function<Event, Event>`. Wisdom also provides the following built-in mappers:
 
-- Mapper.rename
-- Mapper.formatTime
-- Mapper.toInt
-- Mapper.toLong
-- Mapper.toFloat
-- Mapper.toDouble
+### Wisdom Core
+
+- Mapper.RENAME
+- Mapper.FORMAT_TIME
+- Mapper.TO_INT
+- Mapper.TO_LONG
+- Mapper.TO_FLOAT
+- Mapper.TO_DOUBLE
 
 **Java API:**
 
@@ -16,7 +18,7 @@ Rename `symbol` to `name` and `price` to `cost`.
 ```java
 app.defineQuery("query1")
     .from("StockStream")
-    .map(Mapper.rename("symbol", "name"), Mapper.rename("price", "cost"))
+    .map(Mapper.RENAME("symbol", "name"), Mapper.RENAME("price", "cost"))
     .select("name", "cost")
     .insertInto("OutputStream");
 ```

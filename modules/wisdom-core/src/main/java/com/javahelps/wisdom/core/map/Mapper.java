@@ -44,6 +44,14 @@ public abstract class Mapper implements Function<Event, Event> {
         return new IntMapper(newName, Map.of(ATTR, currentName));
     }
 
+    public static Mapper TO_LONG(String currentName, String newName) {
+        return new LongMapper(newName, Map.of(ATTR, currentName));
+    }
+
+    public static Mapper TO_FLOAT(String currentName, String newName) {
+        return new FloatMapper(newName, Map.of(ATTR, currentName));
+    }
+
     public static Mapper TO_DOUBLE(String currentName, String newName) {
         return new DoubleMapper(newName, Map.of(ATTR, currentName));
     }

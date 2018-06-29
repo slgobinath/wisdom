@@ -4,9 +4,9 @@ import com.javahelps.wisdom.core.event.Event;
 
 import java.util.Objects;
 
-public class UnorderedPartitionProcessor extends PartitionProcessor {
+public class PartitionByAttributeProcessor extends PartitionProcessor {
 
-    public UnorderedPartitionProcessor(String id, String... attributes) {
+    public PartitionByAttributeProcessor(String id, String... attributes) {
         super(id, attributes);
     }
 
@@ -14,17 +14,17 @@ public class UnorderedPartitionProcessor extends PartitionProcessor {
         if (this.attributes.length == 1) {
             return Objects.toString(event.get(this.attributes[0]));
         } else {
-            long hash = 0;
+            StringBuilder builder = new StringBuilder();
             for (String attribute : this.attributes) {
-                hash += Objects.toString(event.get(attribute)).hashCode();
+                builder.append(Objects.toString(event.get(attribute)));
             }
-            return Long.toString(hash);
+            return builder.toString();
         }
     }
 
     @Override
     public Processor copy() {
-        PartitionProcessor processor = new UnorderedPartitionProcessor(this.id, this.attributes);
+        PartitionProcessor processor = new PartitionByAttributeProcessor(this.id, this.attributes);
         processor.setNextProcessor(getNextProcessor().copy());
         return processor;
     }

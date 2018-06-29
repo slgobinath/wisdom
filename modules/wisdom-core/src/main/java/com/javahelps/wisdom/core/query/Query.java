@@ -240,9 +240,9 @@ public class Query implements Stateful {
         }
     }
 
-    public Query partitionBy(String... attributes) {
+    public Query partitionByAttr(String... attributes) {
 
-        PartitionProcessor partitionProcessor = new OrderedPartitionProcessor(generateId(), attributes);
+        PartitionProcessor partitionProcessor = new PartitionByAttributeProcessor(generateId(), attributes);
         if (this.lastStreamProcessor == null) {
             this.inputStream.addProcessor(partitionProcessor);
         } else {
@@ -254,9 +254,9 @@ public class Query implements Stateful {
         return this;
     }
 
-    public Query unOrderedPartitionBy(String... attributes) {
+    public Query partitionByVal(String... attributes) {
 
-        PartitionProcessor partitionProcessor = new UnorderedPartitionProcessor(generateId(), attributes);
+        PartitionProcessor partitionProcessor = new PartitionByValueProcessor(generateId(), attributes);
         if (this.lastStreamProcessor == null) {
             this.inputStream.addProcessor(partitionProcessor);
         } else {

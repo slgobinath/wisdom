@@ -2,7 +2,6 @@ Sink receives events from a stream and send them to the relative receiver. Curre
 
 - HTTP
 - Kafka
-- CSV
 - Text File
 - Console
 

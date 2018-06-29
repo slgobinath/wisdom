@@ -31,7 +31,7 @@ public class PartitionTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .partitionBy("symbol")
+                .partitionByAttr("symbol")
                 .window(Window.lengthBatch(2))
                 .aggregate(Operator.SUM("price", "price"))
                 .select("symbol", "price")
@@ -66,7 +66,7 @@ public class PartitionTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .partitionBy("symbol", "volume")
+                .partitionByAttr("symbol", "volume")
                 .window(Window.lengthBatch(2))
                 .aggregate(Operator.SUM("price", "price"))
                 .select("symbol", "price")
@@ -100,7 +100,7 @@ public class PartitionTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .partitionBy("symbol")
+                .partitionByAttr("symbol")
                 .select("symbol", "price")
                 .insertInto("OutputStream");
 
@@ -134,7 +134,7 @@ public class PartitionTestCase {
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
                 .filter(Operator.LESS_THAN(Attribute.of("price"), 700.0))
-                .partitionBy("symbol")
+                .partitionByAttr("symbol")
                 .aggregate(Operator.SUM("price", "price"))
                 .select("symbol", "price", "volume")
                 .insertInto("OutputStream");
@@ -170,7 +170,7 @@ public class PartitionTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .partitionBy("symbol", "group")
+                .partitionByAttr("symbol", "group")
                 .window(Window.lengthBatch(2))
                 .aggregate(Operator.SUM("price", "price"))
                 .select("symbol", "price")
@@ -203,7 +203,7 @@ public class PartitionTestCase {
 
         wisdomApp.defineQuery("query1")
                 .from("StockStream")
-                .unOrderedPartitionBy("symbol", "group")
+                .partitionByVal("symbol", "group")
                 .window(Window.lengthBatch(2))
                 .aggregate(Operator.SUM("price", "price"))
                 .select("symbol", "price")

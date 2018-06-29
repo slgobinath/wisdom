@@ -192,9 +192,9 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     public Statement visitPartition_statement(WisdomQLParser.Partition_statementContext ctx) {
         PartitionStatement statement;
         if (ctx.ADD() != null && ctx.ADD().size() > 0) {
-            statement = new UnorderedPartitionStatement();
+            statement = new PartitionByValueStatement();
         } else {
-            statement = new OrderedPartitionStatement();
+            statement = new PartitionByAttributeStatement();
         }
         for (TerminalNode node : ctx.NAME()) {
             statement.addAttribute(node.getText());
