@@ -4,7 +4,7 @@ Wisdom offers a complete Java API and Wisdom query to develop Complex Event Proc
 
 Make sure that you have set up the following softwares in your system before building Wisdom.
 
-- Java 9 (or latest)
+- Java 11 (or latest)
 - Apache Maven
 - Apache Kafka (for self-boosting deployment)
 
@@ -46,8 +46,8 @@ Open the `pom.xml` file add `wisdom-core` and optionally `logback` dependencies 
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.9</source>
-                    <target>1.9</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -177,8 +177,8 @@ Open the `pom.xml` file and add `wisdom-core`, `wisdom-query` and optionally `lo
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.9</source>
-                    <target>1.9</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
         </plugins>

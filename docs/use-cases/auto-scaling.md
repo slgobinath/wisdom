@@ -1,8 +1,9 @@
-# Self-Boosting Deployment
+# Functionally Auto-scaling Deployment
 
-Following queries were developed to test self-boosting deployment of Wisdom for Test 2 in *Real-time Intrusion Detection in Network Traffic Using Adaptive and Self-boosting Stream Processor*.
+Following queries were developed to test functionally auto-scaling deployment of Wisdom for Test 2 in *Real-time Intrusion Detection in Network Traffic Using Adaptive and Self-boosting Stream Processor*.
+The following diagram depicts the deployment setup:
 
-**NOTE:** Complete deployment instruction will be made public after publishing this paper.
+![Functionally Auto-scaling Deployment](../img/autoscaling_deployment.png)
 
 ## Packet Filter
 

@@ -23,7 +23,7 @@ public class EnsureProcessor extends StreamProcessor {
 
     @Override
     public void process(Event event) {
-        throw new WisdomAppRuntimeException("LimitProcessor cannot be used with single event");
+        throw new WisdomAppRuntimeException("EnsureProcessor cannot be used with single event");
     }
 
     @Override

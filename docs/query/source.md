@@ -4,6 +4,7 @@ Source is an event source for a Wisdom stream. Currently Wisdom provides the fol
 - Kafka
 - CSV
 - Pcap
+- GRPC
 
 **Java API:**
 

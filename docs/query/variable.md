@@ -53,8 +53,6 @@ A variable can be updated externally using Java API or using an event in a query
 
 **Java API:**
 
-A dynamic size length window defined using a variable.
-
 ```java
 WisdomApp app = new WisdomApp();
 app.defineStream("VariableStream");
@@ -68,13 +66,11 @@ app.defineQuery("query")
 
 **Wisdom Query:**
 
-A dynamic size lengthBatch window defined using a variable.
-
 ```java
 def stream VariableStream;
 def variable min_price = 3;
 
 from VariableStream
 map value as min_price
-update $min_price;
+update min_price;
 ```

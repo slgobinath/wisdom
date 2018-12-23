@@ -11,7 +11,7 @@ Optimization algorithms and other techniques are submitted to a conference. I wi
 A common limitation I have observed in dynamic stream processors 
 is their performance bottleneck. I designed the underlying architecure of Wisdom in such a way that it is comparable with existing commercial stream processors. I developed a simple filter query to compare Wisdom with [Apache Flink](https://flink.apache.org/), [WSO2 Siddhi](https://wso2.github.io/siddhi/) and [Esper CEP](http://www.espertech.com/esper/). The throughput and latency of **Wisdom is closed to WSO2 Siddhi and better than Esper**. Exact perfomance results are included in the research paper.
 
-## Self-Boosting
+## Functionally Auto-scaling
 
 In our research, we have shown that Wisdom consumes significantly fewer system resources than other distributed stream processors. The complete deployment setup and how it works are described in our research paper. However, I can leak that the proposed distributed deployment consumed **1.5 times less memory** than monolithic deployment.
 

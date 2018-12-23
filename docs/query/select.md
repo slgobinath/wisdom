@@ -37,6 +37,7 @@ Select last two events from window and insert them into OutputStream.
 
 ```java
 from StockStream
+window.lengthBatch(3)
 select -2, -1
 insert into OutputStream;
 ```

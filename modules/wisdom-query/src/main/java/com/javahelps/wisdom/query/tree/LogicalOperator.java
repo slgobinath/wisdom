@@ -46,28 +46,5 @@ public class LogicalOperator implements OperatorElement {
             }
             return com.javahelps.wisdom.core.operator.logical.LogicalOperator.create(this.operator, map("left", left, "right", right));
         }
-//        switch (this.operation) {
-//            case IDENTICAL:
-//                return this.leftOperator.build(app, query);
-//            case NOT:
-//                return this.leftOperator.build(app, query).negate();
-//            case AND:
-//                return this.leftOperator.build(app, query).and(this.rightOperator.build(app, query));
-//            case OR:
-//                return this.leftOperator.build(app, query).or(this.rightOperator.build(app, query));
-//            case EQ:
-//                return this.equals(app);
-//            case GT:
-//                return this.greaterThan(app);
-//            case GT_EQ:
-//                return this.greaterThanOrEqual(app);
-//            case LT:
-//                return this.lessThan(app);
-//            case LT_EQ:
-//                return this.lessThanOrEqual(app);
-//            case IN:
-//                return this.in(app);
-//
-//        }
     }
 }
