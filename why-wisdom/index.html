@@ -13,18 +13,19 @@
 
   <link rel="stylesheet" href="../css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
-  <link rel="stylesheet" href="../css/highlight.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
     var mkdocs_page_name = "Why Wisdom?";
     var mkdocs_page_input_path = "why-wisdom.md";
-    var mkdocs_page_url = "/why-wisdom/";
+    var mkdocs_page_url = null;
   </script>
   
-  <script src="../js/jquery-2.1.1.min.js"></script>
-  <script src="../js/modernizr-2.8.3.min.js"></script>
-  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
   
 </head>
 
@@ -38,7 +39,7 @@
         <a href=".." class="icon icon-home"> Wisdom Stream Processor</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
@@ -63,7 +64,7 @@
     <li class="toctree-l2"><a href="#performace">Performace</a></li>
     
 
-    <li class="toctree-l2"><a href="#self-boosting">Self-Boosting</a></li>
+    <li class="toctree-l2"><a href="#functionally-auto-scaling">Functionally Auto-scaling</a></li>
     
 
     <li class="toctree-l2"><a href="#wisdom-query">Wisdom Query</a></li>
@@ -156,7 +157,7 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../use-cases/self-boosting/">Self-Boosting Deployment</a>
+    <a class="" href="../use-cases/auto-scaling/">Auto-scaling Deployment</a>
                 </li>
     </ul>
 	    </li>
@@ -200,7 +201,7 @@
 <h2 id="performace">Performace</h2>
 <p>A common limitation I have observed in dynamic stream processors 
 is their performance bottleneck. I designed the underlying architecure of Wisdom in such a way that it is comparable with existing commercial stream processors. I developed a simple filter query to compare Wisdom with <a href="https://flink.apache.org/">Apache Flink</a>, <a href="https://wso2.github.io/siddhi/">WSO2 Siddhi</a> and <a href="http://www.espertech.com/esper/">Esper CEP</a>. The throughput and latency of <strong>Wisdom is closed to WSO2 Siddhi and better than Esper</strong>. Exact perfomance results are included in the research paper.</p>
-<h2 id="self-boosting">Self-Boosting</h2>
+<h2 id="functionally-auto-scaling">Functionally Auto-scaling</h2>
 <p>In our research, we have shown that Wisdom consumes significantly fewer system resources than other distributed stream processors. The complete deployment setup and how it works are described in our research paper. However, I can leak that the proposed distributed deployment consumed <strong>1.5 times less memory</strong> than monolithic deployment.</p>
 <h2 id="wisdom-query">Wisdom Query</h2>
 <p>Wisdom Query is an SQL like query inspired by <a href="https://wso2.github.io/siddhi/">Siddhi Query</a>. An expressive query language hides the complexity of stream processing and make it super easy to use stream processors. In addition, it lets you deploy CEP applications via REST API calls instead of transfering a deployable <code>jar</code> file or any other binary file.</p>
@@ -248,9 +249,8 @@ is their performance bottleneck. I designed the underlying architecure of Wisdom
     </span>
 </div>
     <script>var base_url = '..';</script>
-    <script src="../js/theme.js"></script>
-      <script src="../search/require.js"></script>
-      <script src="../search/search.js"></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
 
 </body>
 </html>

@@ -8,23 +8,24 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Self-Boosting Deployment - Wisdom Stream Processor</title>
+  <title>Auto-scaling Deployment - Wisdom Stream Processor</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
-  <link rel="stylesheet" href="../../css/highlight.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Self-Boosting Deployment";
-    var mkdocs_page_input_path = "use-cases/self-boosting.md";
-    var mkdocs_page_url = "/use-cases/self-boosting/";
+    var mkdocs_page_name = "Auto-scaling Deployment";
+    var mkdocs_page_input_path = "use-cases/auto-scaling.md";
+    var mkdocs_page_url = null;
   </script>
   
-  <script src="../../js/jquery-2.1.1.min.js"></script>
-  <script src="../../js/modernizr-2.8.3.min.js"></script>
-  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
   
 </head>
 
@@ -38,7 +39,7 @@
         <a href="../.." class="icon icon-home"> Wisdom Stream Processor</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
@@ -141,10 +142,10 @@
                 </li>
                 <li class=" current">
                     
-    <a class="current" href="./">Self-Boosting Deployment</a>
+    <a class="current" href="./">Auto-scaling Deployment</a>
     <ul class="subnav">
             
-    <li class="toctree-l3"><a href="#self-boosting-deployment">Self-Boosting Deployment</a></li>
+    <li class="toctree-l3"><a href="#functionally-auto-scaling-deployment">Functionally Auto-scaling Deployment</a></li>
     
         <ul>
         
@@ -190,7 +191,7 @@
         
       
     
-    <li>Self-Boosting Deployment</li>
+    <li>Auto-scaling Deployment</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -200,9 +201,10 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="self-boosting-deployment">Self-Boosting Deployment</h1>
-<p>Following queries were developed to test self-boosting deployment of Wisdom for Test 2 in <em>Real-time Intrusion Detection in Network Traffic Using Adaptive and Self-boosting Stream Processor</em>.</p>
-<p><strong>NOTE:</strong> Complete deployment instruction will be made public after publishing this paper.</p>
+                <h1 id="functionally-auto-scaling-deployment">Functionally Auto-scaling Deployment</h1>
+<p>Following queries were developed to test functionally auto-scaling deployment of Wisdom for Test 2 in <em>Real-time Intrusion Detection in Network Traffic Using Adaptive and Self-boosting Stream Processor</em>.
+The following diagram depicts the deployment setup:</p>
+<p><img alt="Functionally Auto-scaling Deployment" src="../../img/autoscaling_deployment.png" /></p>
 <h2 id="packet-filter">Packet Filter</h2>
 <pre><code class="java">@app(name='packet_filter', version='1.0.0', priority=10, stats='StatisticsStream', stats_freq=time.sec(5), stats_vars=['port'])
 
@@ -336,9 +338,8 @@ insert into PortScanStream;
     </span>
 </div>
     <script>var base_url = '../..';</script>
-    <script src="../../js/theme.js"></script>
-      <script src="../../search/require.js"></script>
-      <script src="../../search/search.js"></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
 
 </body>
 </html>

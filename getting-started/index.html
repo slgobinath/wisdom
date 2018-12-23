@@ -13,18 +13,19 @@
 
   <link rel="stylesheet" href="../css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
-  <link rel="stylesheet" href="../css/highlight.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
     var mkdocs_page_name = "Getting Started";
     var mkdocs_page_input_path = "getting-started.md";
-    var mkdocs_page_url = "/getting-started/";
+    var mkdocs_page_url = null;
   </script>
   
-  <script src="../js/jquery-2.1.1.min.js"></script>
-  <script src="../js/modernizr-2.8.3.min.js"></script>
-  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
   
 </head>
 
@@ -38,7 +39,7 @@
         <a href=".." class="icon icon-home"> Wisdom Stream Processor</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
@@ -156,7 +157,7 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../use-cases/self-boosting/">Self-Boosting Deployment</a>
+    <a class="" href="../use-cases/auto-scaling/">Auto-scaling Deployment</a>
                 </li>
     </ul>
 	    </li>
@@ -197,7 +198,7 @@
 <h2 id="requirements">Requirements</h2>
 <p>Make sure that you have set up the following softwares in your system before building Wisdom.</p>
 <ul>
-<li>Java 9 (or latest)</li>
+<li>Java 11 (or latest)</li>
 <li>Apache Maven</li>
 <li>Apache Kafka (for self-boosting deployment)</li>
 </ul>
@@ -229,8 +230,8 @@
                 &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
                 &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
                 &lt;configuration&gt;
-                    &lt;source&gt;1.9&lt;/source&gt;
-                    &lt;target&gt;1.9&lt;/target&gt;
+                    &lt;source&gt;11&lt;/source&gt;
+                    &lt;target&gt;11&lt;/target&gt;
                 &lt;/configuration&gt;
             &lt;/plugin&gt;
         &lt;/plugins&gt;
@@ -348,8 +349,8 @@ insert into OutputStream;
                 &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
                 &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
                 &lt;configuration&gt;
-                    &lt;source&gt;1.9&lt;/source&gt;
-                    &lt;target&gt;1.9&lt;/target&gt;
+                    &lt;source&gt;11&lt;/source&gt;
+                    &lt;target&gt;11&lt;/target&gt;
                 &lt;/configuration&gt;
             &lt;/plugin&gt;
         &lt;/plugins&gt;
@@ -481,9 +482,8 @@ public class HelloWorld {
     </span>
 </div>
     <script>var base_url = '..';</script>
-    <script src="../js/theme.js"></script>
-      <script src="../search/require.js"></script>
-      <script src="../search/search.js"></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
 
 </body>
 </html>

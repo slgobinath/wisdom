@@ -13,18 +13,19 @@
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
-  <link rel="stylesheet" href="../../css/highlight.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
     var mkdocs_page_name = "Map";
     var mkdocs_page_input_path = "query/map.md";
-    var mkdocs_page_url = "/query/map/";
+    var mkdocs_page_url = null;
   </script>
   
-  <script src="../../js/jquery-2.1.1.min.js"></script>
-  <script src="../../js/modernizr-2.8.3.min.js"></script>
-  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
   
 </head>
 
@@ -38,7 +39,7 @@
         <a href="../.." class="icon icon-home"> Wisdom Stream Processor</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
@@ -96,13 +97,7 @@
     <a class="current" href="./">Map</a>
     <ul class="subnav">
             
-    <li class="toctree-l3"><a href="#map">Map</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l4" href="#wisdom-core">Wisdom Core</a></li>
-        
-        </ul>
+    <li class="toctree-l3"><a href="#conditional-mapping">Conditional Mapping</a></li>
     
 
     </ul>
@@ -153,7 +148,7 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../../use-cases/self-boosting/">Self-Boosting Deployment</a>
+    <a class="" href="../../use-cases/auto-scaling/">Auto-scaling Deployment</a>
                 </li>
     </ul>
 	    </li>
@@ -194,9 +189,8 @@
           <div role="main">
             <div class="section">
               
-                <h2 id="map">Map</h2>
-<p>Wisdom map is used to map events from one format to another format. In Java API, mapper accepts any <code>java.util.function.Function&lt;Event, Event&gt;</code>. Wisdom also provides the following built-in mappers:</p>
-<h3 id="wisdom-core">Wisdom Core</h3>
+                <p>Wisdom map is used to map events from one format to another format. In Java API, mapper accepts any <code>java.util.function.Function&lt;Event, Event&gt;</code>. Wisdom also provides the following built-in mappers:</p>
+<p>Wisdom Core library provides the built-in mappers. </p>
 <ul>
 <li>Mapper.RENAME</li>
 <li>Mapper.FORMAT_TIME</li>
@@ -204,6 +198,13 @@
 <li>Mapper.TO_LONG</li>
 <li>Mapper.TO_FLOAT</li>
 <li>Mapper.TO_DOUBLE</li>
+<li>Mapper.CONSTANT</li>
+</ul>
+<p>You can find the following mappers in the Wisdom Extension library:</p>
+<ul>
+<li>tensorFlow(<code>&lt;model-path&gt;</code>, <code>operation</code>, <code>type</code>) - Used to call a Tensorflow model and insert the result into the stream.</li>
+<li>grpc(<code>endpoint</code>, <code>select</code>) - Used to call a gRPC service and to insert the result into the stream</li>
+<li>http(<code>endpoint</code>, <code>method</code> select`) - Used to call an HTTP service and to insert the result into the stream</li>
 </ul>
 <p><strong>Java API:</strong></p>
 <p>Rename <code>symbol</code> to <code>name</code> and <code>price</code> to <code>cost</code>.</p>
@@ -219,6 +220,23 @@
 <pre><code class="java">from StockStream
 map symbol as name, price as cost
 select name, cost
+insert into OutputStream;
+</code></pre>
+
+<h3 id="conditional-mapping">Conditional Mapping</h3>
+<p>A map operator can be called only if a given condition is satisfied. A sample code to replace <code>null</code> symbol in a StockStream by <code>UNKNOWN</code> is given below.</p>
+<pre><code class="java">app.defineQuery(&quot;query1&quot;)
+    .from(&quot;StockStream&quot;)
+    .map(Mapper.CONSTANT(&quot;UNKNOWN&quot;, &quot;symbol&quot;).onlyIf(Operator.EQUALS(Attribute.of(&quot;symbol&quot;), null)))
+    .select(&quot;symbol&quot;, &quot;price&quot;)
+    .insertInto(&quot;OutputStream&quot;);
+</code></pre>
+
+<p><strong>Wisdom Query:</strong></p>
+<p>Rename <code>symbol</code> to <code>name</code> and <code>price</code> to <code>cost</code>.</p>
+<pre><code class="java">from StockStream
+map 'UNKNOWN' as symbol if symbol == null
+select symbol, price
 insert into OutputStream;
 </code></pre>
               
@@ -265,9 +283,8 @@ insert into OutputStream;
     </span>
 </div>
     <script>var base_url = '../..';</script>
-    <script src="../../js/theme.js"></script>
-      <script src="../../search/require.js"></script>
-      <script src="../../search/search.js"></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
 
 </body>
 </html>
