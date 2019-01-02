@@ -1,13 +1,16 @@
 # Wisdom Stream Processor
 
-Wisdom is an adaptive, distributed and self-boosting stream processor written in Java 11 using modern architecture from the scratch. Though I designed and developed Wisdom for my research project, my OCD in designing scalable and extensible architecture made Wisdom an industry ready product with all basic requirements. I admit that Wisdom may lack some features that you are looking for. For example, right now Wisdom does not support database integration. It is only because my research did not require those features and I do not have enough time to add those extra nice-to-have features. After publishing all my research works, Wisdom will be made open source.
+Wisdom is an adaptive, distributed and functionally auto-scaling stream processor written in Java 11 using modern architecture from the scratch.
+Though I designed and developed Wisdom for my research project, my OCD in designing scalable and extensible architecture made Wisdom 
+an industry ready product with all basic requirements. I admit that Wisdom may lack some features that you are looking for. 
+For example, right now Wisdom does not support database integration. It is only because my research did not require those 
+features and I do not have enough time to add those extra nice-to-have features.
 
-**NOTE: Soon, Wisdom will be made open-sourced under Apache 2.0 License.**
 
 ## Research Work
 
-Query optimization and functionally-autoscaling deployment of Wisdom Stream Processor are published in the GOBECOM 2018 conference.
-Please read the research paper [Real-time Intrusion Detection in Network Traffic Using Adaptive and Auto-scaling Stream Processor](https://www.researchgate.net/publication/326969312_Real-time_Intrusion_Detection_in_Network_Traffic_Using_Adaptive_and_Auto-scaling_Stream_Processor?_sg=wxVvIi51niOx4OCdGXl27RbzK88K4ubWNhdVLSMsC544DS2PrGuBqWfjzEAhBXlr2rFBLYnX72GNsO6JdW3nRFKKbRoHZHqtyOFNEyzV.hC3j1u8IxL4s7LnGKZ3UiEjdbFF8XYAeQEPEddw5EdP3J5cfQyhqzC28O-82f9vdDfbYCa2O_SfIuG1tGKZDBA) for more details.
+Query optimization and functionally auto-scaling deployment of Wisdom Stream Processor are published in the GLOBECOM 2018 conference.
+You can find more details about the research in [Real-time Intrusion Detection in Network Traffic Using Adaptive and Auto-scaling Stream Processor](https://www.researchgate.net/publication/326969312_Real-time_Intrusion_Detection_in_Network_Traffic_Using_Adaptive_and_Auto-scaling_Stream_Processor?_sg=wxVvIi51niOx4OCdGXl27RbzK88K4ubWNhdVLSMsC544DS2PrGuBqWfjzEAhBXlr2rFBLYnX72GNsO6JdW3nRFKKbRoHZHqtyOFNEyzV.hC3j1u8IxL4s7LnGKZ3UiEjdbFF8XYAeQEPEddw5EdP3J5cfQyhqzC28O-82f9vdDfbYCa2O_SfIuG1tGKZDBA) for more details.
 If you are using Wisdom for your research work, please cite Wisdom using the following paper:
 
 **Citation:**

@@ -1,5 +1,4 @@
 # Wisdom Stream Processor
-An adaptive and self-boosting stream processor.
 
 Wisdom is an adaptive, distributed and functionally auto-scaling stream processor 
 written in Java 11 using modern architecture from the scratch.
