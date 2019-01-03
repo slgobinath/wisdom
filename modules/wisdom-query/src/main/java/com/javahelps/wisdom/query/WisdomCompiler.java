@@ -41,10 +41,9 @@ public class WisdomCompiler {
 
     }
 
-    public static WisdomApp parse(String source) {
+    public static WisdomApp parse(CharStream source) {
 
-        CodePointCharStream input = CharStreams.fromString(source);
-        WisdomQLLexer lexer = new WisdomQLLexer(input);
+        WisdomQLLexer lexer = new WisdomQLLexer(source);
         lexer.removeErrorListeners();
 
         CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -57,19 +56,15 @@ public class WisdomCompiler {
         return (WisdomApp) eval.visit(tree);
     }
 
+    public static WisdomApp parse(String source) {
+
+        CodePointCharStream input = CharStreams.fromString(source);
+        return WisdomCompiler.parse(input);
+    }
+
     public static WisdomApp parse(Path source) throws IOException {
 
         CharStream input = CharStreams.fromFileName(source.toAbsolutePath().toString(), Charset.defaultCharset());
-        WisdomQLLexer lexer = new WisdomQLLexer(input);
-        lexer.removeErrorListeners();
-
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        WisdomQLParser parser = new WisdomQLParser(tokens);
-        parser.removeErrorListeners();
-        parser.addErrorListener(new WisdomErrorListener());
-        ParseTree tree = parser.wisdom_app();
-
-        WisdomQLBaseVisitorImpl eval = new WisdomQLBaseVisitorImpl();
-        return (WisdomApp) eval.visit(tree);
+        return WisdomCompiler.parse(input);
     }
 }
