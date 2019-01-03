@@ -69,10 +69,15 @@
     <li class="toctree-l2"><a href="#installation">Installation</a></li>
     
 
-    <li class="toctree-l2"><a href="#wisdom-java-api">Wisdom Java API</a></li>
+    <li class="toctree-l2"><a href="#how-to-use">How to use?</a></li>
     
-
-    <li class="toctree-l2"><a href="#wisdom-query">Wisdom Query</a></li>
+        <ul>
+        
+            <li><a class="toctree-l3" href="#wisdom-java-api">Wisdom Java API</a></li>
+        
+            <li><a class="toctree-l3" href="#wisdom-query">Wisdom Query</a></li>
+        
+        </ul>
     
 
     </ul>
@@ -162,6 +167,11 @@
     </ul>
 	    </li>
           
+            <li class="toctree-l1">
+		
+    <a class="" href="https://github.com/slgobinath/wisdom">Source Code</a>
+	    </li>
+          
         </ul>
       </div>
       &nbsp;
@@ -194,16 +204,25 @@
           <div role="main">
             <div class="section">
               
-                <p>Wisdom offers a complete Java API and Wisdom query to develop Complex Event Processing (CEP) applications. Wisdom can be used as a Java library or standalone service. Java library is recommended for testing purposes, small scale applications and Android applications. If you are developing a resource consuming CEP application, it is recommended to use Wisdom Service. Wisdom Service is the only way to use HTTP Source and Sinks. This section explains how to create a simple CEP application using Wisdom Java API and Wisdom Query.</p>
+                <p>Wisdom offers complete Java API and Wisdom Query Language to develop Complex 
+Event Processing (CEP) applications. Wisdom can be used as a Java library or 
+standalone service. Java library is recommended for testing purposes, small-scale 
+applications and Android applications. If you are developing a resource consuming 
+CEP application, it is recommended to use Wisdom Service. Wisdom Service is the 
+only way to use HTTP Source and Sinks. This section explains how to create a 
+simple CEP application using Wisdom Java API and Wisdom Query.</p>
 <h2 id="requirements">Requirements</h2>
 <p>Make sure that you have set up the following softwares in your system before building Wisdom.</p>
 <ul>
-<li>Java 11 (or latest)</li>
-<li>Apache Maven</li>
-<li>Apache Kafka (for self-boosting deployment)</li>
+<li><a href="https://www.javahelps.com/2017/09/install-oracle-jdk-9-on-linux.html">Java 11 (or latest)</a></li>
+<li><a href="https://www.javahelps.com/2017/10/install-apache-maven-on-linux.html">Apache Maven</a></li>
+<li><a href="https://kafka.apache.org/">Apache Kafka</a> (for functionally auto-scaling deployment)</li>
 </ul>
 <h2 id="installation">Installation</h2>
-<p>Please contact me (<code>slgobinath@gmail.com</code>) to get access to Wisdom source code. Once you have downloaded the Wisdom source code, follow these steps to build and install Wisdom library.</p>
+<p>Clone Wisdom source code</p>
+<pre><code class="bash">git clone https://github.com/slgobinath/wisdom.git
+</code></pre>
+
 <p>Open your terminal and change directory</p>
 <pre><code class="bash">cd wisdom
 </code></pre>
@@ -212,7 +231,8 @@
 <pre><code class="bash">mvn clean install
 </code></pre>
 
-<h2 id="wisdom-java-api">Wisdom Java API</h2>
+<h2 id="how-to-use">How to use?</h2>
+<h3 id="wisdom-java-api">Wisdom Java API</h3>
 <p>Create a new Maven Project in your favorite IDE. We use <a href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a> throughout this document.</p>
 <p>Open the <code>pom.xml</code> file add <code>wisdom-core</code> and optionally <code>logback</code> dependencies as shown below:</p>
 <pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
@@ -239,7 +259,6 @@
 
     &lt;properties&gt;
         &lt;wisdom.version&gt;0.0.1&lt;/wisdom.version&gt;
-        &lt;slf4j.version&gt;1.7.25&lt;/slf4j.version&gt;
         &lt;logback.version&gt;1.2.3&lt;/logback.version&gt;
     &lt;/properties&gt;
 
@@ -319,7 +338,7 @@ public class HelloWorld {
 </code></pre>
 
 <p>As you can see, above Wisdom app filters events having symbol equal to AMAZON and prints them to the console.</p>
-<h2 id="wisdom-query">Wisdom Query</h2>
+<h3 id="wisdom-query">Wisdom Query</h3>
 <p>Above Wisdom application can be defined using the folloing Wisdom query:</p>
 <pre><code class="java">@app(name='WisdomApp', version='1.0.0')
 def stream StockStream;
@@ -358,7 +377,6 @@ insert into OutputStream;
 
     &lt;properties&gt;
         &lt;wisdom.version&gt;0.0.1&lt;/wisdom.version&gt;
-        &lt;slf4j.version&gt;1.7.25&lt;/slf4j.version&gt;
         &lt;logback.version&gt;1.2.3&lt;/logback.version&gt;
     &lt;/properties&gt;
 

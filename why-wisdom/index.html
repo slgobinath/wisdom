@@ -61,7 +61,7 @@
     <li class="toctree-l2"><a href="#adaptive-and-tunable">Adaptive and Tunable</a></li>
     
 
-    <li class="toctree-l2"><a href="#performace">Performace</a></li>
+    <li class="toctree-l2"><a href="#performance">Performance</a></li>
     
 
     <li class="toctree-l2"><a href="#functionally-auto-scaling">Functionally Auto-scaling</a></li>
@@ -162,6 +162,11 @@
     </ul>
 	    </li>
           
+            <li class="toctree-l1">
+		
+    <a class="" href="https://github.com/slgobinath/wisdom">Source Code</a>
+	    </li>
+          
         </ul>
       </div>
       &nbsp;
@@ -195,16 +200,56 @@
             <div class="section">
               
                 <p>There are plenty of stream processors out there but Wisdom does not just increase the count. It is adaptive, distributable and self-boosting without compromising the performance.</p>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li>Self-tuning queries</li>
+<li>Functionally auto-scaling deployment</li>
+<li>High throughput</li>
+<li>Lightweight</li>
+<li>Distributed</li>
+<li>Open Source</li>
+</ul>
 <h2 id="adaptive-and-tunable">Adaptive and Tunable</h2>
-<p>One of the key selling point of Wisdom is its adaptiveness. Wisdom queries can be defined using variables and Wisdom will tune them based on a loss function you define. For example, we defined three <a href="intrusion-detection.md">Wisdom rules</a> to detect intrusions but in none of them we defined the time window interval or the minimum count threshold. Instead, Wisdom mined and optimized those values from training data. Obtained optimal values gave us <strong>99% accuracy</strong> in intrusion detection. Isn't that cool?</p>
-<p>Optimization algorithms and other techniques are submitted to a conference. I will share the link here once it is published.</p>
-<h2 id="performace">Performace</h2>
+<p>One of the key selling point of Wisdom is its ability to tune queries for best results. Wisdom queries can be defined using variables and Wisdom will tune them based on a loss function you define. For example, we defined three <a href="../use-cases/intrusion-detection/">Wisdom rules</a> to detect intrusions but in none of them we defined the time window interval or the minimum count threshold. Instead, Wisdom mined and optimized those values from training data. Obtained optimal values gave us <strong>99% accuracy</strong> in intrusion detection. Isn't that cool?</p>
+<p>For more details about the optimization algorithm, please read <a href="https://www.researchgate.net/publication/326969312_Real-time_Intrusion_Detection_in_Network_Traffic_Using_Adaptive_and_Auto-scaling_Stream_Processor?_sg=wxVvIi51niOx4OCdGXl27RbzK88K4ubWNhdVLSMsC544DS2PrGuBqWfjzEAhBXlr2rFBLYnX72GNsO6JdW3nRFKKbRoHZHqtyOFNEyzV.hC3j1u8IxL4s7LnGKZ3UiEjdbFF8XYAeQEPEddw5EdP3J5cfQyhqzC28O-82f9vdDfbYCa2O_SfIuG1tGKZDBA">Real-time Intrusion Detection in Network Traffic Using Adaptive and Auto-scaling Stream Processor</a></p>
+<h2 id="performance">Performance</h2>
 <p>A common limitation I have observed in dynamic stream processors 
-is their performance bottleneck. I designed the underlying architecure of Wisdom in such a way that it is comparable with existing commercial stream processors. I developed a simple filter query to compare Wisdom with <a href="https://flink.apache.org/">Apache Flink</a>, <a href="https://wso2.github.io/siddhi/">WSO2 Siddhi</a> and <a href="http://www.espertech.com/esper/">Esper CEP</a>. The throughput and latency of <strong>Wisdom is closed to WSO2 Siddhi and better than Esper</strong>. Exact perfomance results are included in the research paper.</p>
+is their performance bottleneck. I designed the underlying architecture of Wisdom in such a way that it is comparable with existing commercial stream processors. I developed a simple filter query to compare Wisdom with <a href="https://flink.apache.org/">Apache Flink</a>, <a href="https://wso2.github.io/siddhi/">WSO2 Siddhi</a> and <a href="http://www.espertech.com/esper/">Esper CEP</a>. The throughput and latency of <strong>Wisdom is closed to WSO2 Siddhi and better than Esper</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Stream Processor</th>
+<th>Throughput</th>
+<th>Latency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Apache Flink</td>
+<td>6,711,544 events/sec</td>
+<td>100 nanoseconds</td>
+</tr>
+<tr>
+<td>WSO2 Siddhi</td>
+<td>3,811,876 events/sec</td>
+<td>216 nanoseconds</td>
+</tr>
+<tr>
+<td>Wisdom</td>
+<td>2,543,299 events/sec</td>
+<td>332 nanoseconds</td>
+</tr>
+<tr>
+<td>Esper</td>
+<td>2,247,807 events/sec</td>
+<td>334 nanoseconds</td>
+</tr>
+</tbody>
+</table>
 <h2 id="functionally-auto-scaling">Functionally Auto-scaling</h2>
-<p>In our research, we have shown that Wisdom consumes significantly fewer system resources than other distributed stream processors. The complete deployment setup and how it works are described in our research paper. However, I can leak that the proposed distributed deployment consumed <strong>1.5 times less memory</strong> than monolithic deployment.</p>
+<p>In our research, we have shown that Wisdom consumes significantly fewer system resources than other distributed stream processors. The complete deployment setup and how it works are described in our research paper.</p>
 <h2 id="wisdom-query">Wisdom Query</h2>
-<p>Wisdom Query is an SQL like query inspired by <a href="https://wso2.github.io/siddhi/">Siddhi Query</a>. An expressive query language hides the complexity of stream processing and make it super easy to use stream processors. In addition, it lets you deploy CEP applications via REST API calls instead of transfering a deployable <code>jar</code> file or any other binary file.</p>
+<p>Wisdom Query is an SQL like query inspired by <a href="https://wso2.github.io/siddhi/">Siddhi Query</a>. An expressive query language hides the complexity of stream processing and make it super easy to use stream processors. In addition, it lets you deploy CEP applications via REST API calls instead of transferring a deployable <code>jar</code> file or any other binary file.</p>
               
             </div>
           </div>
