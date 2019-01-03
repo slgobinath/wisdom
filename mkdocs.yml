@@ -1,5 +1,5 @@
 site_name: Wisdom Stream Processor
-pages:
+nav:
     - Home: index.md
     - Why Wisdom?: why-wisdom.md
     - Getting Started: getting-started.md
@@ -22,4 +22,5 @@ pages:
         - Intrusion Detection: use-cases/intrusion-detection.md
         - TensorFlow Integration: use-cases/tensor-flow.md
         - Auto-scaling Deployment: use-cases/auto-scaling.md
+    - Source Code: https://github.com/slgobinath/wisdom
 theme: readthedocs

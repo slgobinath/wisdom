@@ -1,16 +1,26 @@
-Wisdom offers a complete Java API and Wisdom query to develop Complex Event Processing (CEP) applications. Wisdom can be used as a Java library or standalone service. Java library is recommended for testing purposes, small scale applications and Android applications. If you are developing a resource consuming CEP application, it is recommended to use Wisdom Service. Wisdom Service is the only way to use HTTP Source and Sinks. This section explains how to create a simple CEP application using Wisdom Java API and Wisdom Query.
+Wisdom offers complete Java API and Wisdom Query Language to develop Complex 
+Event Processing (CEP) applications. Wisdom can be used as a Java library or 
+standalone service. Java library is recommended for testing purposes, small-scale 
+applications and Android applications. If you are developing a resource consuming 
+CEP application, it is recommended to use Wisdom Service. Wisdom Service is the 
+only way to use HTTP Source and Sinks. This section explains how to create a 
+simple CEP application using Wisdom Java API and Wisdom Query.
 
 ## Requirements
 
 Make sure that you have set up the following softwares in your system before building Wisdom.
 
-- Java 11 (or latest)
-- Apache Maven
-- Apache Kafka (for self-boosting deployment)
+- [Java 11 (or latest)](https://www.javahelps.com/2017/09/install-oracle-jdk-9-on-linux.html)
+- [Apache Maven](https://www.javahelps.com/2017/10/install-apache-maven-on-linux.html)
+- [Apache Kafka](https://kafka.apache.org/) (for functionally auto-scaling deployment)
 
 ## Installation
 
-Please contact me (`slgobinath@gmail.com`) to get access to Wisdom source code. Once you have downloaded the Wisdom source code, follow these steps to build and install Wisdom library.
+Clone Wisdom source code
+
+```bash
+git clone https://github.com/slgobinath/wisdom.git
+```
 
 Open your terminal and change directory
 
@@ -24,7 +34,9 @@ Compile and install Wisdom using Apache Maven
 mvn clean install
 ```
 
-## Wisdom Java API
+## How to use?
+
+### Wisdom Java API
 
 Create a new Maven Project in your favorite IDE. We use [IntelliJ IDEA](https://www.jetbrains.com/idea/) throughout this document.
 
@@ -55,7 +67,6 @@ Open the `pom.xml` file add `wisdom-core` and optionally `logback` dependencies 
 
     <properties>
         <wisdom.version>0.0.1</wisdom.version>
-        <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
     </properties>
 
@@ -141,7 +152,7 @@ Running this code should print an output similar to this:
 
 As you can see, above Wisdom app filters events having symbol equal to AMAZON and prints them to the console.
 
-## Wisdom Query
+### Wisdom Query
 
 Above Wisdom application can be defined using the folloing Wisdom query:
 
@@ -186,7 +197,6 @@ Open the `pom.xml` file and add `wisdom-core`, `wisdom-query` and optionally `lo
 
     <properties>
         <wisdom.version>0.0.1</wisdom.version>
-        <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
     </properties>
 
