@@ -4,7 +4,7 @@ def stream OutputStream;
 
 @query(name='FilterQuery')
 from StockStream
-# Filter WSO2 events
+// Filter WSO2 events
 filter symbol == 'WSO2'
 select symbol, price
 insert into OutputStream;

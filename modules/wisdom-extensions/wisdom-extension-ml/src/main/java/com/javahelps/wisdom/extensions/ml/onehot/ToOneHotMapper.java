@@ -53,7 +53,7 @@ public class ToOneHotMapper extends Mapper {
             this.items = new ArrayList<>((List<Comparable>) items);
         } else if (items instanceof WisdomArray) {
             WisdomArray array = (WisdomArray) items;
-            this.items = new ArrayList<>(array.size());
+            this.items = new ArrayList<>((int) array.size());
             for (Object item : array) {
                 if (item instanceof Comparable) {
                     this.items.add((Comparable) item);

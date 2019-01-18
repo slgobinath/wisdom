@@ -59,7 +59,7 @@ public class WisdomArray implements WisdomDataType<WisdomArray>, Iterable {
         }
     }
 
-    public int size() {
+    public long size() {
         return this.list.size();
     }
 

@@ -521,7 +521,7 @@ fragment SPACES
  ;
 
 fragment COMMENT
- : '#' ~[\r\n\f]* NEWLINE
+ : '//' ~[\r\n\f]* NEWLINE
  | '/*' .*? ( '*/' | EOF )
  ;
 

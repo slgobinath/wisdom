@@ -22,6 +22,7 @@ package com.javahelps.wisdom.core.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 public class Commons {
@@ -34,7 +35,14 @@ public class Commons {
         int count = entries.length;
         Map<String, Object> map = new HashMap<>(count / 2);
         for (int i = 0; i < count; i += 2) {
-            map.put((String) entries[i], entries[i + 1]);
+            String key = Objects.toString(entries[i]);
+            Object value = entries[i + 1];
+            if (value instanceof Integer) {
+                value = ((Integer) value).longValue();
+            } else if (value instanceof Float) {
+                value = ((Float) value).doubleValue();
+            }
+            map.put(key, value);
         }
         return map;
     }

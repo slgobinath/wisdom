@@ -37,7 +37,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import static com.javahelps.wisdom.query.TestUtil.map;
+import static com.javahelps.wisdom.core.util.Commons.map;
 
 public class WisdomCompilerTest {
 
@@ -827,10 +827,10 @@ public class WisdomCompilerTest {
         WisdomApp wisdomApp = WisdomCompiler.parse(query);
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "FilteredStatisticsStream",
-                TestUtil.map("name", "StockStream", "throughput", 2.0),
-                TestUtil.map("name", "OutputStream", "throughput", 2.0),
-                TestUtil.map("name", "StockStream", "throughput", 0.0),
-                TestUtil.map("name", "OutputStream", "throughput", 0.0));
+                map("name", "StockStream", "throughput", 2.0),
+                map("name", "OutputStream", "throughput", 2.0),
+                map("name", "StockStream", "throughput", 0.0),
+                map("name", "OutputStream", "throughput", 0.0));
 
         wisdomApp.start();
 
@@ -868,8 +868,8 @@ public class WisdomCompilerTest {
         WisdomApp wisdomApp = WisdomCompiler.parse(query);
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "FilteredStatisticsStream",
-                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 2.0, "port", 8080L),
-                TestUtil.map("app", "WisdomApp", "name", "OutputStream", "throughput", 0.0, "port", 8080L));
+                map("app", "WisdomApp", "name", "OutputStream", "throughput", 2.0, "port", 8080L),
+                map("app", "WisdomApp", "name", "OutputStream", "throughput", 0.0, "port", 8080L));
 
         wisdomApp.start();
 
@@ -892,8 +892,8 @@ public class WisdomCompilerTest {
         String query = "/*multiline comment*/ @app(name='WisdomApp', version='1.0.0') /*\n " +
                 "hello world \n" +
                 "end of comment*/ " +
-                "# this is a comment\n " +
-                "def stream StockStream; # another comment\n " +
+                "// this is a comment\n " +
+                "def stream StockStream; // another comment\n " +
                 "def stream OutputStream; " +
                 "" +
                 "from StockStream " +

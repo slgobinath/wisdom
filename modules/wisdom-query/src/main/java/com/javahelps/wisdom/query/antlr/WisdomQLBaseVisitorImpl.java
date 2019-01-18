@@ -38,9 +38,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.javahelps.wisdom.core.util.WisdomConstants.*;
-import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.*;
 import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.NAME;
 import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.VERSION;
+import static com.javahelps.wisdom.query.util.Constants.ANNOTATION.*;
 
 public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
@@ -443,10 +443,20 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         if (ctx.STRING() != null) {
             value = Utility.toString(ctx.STRING().getText());
         } else if (ctx.NUMBER() != null) {
-            try {
-                value = Long.parseLong(ctx.NUMBER().getText());
-            } catch (NumberFormatException ex) {
-                value = Double.valueOf(ctx.NUMBER().getText());
+            String number = ctx.NUMBER().getText();
+            if (number.startsWith("0x") || number.startsWith("0X")) {
+                number = number.toLowerCase().replaceAll("0x", "");
+                value = Long.parseLong(number, 16);
+            } else if (number.startsWith("0o") || number.startsWith("0O")) {
+                number = number.toLowerCase().replaceAll("0o", "");
+                value = Long.parseLong(number, 8);
+            } else if (number.startsWith("0b") || number.startsWith("0B")) {
+                number = number.toLowerCase().replaceAll("0b", "");
+                value = Long.parseLong(number, 2);
+            } else if (number.contains(".")) {
+                value = Double.valueOf(number);
+            } else {
+                value = Long.parseLong(number);
             }
         } else if (ctx.TRUE() != null) {
             value = true;

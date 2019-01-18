@@ -55,7 +55,9 @@ public class TensorFlowMapperTest {
         wisdomApp.defineQuery("query1")
                 .from("EventStream")
                 .select("x", "y")
+                .map(Mapper.TO_INT("x", "x"), Mapper.TO_INT("y", "y"))
                 .map(Mapper.create("tensorFlow", "ans", map(PATH, modelPath, OPERATION, "ans", TYPE, "int")))
+                .map(Mapper.TO_LONG("x", "x"), Mapper.TO_LONG("y", "y"), Mapper.TO_LONG("ans", "ans"))
                 .insertInto("OutputStream");
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",

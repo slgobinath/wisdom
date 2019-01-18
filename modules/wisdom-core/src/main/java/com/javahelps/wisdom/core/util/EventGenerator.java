@@ -24,6 +24,7 @@ import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.exception.EventValidationException;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A utility class to create {@link Event}s from different type of inputs.
@@ -47,7 +48,14 @@ public class EventGenerator {
         } else {
             Event event = new Event(System.currentTimeMillis());
             for (int i = 0; i < count; i += 2) {
-                event.set((String) entries[i], entries[i + 1]);
+                String key = Objects.toString(entries[i]);
+                Object value = entries[i + 1];
+                if (value instanceof Integer) {
+                    value = ((Integer) value).longValue();
+                } else if (value instanceof Float) {
+                    value = ((Float) value).doubleValue();
+                }
+                event.set(key, value);
             }
             return event;
         }
