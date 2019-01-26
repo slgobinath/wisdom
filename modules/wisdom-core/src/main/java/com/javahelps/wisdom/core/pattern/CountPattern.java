@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 /**
  * Created by gobinath on 6/29/17.
  */
-class CountPattern extends CustomPattern implements EmptiablePattern {
+class CountPattern extends WrappingPattern implements EmptiablePattern {
 
     private Pattern pattern;
     private int minCount;
@@ -41,7 +41,7 @@ class CountPattern extends CustomPattern implements EmptiablePattern {
 
     CountPattern(String patternId, Pattern pattern, int minCount, int maxCount) {
 
-        super(patternId);
+        super(patternId, pattern);
 
         this.pattern = pattern;
         this.minCount = minCount;
@@ -54,24 +54,17 @@ class CountPattern extends CustomPattern implements EmptiablePattern {
         this.pattern.setEmitConditionMet(event -> pattern.getEvents().size() >= this.minCount);
         this.pattern.setCopyEventAttributes((pattern1, src, destination) -> {
             for (Map.Entry<String, Object> entry : src.getData().entrySet()) {
-                destination.set(pattern.name + "[" + pattern.getEvents().size() + "]." + entry.getKey(),
-                        entry.getValue());
+                String key = pattern.name + "[" + pattern.getEvents().size() + "]." + entry.getKey();
+                Object value = entry.getValue();
+                destination.set(key, value);
+                this.attributeCache.set(key, value);
             }
         });
 
         Predicate<Event> predicate = event -> this.pattern.isAccepting();
-        this.predicate = predicate;
-        this.streamIds.addAll(this.pattern.streamIds);
-    }
+        this.filter = predicate;
 
-    @Override
-    public void init(WisdomApp wisdomApp) {
-
-        this.pattern.init(wisdomApp);
-        this.pattern.streamIds.forEach(streamId -> {
-            wisdomApp.getStream(streamId).removeProcessor(this.pattern);
-            wisdomApp.getStream(streamId).addProcessor(this);
-        });
+        this.attributeCache.setMap(pattern.attributeCache.getMap());
     }
 
     @Override
@@ -118,7 +111,7 @@ class CountPattern extends CustomPattern implements EmptiablePattern {
     @Override
     public void setEmitConditionMet(Predicate<Event> emitConditionMet) {
 
-        Predicate<Event> predicate = this.predicate.and(emitConditionMet);
+        Predicate<Event> predicate = this.filter.and(emitConditionMet);
         this.pattern.setEmitConditionMet(predicate);
     }
 
@@ -143,16 +136,11 @@ class CountPattern extends CustomPattern implements EmptiablePattern {
         return pattern.getEvents().size() >= this.minCount;
     }
 
-    @Override
-    public void reset() {
-        this.pattern.reset();
-    }
-
 //    @Override
 //    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
 //
 //        super.setMergePreviousEvents(mergePreviousEvents);
-//        this.pattern.setMergePreviousEvents(this.pattern.getMergePreviousEvents().andThen(mergePreviousEvents));
+//        this.definePattern.setMergePreviousEvents(this.definePattern.getMergePreviousEvents().andThen(mergePreviousEvents));
 //    }
 
     @Override

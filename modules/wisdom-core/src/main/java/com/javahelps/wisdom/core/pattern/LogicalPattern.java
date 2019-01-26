@@ -20,7 +20,6 @@
 
 package com.javahelps.wisdom.core.pattern;
 
-import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 
@@ -31,7 +30,7 @@ import java.util.function.Predicate;
 /**
  * Created by gobinath on 6/29/17.
  */
-class LogicalPattern extends CustomPattern {
+class LogicalPattern extends WrappingPattern {
 
     private Type type;
     private Pattern patternX;
@@ -39,7 +38,7 @@ class LogicalPattern extends CustomPattern {
 
     LogicalPattern(String patternId, Type type, Pattern patternX, Pattern patternY) {
 
-        super(patternId);
+        super(patternId, patternX, patternY);
         this.type = type;
 
         this.patternX = patternX;
@@ -60,7 +59,9 @@ class LogicalPattern extends CustomPattern {
             // OR
             predicate = event -> this.patternX.isComplete() || this.patternY.isComplete();
         }
-        this.predicate = predicate;
+        this.filter = predicate;
+        this.patternX.setEmitConditionMet(predicate);
+        this.patternY.setEmitConditionMet(predicate);
 
 //        this.patternX.setMergePreviousEvents(event -> {
 //            for (Event e : this.patternY.getEvents()) {
@@ -88,10 +89,8 @@ class LogicalPattern extends CustomPattern {
 
         this.patternX.setPostProcess(this::afterProcess);
         this.patternY.setPostProcess(this::afterProcess);
-
-        // Add th streams to this pattern
-        this.streamIds.addAll(this.patternX.streamIds);
-        this.streamIds.addAll(this.patternY.streamIds);
+        this.attributeCache.setMap(patternX.attributeCache.getMap());
+        this.patternY.attributeCache.setMap(patternX.attributeCache.getMap());
     }
 
     private void afterProcess(Event event) {
@@ -100,22 +99,6 @@ class LogicalPattern extends CustomPattern {
             this.getEvents().clear();
             this.getEvents().add(event);
         }
-    }
-
-    @Override
-    public void init(WisdomApp wisdomApp) {
-
-//        this.patternX.init(wisdomApp);
-//        this.patternY.init(wisdomApp);
-        this.patternX.init(wisdomApp);
-        this.patternY.init(wisdomApp);
-        this.patternX.streamIds.forEach(streamId -> {
-            wisdomApp.getStream(streamId).removeProcessor(this.patternX);
-        });
-        this.patternY.streamIds.forEach(streamId -> {
-            wisdomApp.getStream(streamId).removeProcessor(this.patternY);
-        });
-        super.init(wisdomApp);
     }
 
     @Override
@@ -149,7 +132,7 @@ class LogicalPattern extends CustomPattern {
     @Override
     public void setEmitConditionMet(Predicate<Event> emitConditionMet) {
 
-        Predicate<Event> predicate = this.predicate.and(emitConditionMet);
+        Predicate<Event> predicate = this.filter.and(emitConditionMet);
         this.patternX.setEmitConditionMet(predicate);
         this.patternY.setEmitConditionMet(predicate);
     }
@@ -171,8 +154,8 @@ class LogicalPattern extends CustomPattern {
 
     @Override
     public void setConsumed(boolean consumed) {
-        this.patternX.setConsumed(false);
-        this.patternY.setConsumed(false);
+        this.patternX.setConsumed(consumed);
+        this.patternY.setConsumed(consumed);
     }
 
     @Override

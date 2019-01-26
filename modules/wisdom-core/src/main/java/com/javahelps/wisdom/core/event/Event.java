@@ -31,7 +31,7 @@ import java.util.Map;
  * This is the representation of any events passing through the {@link Stream}s and
  * {@link com.javahelps.wisdom.core.processor.StreamProcessor}s.
  */
-public class Event {
+public class Event implements AttributeSupplier {
 
     private long timestamp = -1;
     private Stream stream;
@@ -64,6 +64,7 @@ public class Event {
         return this;
     }
 
+    @Override
     public Object get(String attribute) {
         if (this.name != null) {
             if (!attribute.contains(".")) {

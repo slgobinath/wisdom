@@ -72,6 +72,25 @@ public class Utility {
         return str;
     }
 
+    public static Comparable parseNumber(String number) {
+        Comparable value;
+        if (number.startsWith("0x") || number.startsWith("0X")) {
+            number = number.toLowerCase().replaceAll("0x", "");
+            value = Long.parseLong(number, 16);
+        } else if (number.startsWith("0o") || number.startsWith("0O")) {
+            number = number.toLowerCase().replaceAll("0o", "");
+            value = Long.parseLong(number, 8);
+        } else if (number.startsWith("0b") || number.startsWith("0B")) {
+            number = number.toLowerCase().replaceAll("0b", "");
+            value = Long.parseLong(number, 2);
+        } else if (number.contains(".")) {
+            value = Double.valueOf(number);
+        } else {
+            value = Long.parseLong(number);
+        }
+        return value;
+    }
+
     public static Map<String, Comparable> toMap(Properties properties) {
         Map<String, Comparable> map = new HashMap<String, Comparable>();
         for (Object key : properties.keySet()) {

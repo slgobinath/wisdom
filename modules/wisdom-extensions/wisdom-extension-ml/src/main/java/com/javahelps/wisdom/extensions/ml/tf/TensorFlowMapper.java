@@ -29,9 +29,11 @@ import com.javahelps.wisdom.core.map.Mapper;
 import com.javahelps.wisdom.core.util.Commons;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tensorflow.*;
+import org.tensorflow.SavedModelBundle;
+import org.tensorflow.Session;
+import org.tensorflow.Tensor;
+import org.tensorflow.TensorFlowException;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -76,20 +78,6 @@ public class TensorFlowMapper extends Mapper {
             } else {
                 throw new WisdomAppValidationException("TensorFlow mapper property %s must be 'int', 'long', 'float', 'double' or 'bool' but found ", TYPE, this.type);
             }
-        }
-    }
-
-    public static void main(String[] args) {
-        LOGGER.info("Loading TensorFlow version {}", TensorFlow.version());
-        try (SavedModelBundle savedModelBundle = SavedModelBundle.load("/home/gobinath/Workspace/tf_serve/models/hello_world/1", "serve")) {
-            System.out.println("Loaded");
-            Session session = savedModelBundle.session();
-            int[] result = new int[2];
-            session.runner().feed("x", Tensor.create(new int[]{10, 20}))
-                    .feed("y", Tensor.create(new int[]{1, 2}))
-                    .fetch("ans")
-                    .run().get(0).copyTo(result);
-            System.out.println(Arrays.toString(result));
         }
     }
 

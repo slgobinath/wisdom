@@ -34,36 +34,37 @@ import java.util.function.Supplier;
 /**
  * Created by gobinath on 6/29/17.
  */
-class NotPattern extends CustomPattern implements EmptiablePattern {
+class NotPattern extends TimeConstrainedPattern implements EmptiablePattern {
 
     private Pattern pattern;
     private Scheduler scheduler;
     private Event previousEvent;
+    private boolean isFirst = true;
 
     NotPattern(String patternId, Pattern pattern) {
 
-        super(patternId);
-
+        super(patternId, pattern);
         this.pattern = pattern;
         this.pattern.setProcessConditionMet(event -> true);
-        this.streamIds.addAll(this.pattern.streamIds);
     }
 
     @Override
     public void onPreviousPostProcess(Event event) {
 
-        try {
-            this.lock.lock();
-            if (duration != null) {
-                this.previousEvent = event;
-                scheduler.schedule(duration, this::timeoutHappend);
+        if (event != null) {
+            try {
+                this.lock.lock();
+                if (duration != null) {
+                    this.previousEvent = event;
+                    scheduler.schedule(duration, this::timeoutHappened);
+                }
+            } finally {
+                this.lock.unlock();
             }
-        } finally {
-            this.lock.unlock();
         }
     }
 
-    public void timeoutHappend(long timestamp) {
+    private void timeoutHappened(long timestamp) {
 
         try {
             this.lock.lock();
@@ -78,7 +79,7 @@ class NotPattern extends CustomPattern implements EmptiablePattern {
     @Override
     public void init(WisdomApp wisdomApp) {
 
-        this.pattern.init(wisdomApp);
+        super.init(wisdomApp);
         this.scheduler = wisdomApp.getContext().getScheduler();
     }
 
@@ -117,7 +118,7 @@ class NotPattern extends CustomPattern implements EmptiablePattern {
 
         try {
             this.lock.lock();
-            Predicate<Event> predicate = this.predicate.and(emitConditionMet);
+            Predicate<Event> predicate = this.filter.and(emitConditionMet);
             this.pattern.setEmitConditionMet(predicate);
         } finally {
             this.lock.unlock();
@@ -160,12 +161,17 @@ class NotPattern extends CustomPattern implements EmptiablePattern {
     @Override
     public boolean isComplete() {
 
+        boolean patternComplete;
         try {
             this.lock.lock();
-            return !this.pattern.isComplete();
+            patternComplete = this.pattern.isComplete();
+            if (patternComplete) {
+                this.globalResetAction.execute();
+            }
         } finally {
             this.lock.unlock();
         }
+        return !patternComplete;
     }
 
     @Override
@@ -173,6 +179,7 @@ class NotPattern extends CustomPattern implements EmptiablePattern {
 
         try {
             this.lock.lock();
+            this.isFirst = false;
             super.setPreviousEvents(previousEvents);
             this.pattern.setPreviousEvents(previousEvents);
         } finally {
@@ -185,7 +192,7 @@ class NotPattern extends CustomPattern implements EmptiablePattern {
 
         try {
             this.lock.lock();
-            return this.getEvents(true);
+            return this.getEvents(this.isFirst);
         } finally {
             this.lock.unlock();
         }

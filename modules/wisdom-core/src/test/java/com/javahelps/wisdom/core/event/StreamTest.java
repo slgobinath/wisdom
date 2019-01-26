@@ -61,7 +61,7 @@ public class StreamTest {
 //        wisdomApp.defineStream("StockStream2");
 //        wisdomApp.defineStream("OutputStream");
 //
-//        Pattern e1 = Pattern.pattern("pattern", "e1", "StockStream1")
+//        Pattern e1 = Pattern.definePattern("definePattern", "e1", "StockStream1")
 //                .filter(event -> event.get("symbol").equals("IBM"));
 //        Pattern e2 = e1.followedBy("e2", "StockStream2")
 ////                        .filter(event -> event.get("symbol").equals("WSO2")))

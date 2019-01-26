@@ -21,6 +21,7 @@
 package com.javahelps.wisdom.core.query;
 
 import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.event.AttributeSupplier;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.event.Index;
 import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
@@ -48,6 +49,7 @@ public class Query implements Stateful {
     private final Map<String, StreamProcessor> streamProcessorMap = new HashMap<>();
     private final List<Stateful> statefulList = new ArrayList<>();
     private final List<Mapper> mapperList = new ArrayList<>();
+    private final Map<String, AttributeSupplier> attributeSupplierMap = new HashMap<>();
     private String id;
     private WisdomApp wisdomApp;
     private Stream inputStream;
@@ -77,6 +79,16 @@ public class Query implements Stateful {
     public void stop() {
         this.streamProcessorMap.values().forEach(StreamProcessor::stop);
         this.mapperList.forEach(Mapper::stop);
+    }
+
+    public Pattern definePattern(String streamId, String alias) {
+        Pattern pattern = new Pattern(this.generateId(), streamId, alias);
+        this.registerAttributeSupplier(alias, pattern.getAttributeCache());
+        return pattern;
+    }
+
+    public Pattern definePattern(String streamId) {
+        return this.definePattern(streamId, streamId);
     }
 
     public Query from(String streamId) {
@@ -288,6 +300,21 @@ public class Query implements Stateful {
         return this;
     }
 
+    public void registerAttributeSupplier(String supplierId, AttributeSupplier supplier) {
+        if (this.attributeSupplierMap.containsKey(supplierId)) {
+            throw new WisdomAppValidationException("An attribute supplier with the id %s already exists.", supplierId);
+        }
+        this.attributeSupplierMap.put(supplierId, supplier);
+    }
+
+    public AttributeSupplier getAttributeSupplier(String supplierId) {
+        AttributeSupplier supplier = this.attributeSupplierMap.get(supplierId);
+        if (supplier == null) {
+            throw new WisdomAppValidationException("No attribute supplier found with the id %s.", supplierId);
+        }
+        return supplier;
+    }
+
     private void addStreamProcessor(StreamProcessor processor) {
         this.streamProcessorMap.put(processor.getId(), processor);
         if (processor instanceof Stateful) {
@@ -295,7 +322,7 @@ public class Query implements Stateful {
         }
     }
 
-    private String generateId() {
+    public String generateId() {
         return String.format("%s[%d]", this.id, this.processorIndex++);
     }
 

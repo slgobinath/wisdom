@@ -20,7 +20,6 @@
 
 package com.javahelps.wisdom.core.pattern;
 
-import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 
@@ -31,30 +30,19 @@ import java.util.function.Supplier;
 /**
  * Created by gobinath on 6/29/17.
  */
-class EveryPattern extends CustomPattern {
+class EveryPattern extends WrappingPattern {
 
     private Pattern pattern;
 
     EveryPattern(String patternId, Pattern pattern) {
 
-        super(patternId);
+        super(patternId, pattern);
 
         this.pattern = pattern;
         this.pattern.setBatchPattern(true);
         this.setBatchPattern(true);
         this.pattern.setProcessConditionMet(event -> true);
-
-        this.streamIds.addAll(this.pattern.streamIds);
-    }
-
-    @Override
-    public void init(WisdomApp wisdomApp) {
-
-        this.pattern.init(wisdomApp);
-        this.pattern.streamIds.forEach(streamId -> {
-            wisdomApp.getStream(streamId).removeProcessor(this.pattern);
-            wisdomApp.getStream(streamId).addProcessor(this);
-        });
+        this.attributeCache.setMap(pattern.attributeCache.getMap());
     }
 
     @Override
@@ -62,6 +50,11 @@ class EveryPattern extends CustomPattern {
 
         super.setNextProcessor(nextProcessor);
         this.pattern.setNextProcessor(nextProcessor);
+    }
+
+    @Override
+    protected void globalReset() {
+        this.reset();
     }
 
     @Override
@@ -105,27 +98,22 @@ class EveryPattern extends CustomPattern {
     public void setProcessConditionMet(Predicate<Event> processConditionMet) {
 
 //        processConditionMet = processConditionMet.or(event -> !this.getEvents().isEmpty());
-//        this.pattern.setProcessConditionMet(this.pattern.getProcessConditionMet().and(processConditionMet));
+//        this.definePattern.setProcessConditionMet(this.definePattern.getProcessConditionMet().and(processConditionMet));
         this.pattern.setProcessConditionMet(processConditionMet);
     }
 
     @Override
     public void setEmitConditionMet(Predicate<Event> emitConditionMet) {
 
-//        Predicate<Event> predicate = this.predicate.and(emitConditionMet);
+//        Predicate<Event> filter = this.filter.and(emitConditionMet);
         this.pattern.setEmitConditionMet(emitConditionMet);
-    }
-
-    @Override
-    public void reset() {
-        this.pattern.reset();
     }
 
 //    @Override
 //    public void setMergePreviousEvents(Consumer<Event> mergePreviousEvents) {
 //
 //        super.setMergePreviousEvents(mergePreviousEvents);
-//        this.pattern.setMergePreviousEvents(this.pattern.getMergePreviousEvents().andThen(mergePreviousEvents));
+//        this.definePattern.setMergePreviousEvents(this.definePattern.getMergePreviousEvents().andThen(mergePreviousEvents));
 //    }
 
     @Override

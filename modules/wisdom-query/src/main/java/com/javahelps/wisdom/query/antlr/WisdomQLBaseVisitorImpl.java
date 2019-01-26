@@ -144,8 +144,8 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     @Override
     public Statement visitSelect_statement(WisdomQLParser.Select_statementContext ctx) {
         SelectStatement selectStatement = new SelectStatement();
-        if (ctx.NAME() != null && !ctx.NAME().isEmpty()) {
-            for (TerminalNode attribute : ctx.NAME()) {
+        if (ctx.attribute_name() != null && !ctx.attribute_name().isEmpty()) {
+            for (WisdomQLParser.Attribute_nameContext attribute : ctx.attribute_name()) {
                 selectStatement.addAttribute(attribute.getText());
             }
         } else if (ctx.NUMBER() != null && !ctx.NUMBER().isEmpty()) {
@@ -223,6 +223,49 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
+    public PatternOperator visitWisdom_pattern(WisdomQLParser.Wisdom_patternContext ctx) {
+        if (ctx.name != null) {
+            String streamName = ctx.name.getText();
+            LogicalOperator logicalOperator = ctx.logical_operator() != null ? visitLogical_operator(ctx.logical_operator()) : null;
+            String alias = ctx.NAME().size() == 2 ? ctx.NAME(1).getText() : streamName;
+
+            PatternOperator operator = PatternOperator.create(streamName, logicalOperator, alias);
+
+            if (ctx.INTEGER().size() == 2) {
+                Integer minCount = (Integer) Utility.parseNumber(ctx.INTEGER(0).getText());
+                Integer maxCount = (Integer) Utility.parseNumber(ctx.INTEGER(1).getText());
+                operator.setMinCount(minCount);
+                operator.setMaxCount(maxCount);
+
+            } else if (ctx.INTEGER().size() == 1) {
+                Integer minCount = (Integer) Utility.parseNumber(ctx.INTEGER(0).getText());
+                operator.setMinCount(minCount);
+                operator.setMaxCount(minCount);
+            }
+
+            if (ctx.NOT() != null) {
+                operator = PatternOperator.not(operator, null);
+            }
+            return operator;
+
+        } else if (ctx.EVERY() != null) {
+            return PatternOperator.every(visitWisdom_pattern(ctx.wisdom_pattern().get(0)));
+        } else if (ctx.NOT() != null) {
+            Duration duration = ctx.time_duration() != null ? visitTime_duration(ctx.time_duration()) : null;
+            return PatternOperator.not(visitWisdom_pattern(ctx.wisdom_pattern().get(0)), duration);
+        } else if (ctx.AND() != null) {
+            return PatternOperator.and(visitWisdom_pattern(ctx.wisdom_pattern().get(0)), visitWisdom_pattern(ctx.wisdom_pattern().get(1)));
+        } else if (ctx.OR() != null) {
+            return PatternOperator.or(visitWisdom_pattern(ctx.wisdom_pattern().get(0)), visitWisdom_pattern(ctx.wisdom_pattern().get(1)));
+        } else if (ctx.ARROW() != null) {
+            Duration duration = ctx.time_duration() != null ? visitTime_duration(ctx.time_duration()) : null;
+            return PatternOperator.follows(visitWisdom_pattern(ctx.wisdom_pattern().get(0)), visitWisdom_pattern(ctx.wisdom_pattern().get(1)), duration);
+        } else {
+            return visitWisdom_pattern(ctx.wisdom_pattern(0));
+        }
+    }
+
+    @Override
     public Statement visitAggregate_statement(WisdomQLParser.Aggregate_statementContext ctx) {
         AggregateStatement statement = new AggregateStatement();
         for (ParseTree tree : ctx.aggregate_operator()) {
@@ -265,7 +308,14 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
     @Override
     public QueryNode visitQuery(WisdomQLParser.QueryContext ctx) {
-        QueryNode queryNode = new QueryNode(ctx.input.getText());
+        QueryNode queryNode;
+        if (ctx.input != null) {
+            // From stream
+            queryNode = new QueryNode(ctx.input.getText());
+        } else {
+            // From definePattern
+            queryNode = new QueryNode(visitWisdom_pattern(ctx.wisdom_pattern()));
+        }
         if (ctx.annotation() != null) {
             Annotation annotation = (Annotation) visit(ctx.annotation());
             Utility.verifyAnnotation(ctx.annotation(), annotation, QUERY_ANNOTATION, NAME);
@@ -340,10 +390,9 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         } else {
             operator = new MapOperator();
             if (ctx.namespace == null) {
-                int noOfMappers = ctx.NAME().size();
-                if (noOfMappers == 2) {
+                if (ctx.attribute_name() != null) {
                     operator.setNamespace("rename");
-                    operator.addProperty(KeyValueElement.of(ATTR, ctx.NAME(0).getText()));
+                    operator.addProperty(KeyValueElement.of(ATTR, ctx.attribute_name().getText()));
                     operator.setAttrName(ctx.attr.getText());
                 } else if (ctx.wisdom_primitive() != null) {
                     operator.setNamespace("constant");
@@ -378,7 +427,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     }
 
     @Override
-    public Long visitTime_duration(WisdomQLParser.Time_durationContext ctx) {
+    public Duration visitTime_duration(WisdomQLParser.Time_durationContext ctx) {
         long value;
         try {
             value = Long.parseLong(ctx.NUMBER().getText());
@@ -405,7 +454,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         } else {
             throw new WisdomParserException(ctx, "invalid time unit");
         }
-        return Duration.of(value, unit).toMillis();
+        return Duration.of(value, unit);
     }
 
     @Override
@@ -443,27 +492,13 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         if (ctx.STRING() != null) {
             value = Utility.toString(ctx.STRING().getText());
         } else if (ctx.NUMBER() != null) {
-            String number = ctx.NUMBER().getText();
-            if (number.startsWith("0x") || number.startsWith("0X")) {
-                number = number.toLowerCase().replaceAll("0x", "");
-                value = Long.parseLong(number, 16);
-            } else if (number.startsWith("0o") || number.startsWith("0O")) {
-                number = number.toLowerCase().replaceAll("0o", "");
-                value = Long.parseLong(number, 8);
-            } else if (number.startsWith("0b") || number.startsWith("0B")) {
-                number = number.toLowerCase().replaceAll("0b", "");
-                value = Long.parseLong(number, 2);
-            } else if (number.contains(".")) {
-                value = Double.valueOf(number);
-            } else {
-                value = Long.parseLong(number);
-            }
+            value = Utility.parseNumber(ctx.NUMBER().getText());
         } else if (ctx.TRUE() != null) {
             value = true;
         } else if (ctx.FALSE() != null) {
             value = false;
         } else if (ctx.time_duration() != null) {
-            value = (Comparable) visit(ctx.time_duration());
+            value = ((Duration) visit(ctx.time_duration())).toMillis();
         } else if (ctx.NULL() != null) {
             return null;
         } else {
@@ -471,6 +506,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         }
         return value;
     }
+
 
     @Override
     public WisdomArray visitArray(WisdomQLParser.ArrayContext ctx) {

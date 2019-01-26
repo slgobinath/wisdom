@@ -25,6 +25,7 @@ import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Attribute;
 import com.javahelps.wisdom.core.operator.Operator;
 import com.javahelps.wisdom.core.pattern.Pattern;
+import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.core.util.EventGenerator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,13 +49,14 @@ public class CountPatternTestCase {
         wisdomApp.defineStream("StockStream1");
         wisdomApp.defineStream("OutputStream");
 
+        Query query = wisdomApp.defineQuery("query1");
+
         // e1<2:5>
-        Pattern pattern = Pattern.pattern("Pattern1", "e1", "StockStream1")
+        Pattern pattern = query.definePattern("StockStream1", "e1")
                 .filter(event -> "IBM".equals(event.get("symbol")))
                 .times(2, 5);
 
-        wisdomApp.defineQuery("query1")
-                .from(pattern)
+        query.from(pattern)
                 .select("e1[0].price", "e1[1].price")
                 .insertInto("OutputStream");
 
@@ -83,16 +85,16 @@ public class CountPatternTestCase {
         wisdomApp.defineStream("StockStream1");
         wisdomApp.defineStream("OutputStream");
 
-        // e1<2:5> -> e2
-        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+        Query query = wisdomApp.defineQuery("query1");
+        // e1 < 2:5 > ->e2
+        Pattern e1 = query.definePattern("StockStream1", "e1")
                 .filter(event -> "IBM".equals(event.get("symbol")))
                 .times(2, 5);
-        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+        Pattern e2 = query.definePattern("StockStream1", "e2")
                 .filter(event -> "WSO2".equals(event.get("symbol")));
         Pattern pattern = Pattern.followedBy(e1, e2);
 
-        wisdomApp.defineQuery("query1")
-                .from(pattern)
+        query.from(pattern)
                 .insertInto("OutputStream");
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
@@ -125,16 +127,17 @@ public class CountPatternTestCase {
         wisdomApp.defineStream("StockStream1");
         wisdomApp.defineStream("OutputStream");
 
+        Query query = wisdomApp.defineQuery("query1");
+
         // e1<2:5> -> e2
-        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+        Pattern e1 = query.definePattern("StockStream1", "e1")
                 .filter(event -> "IBM".equals(event.get("symbol")))
                 .times(2, 5);
-        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+        Pattern e2 = query.definePattern("StockStream1", "e2")
                 .filter(event -> "WSO2".equals(event.get("symbol")));
         Pattern pattern = Pattern.followedBy(e1, e2);
 
-        wisdomApp.defineQuery("query1")
-                .from(pattern)
+        query.from(pattern)
                 .insertInto("OutputStream");
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
@@ -182,16 +185,17 @@ public class CountPatternTestCase {
         wisdomApp.defineStream("StockStream1");
         wisdomApp.defineStream("OutputStream");
 
+        Query query = wisdomApp.defineQuery("query1");
+
         // e1<2:5> -> e2
-        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+        Pattern e1 = query.definePattern("StockStream1", "e1")
                 .filter(event -> "IBM".equals(event.get("symbol")))
                 .times(2, 5);
-        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+        Pattern e2 = query.definePattern("StockStream1", "e2")
                 .filter(event -> "WSO2".equals(event.get("symbol")));
         Pattern pattern = Pattern.followedBy(e1, e2);
 
-        wisdomApp.defineQuery("query1")
-                .from(pattern)
+        query.from(pattern)
                 .insertInto("OutputStream");
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
@@ -227,16 +231,17 @@ public class CountPatternTestCase {
         wisdomApp.defineStream("StockStream1");
         wisdomApp.defineStream("OutputStream");
 
+        Query query = wisdomApp.defineQuery("query1");
+
         // e1<2:5> -> e2
-        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+        Pattern e1 = query.definePattern("StockStream1", "e1")
                 .filter(event -> "IBM".equals(event.get("symbol")))
                 .times(2, 5);
-        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+        Pattern e2 = query.definePattern("StockStream1", "e2")
                 .filter(event -> "WSO2".equals(event.get("symbol")));
         Pattern pattern = Pattern.followedBy(e1, e2);
 
-        wisdomApp.defineQuery("query1")
-                .from(pattern)
+        query.from(pattern)
                 .insertInto("OutputStream");
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream",
@@ -270,16 +275,17 @@ public class CountPatternTestCase {
         wisdomApp.defineStream("StockStream1");
         wisdomApp.defineStream("OutputStream");
 
+        Query query = wisdomApp.defineQuery("query1");
+
         // e1<2:5> -> e2
-        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+        Pattern e1 = query.definePattern("StockStream1", "e1")
                 .filter(event -> "IBM".equals(event.get("symbol")))
                 .times(2, 5);
-        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+        Pattern e2 = query.definePattern("StockStream1", "e2")
                 .filter(event -> "WSO2".equals(event.get("symbol")));
         Pattern pattern = Pattern.followedBy(e1, e2);
 
-        wisdomApp.defineQuery("query1")
-                .from(pattern)
+        query.from(pattern)
                 .insertInto("OutputStream");
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
@@ -302,16 +308,17 @@ public class CountPatternTestCase {
         wisdomApp.defineStream("StockStream1");
         wisdomApp.defineStream("OutputStream");
 
+        Query query = wisdomApp.defineQuery("query1");
+
         // e1<0:5> -> e2
-        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+        Pattern e1 = query.definePattern("StockStream1", "e1")
                 .filter(event -> "IBM".equals(event.get("symbol")))
                 .times(0, 5);
-        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+        Pattern e2 = query.definePattern("StockStream1", "e2")
                 .filter(event -> "WSO2".equals(event.get("symbol")));
         Pattern pattern = Pattern.followedBy(e1, e2);
 
-        wisdomApp.defineQuery("query1")
-                .from(pattern)
+        query.from(pattern)
                 .insertInto("OutputStream");
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e2.symbol", "WSO2", "e2.price", 10.0, "e2.volume", 10));
@@ -333,20 +340,21 @@ public class CountPatternTestCase {
         wisdomApp.defineStream("StockStream1");
         wisdomApp.defineStream("OutputStream");
 
+        Query query = wisdomApp.defineQuery("query1");
+
         // e1 -> e2<0:5> -> e3
-        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+        Pattern e1 = query.definePattern("StockStream1", "e1")
                 .filter(Operator.GREATER_THAN_OR_EQUAL(Attribute.of("price"), 50.0)
                         .and(Operator.GREATER_THAN(Attribute.of("volume"), 100)));
-        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+        Pattern e2 = query.definePattern("StockStream1", "e2")
                 .filter(Operator.LESS_THAN_OR_EQUAL(Attribute.of("price"), 40.0))
                 .times(0, 5);
-        Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")
+        Pattern e3 = query.definePattern("StockStream1", "e3")
                 .filter(Operator.LESS_THAN_OR_EQUAL(Attribute.of("volume"), 70));
 
         Pattern pattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
-        wisdomApp.defineQuery("query1")
-                .from(pattern)
+        query.from(pattern)
                 .select("e1.symbol", "e2[0].symbol", "e3.symbol")
                 .insertInto("OutputStream");
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e1.symbol", "IBM", "e2[0].symbol", "GOOGLE", "e3.symbol", "WSO2"));
@@ -370,20 +378,21 @@ public class CountPatternTestCase {
         wisdomApp.defineStream("StockStream1");
         wisdomApp.defineStream("OutputStream");
 
+        Query query = wisdomApp.defineQuery("query1");
+
         // e1 -> e2<:5> -> e3
-        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+        Pattern e1 = query.definePattern("StockStream1", "e1")
                 .filter(Operator.GREATER_THAN_OR_EQUAL(Attribute.of("price"), 50.0)
                         .and(Operator.GREATER_THAN(Attribute.of("volume"), 100)));
-        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+        Pattern e2 = query.definePattern("StockStream1", "e2")
                 .filter(Operator.LESS_THAN_OR_EQUAL(Attribute.of("price"), 40.0))
                 .maxTimes(5);
-        Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")
+        Pattern e3 = query.definePattern("StockStream1", "e3")
                 .filter(Operator.LESS_THAN_OR_EQUAL(Attribute.of("volume"), 70));
 
         Pattern pattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
-        wisdomApp.defineQuery("query1")
-                .from(pattern)
+        query.from(pattern)
                 .select("e1.symbol", "e2[0].symbol", "e3.symbol")
                 .insertInto("OutputStream");
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e1.symbol", "IBM", "e3.symbol", "GOOGLE"));
@@ -407,20 +416,21 @@ public class CountPatternTestCase {
         wisdomApp.defineStream("StockStream1");
         wisdomApp.defineStream("OutputStream");
 
+        Query query = wisdomApp.defineQuery("query1");
+
         // e1 -> e2<:5> -> e3
-        Pattern e1 = Pattern.pattern("Pattern1", "e1", "StockStream1")
+        Pattern e1 = query.definePattern("StockStream1", "e1")
                 .filter(Operator.GREATER_THAN_OR_EQUAL(Attribute.of("price"), 50.0)
                         .and(Operator.GREATER_THAN(Attribute.of("volume"), 100)));
-        Pattern e2 = Pattern.pattern("Pattern2", "e2", "StockStream1")
+        Pattern e2 = query.definePattern("StockStream1", "e2")
                 .filter(Operator.LESS_THAN_OR_EQUAL(Attribute.of("price"), 40.0))
                 .maxTimes(5);
-        Pattern e3 = Pattern.pattern("Pattern3", "e3", "StockStream1")
+        Pattern e3 = query.definePattern("StockStream1", "e3")
                 .filter(Operator.LESS_THAN_OR_EQUAL(Attribute.of("volume"), 70));
 
         Pattern pattern = Pattern.followedBy(Pattern.followedBy(e1, e2), e3);
 
-        wisdomApp.defineQuery("query1")
-                .from(pattern)
+        query.from(pattern)
                 .select("e1.symbol", "e2[0].symbol", "e2[1].symbol", "e3.symbol")
                 .insertInto("OutputStream");
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map("e1.symbol", "IBM", "e2[0].symbol", "GOOGLE", "e2[1].symbol", "FB",

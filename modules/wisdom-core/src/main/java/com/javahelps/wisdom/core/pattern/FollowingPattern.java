@@ -20,10 +20,10 @@
 
 package com.javahelps.wisdom.core.pattern;
 
-import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
 import com.javahelps.wisdom.core.processor.Processor;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -34,14 +34,14 @@ import java.util.function.Supplier;
 /**
  * Created by gobinath on 6/29/17.
  */
-class FollowingPattern extends CustomPattern {
+class FollowingPattern extends TimeConstrainedPattern {
 
 
     private Pattern first;
     private Pattern next;
 
     FollowingPattern(String patternId, Pattern first, Pattern next) {
-        super(patternId);
+        super(patternId, first, next);
         this.first = first;
         this.next = next;
         this.eventDistributor.add(first);
@@ -68,19 +68,14 @@ class FollowingPattern extends CustomPattern {
             this.setBatchPattern(true);
         }
 
-        // Add th streams to this pattern
-        this.streamIds.addAll(this.first.streamIds);
-        this.streamIds.addAll(this.next.streamIds);
+        // Calling event from any of these patterns should be from the last one
+        this.attributeCache.setMap(first.attributeCache.getMap());
+        this.next.attributeCache.setMap(first.attributeCache.getMap());
     }
 
     @Override
     public void onNextPreProcess(Event event) {
         this.next.onNextPreProcess(event);
-    }
-
-    @Override
-    public void onNextPostProcess(Event event) {
-        this.reset();
     }
 
     @Override
@@ -94,29 +89,7 @@ class FollowingPattern extends CustomPattern {
     }
 
     @Override
-    public void reset() {
-        this.first.reset();
-        this.next.reset();
-    }
-
-    @Override
-    public void init(WisdomApp wisdomApp) {
-
-        this.first.init(wisdomApp);
-        this.next.init(wisdomApp);
-        this.first.streamIds.forEach(streamId -> {
-            wisdomApp.getStream(streamId).removeProcessor(this.first);
-            wisdomApp.getStream(streamId).addProcessor(this);
-        });
-        this.next.streamIds.forEach(streamId -> {
-            wisdomApp.getStream(streamId).removeProcessor(this.next);
-            wisdomApp.getStream(streamId).addProcessor(this);
-        });
-    }
-
-    @Override
     public Event event() {
-
         return next.event();
     }
 
@@ -128,18 +101,7 @@ class FollowingPattern extends CustomPattern {
     @Override
     public void setAccepting(boolean accepting) {
         if (accepting) {
-            if (first.isAccepting()) {
-                next.setAccepting(true);
-                return;
-            } else {
-                // First already accepted
-                if (next.isAccepting()) {
-                    return;
-                } else {
-                    // Second also already accepted
-                    next.setAccepting(true);
-                }
-            }
+            next.setAccepting(true);
         } else {
             first.setAccepting(false);
             next.setAccepting(false);
@@ -221,9 +183,16 @@ class FollowingPattern extends CustomPattern {
         this.next.setPostProcess(postProcess);
     }
 
-    public void setWithin(long timestamp) {
+    @Override
+    public Pattern within(Duration duration) {
+        long period = duration.toMillis();
         this.next.setExpiredCondition((currentEvent, preEvent) -> currentEvent.getTimestamp() - preEvent.getTimestamp
-                () > timestamp);
+                () > period);
+        return this;
+    }
+
+    public void setWithin(long timestamp) {
+
     }
 
     @Override

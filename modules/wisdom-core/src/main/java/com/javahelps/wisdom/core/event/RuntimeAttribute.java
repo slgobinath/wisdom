@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
+ * Copyright (c) 2019, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
  *
  * Gobinath licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,23 +18,24 @@
  * under the License.
  */
 
-package com.javahelps.wisdom.core.util;
+package com.javahelps.wisdom.core.event;
 
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.function.Function;
 
-public class FunctionalUtility {
+public class RuntimeAttribute implements Function<AttributeSupplier, Object> {
 
-    private FunctionalUtility() {
+    private final String name;
 
+    public RuntimeAttribute(String name) {
+        this.name = name;
     }
 
-    public static <E> Consumer<E> silentConsumer() {
-        return e -> {
-        };
+    public String getName() {
+        return name;
     }
 
-    public static <E> Predicate<E> truePredicate() {
-        return e -> true;
+    @Override
+    public Object apply(AttributeSupplier event) {
+        return event.get(name);
     }
 }

@@ -44,8 +44,8 @@ import java.util.function.Consumer;
 
 import static com.javahelps.wisdom.core.util.Commons.toProperties;
 import static com.javahelps.wisdom.core.util.WisdomConfig.*;
-import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 import static com.javahelps.wisdom.core.util.WisdomConstants.STATISTICS_REPORT_FREQUENCY;
+import static com.javahelps.wisdom.core.util.WisdomConstants.*;
 
 /**
  * {@link WisdomApp} is the event processing application which lets the users to create stream processing components

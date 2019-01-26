@@ -36,19 +36,19 @@ import java.util.function.Supplier;
 public class Attribute extends Operator implements Supplier<Object> {
 
     private final String name;
-    private final Supplier<Event> eventSupplier;
+    private final Supplier<AttributeSupplier> eventSupplier;
 
-    public Attribute(Event event, String name) {
-        this(() -> event, name);
+    public Attribute(AttributeSupplier supplier, String name) {
+        this(() -> supplier, name);
     }
 
-    public Attribute(Supplier<Event> eventSupplier, String name) {
+    public Attribute(Supplier<AttributeSupplier> eventSupplier, String name) {
         this.name = name;
         this.eventSupplier = eventSupplier;
     }
 
-    public static Function<Event, Object> of(String name) {
-        return event -> event.get(name);
+    public static RuntimeAttribute of(String name) {
+        return new RuntimeAttribute(name);
     }
 
     @Override

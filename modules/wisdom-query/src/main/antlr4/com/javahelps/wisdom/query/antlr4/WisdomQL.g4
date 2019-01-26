@@ -99,7 +99,7 @@ def_variable
     ;
 
 query
-    : annotation? FROM input=NAME END_OF_STATEMENT? query_statement* (insert_into_statement|update_statement) END_OF_STATEMENT?
+    : annotation? FROM (input=NAME|wisdom_pattern) END_OF_STATEMENT? query_statement* (insert_into_statement|update_statement) END_OF_STATEMENT?
     ;
 
 query_statement
@@ -114,7 +114,7 @@ query_statement
     ;
 
 select_statement
-    : SELECT (STAR | (NAME (COMMA NAME)*)) END_OF_STATEMENT?
+    : SELECT (STAR | (attribute_name (COMMA attribute_name)*)) END_OF_STATEMENT?
     | SELECT (NUMBER (COMMA NUMBER)*) END_OF_STATEMENT?
     ;
 
@@ -150,7 +150,7 @@ aggregate_operator
 
 map_operator
     : map_operator IF logical_operator
-    | NAME AS attr=NAME
+    | attribute_name AS attr=NAME
     | wisdom_primitive AS attr=NAME
     | variable_reference AS attr=NAME
     | namespace=NAME OPEN_PAREN optional_key_value_element (COMMA optional_key_value_element)* CLOSE_PAREN AS attr=NAME
@@ -171,14 +171,14 @@ update_statement
 
 logical_operator
     : OPEN_PAREN logical_operator CLOSE_PAREN
-    | ((lft_name=NAME|lft_primitive=wisdom_primitive|lft_var=variable_reference) operator=(GREATER_THAN|GT_EQ|LESS_THAN|LT_EQ|EQUALS)
-                (rgt_name=NAME|rgt_primitive=wisdom_primitive|rgt_var=variable_reference))
-    | ((lft_name=NAME|lft_string=STRING|lft_var=variable_reference) operator=IN
-                          (rgt_name=NAME|rgt_string=STRING|rgt_var=variable_reference))
-    | ((lft_name=NAME|lft_primitive=wisdom_primitive|lft_var=variable_reference|lft_array=array) operator=IN
-                          (rgt_name=NAME|rgt_var=variable_reference|rgt_array=array))
-    | ((lft_name=NAME|lft_string=STRING|lft_var=variable_reference) operator=MATCHES
-                          (rgt_name=NAME|rgt_string=STRING|rgt_var=variable_reference))
+    | ((lft_name=attribute_name|lft_primitive=wisdom_primitive|lft_var=variable_reference) operator=(GREATER_THAN|GT_EQ|LESS_THAN|LT_EQ|EQUALS)
+                (rgt_name=attribute_name|rgt_primitive=wisdom_primitive|rgt_var=variable_reference))
+    | ((lft_name=attribute_name|lft_string=STRING|lft_var=variable_reference) operator=IN
+                          (rgt_name=attribute_name|rgt_string=STRING|rgt_var=variable_reference))
+    | ((lft_name=attribute_name|lft_primitive=wisdom_primitive|lft_var=variable_reference|lft_array=array) operator=IN
+                          (rgt_name=attribute_name|rgt_var=variable_reference|rgt_array=array))
+    | ((lft_name=attribute_name|lft_string=STRING|lft_var=variable_reference) operator=MATCHES
+                          (rgt_name=attribute_name|rgt_string=STRING|rgt_var=variable_reference))
     | NOT logical_operator
     | logical_operator AND logical_operator
     | logical_operator OR logical_operator
@@ -187,6 +187,17 @@ logical_operator
 wisdom_operand
     : event_funtion
     | variable_reference
+    ;
+
+wisdom_pattern
+    : name=NAME ('[' logical_operator ']')? ('<' (INTEGER | (INTEGER ':' INTEGER)) '>')? (AS NAME)?
+    | NOT name=NAME ('[' logical_operator ']')? ('<' (INTEGER | (INTEGER ':' INTEGER)) '>')?
+    | EVERY '(' wisdom_pattern ')'
+    | NOT '(' wisdom_pattern ')' (WITHIN time_duration)?
+    | '(' wisdom_pattern ')'
+    | wisdom_pattern AND wisdom_pattern
+    | wisdom_pattern OR wisdom_pattern
+    | wisdom_pattern ARROW wisdom_pattern (WITHIN time_duration)?
     ;
 
 wisdom_constant
@@ -219,6 +230,10 @@ time_duration
 
 array
     : OPEN_BRACK wisdom_primitive (COMMA wisdom_primitive)* CLOSE_BRACK
+    ;
+
+attribute_name
+    : NAME ('.' NAME)*
     ;
 /*
  * lexer rules
@@ -284,8 +299,10 @@ MINUTE: 'min' | 'minute' | 'minutes';
 HOUR: 'hour' | 'hours';
 DAY: 'day' | 'days';
 MONTH: 'month' | 'months';
-YEAR: 'month' | 'months';
+YEAR: 'year' | 'years';
 TIME: 'time';
+EVERY: 'every';
+WITHIN: 'within';
 
 NEWLINE
     : ( '\r'? '\n' | '\r' | '\f') SPACES?

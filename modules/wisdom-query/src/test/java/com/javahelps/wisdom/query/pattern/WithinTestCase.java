@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
+ * Copyright (c) 2019, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
  *
  * Gobinath licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,19 +18,16 @@
  * under the License.
  */
 
-package com.javahelps.wisdom.core.processor.pattern;
+package com.javahelps.wisdom.query.pattern;
 
-import com.javahelps.wisdom.core.TestUtil;
 import com.javahelps.wisdom.core.WisdomApp;
-import com.javahelps.wisdom.core.pattern.Pattern;
-import com.javahelps.wisdom.core.query.Query;
 import com.javahelps.wisdom.core.util.EventGenerator;
+import com.javahelps.wisdom.query.TestUtil;
+import com.javahelps.wisdom.query.WisdomCompiler;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Duration;
 
 import static com.javahelps.wisdom.core.util.Commons.map;
 
@@ -43,27 +40,18 @@ public class WithinTestCase {
 
     @Test
     public void testWithin1() throws InterruptedException {
-        LOGGER.info("Test within 1 - OUT 1");
+        LOGGER.info("Test pattern within query 1 - OUT 1");
 
-        WisdomApp wisdomApp = new WisdomApp();
-        wisdomApp.defineStream("StockStream1");
-        wisdomApp.defineStream("StockStream2");
-        wisdomApp.defineStream("OutputStream");
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream1; " +
+                "def stream StockStream2; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream1[symbol == 'IBM'] as e1 -> StockStream2[symbol == 'WSO2'] as e2 within time.millis(100) " +
+                "select e1.symbol, e2.symbol " +
+                "insert into OutputStream;";
 
-        Query query = wisdomApp.defineQuery("query1");
-
-        // e1 -> e2 within 100 milliseconds
-        Pattern e1 = query.definePattern("StockStream1", "e1")
-                .filter(event -> event.get("symbol").equals("IBM"));
-        Pattern e2 = query.definePattern("StockStream2", "e2")
-                .filter(event -> event.get("symbol").equals("WSO2"));
-
-        Pattern finalPattern = Pattern.followedBy(e1, e2).within(Duration.ofMillis(100));
-
-
-        query.from(finalPattern)
-                .select("e1.symbol", "e2.symbol")
-                .insertInto("OutputStream");
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream", map
                 ("e1.symbol", "IBM", "e2.symbol", "WSO2"));
@@ -81,26 +69,18 @@ public class WithinTestCase {
 
     @Test
     public void testWithin2() throws InterruptedException {
-        LOGGER.info("Test within 2 - OUT 0");
+        LOGGER.info("Test pattern within query 2 - OUT 0");
 
-        WisdomApp wisdomApp = new WisdomApp();
-        wisdomApp.defineStream("StockStream1");
-        wisdomApp.defineStream("StockStream2");
-        wisdomApp.defineStream("OutputStream");
+        String query = "@app(name='WisdomApp', version='1.0.0') " +
+                "def stream StockStream1; " +
+                "def stream StockStream2; " +
+                "def stream OutputStream; " +
+                "" +
+                "from StockStream1[symbol == 'IBM'] as e1 -> StockStream2[symbol == 'WSO2'] as e2 within time.millis(100) " +
+                "select e1.symbol, e2.symbol " +
+                "insert into OutputStream;";
 
-        Query query = wisdomApp.defineQuery("query1");
-
-        // e1 -> e2 within 100 milliseconds
-        Pattern e1 = query.definePattern("StockStream1", "e1")
-                .filter(event -> event.get("symbol").equals("IBM"));
-        Pattern e2 = query.definePattern("StockStream2", "e2")
-                .filter(event -> event.get("symbol").equals("WSO2"));
-
-        Pattern finalPattern = Pattern.followedBy(e1, e2).within(Duration.ofMillis(100));
-
-        query.from(finalPattern)
-                .select("e1.symbol", "e2.symbol")
-                .insertInto("OutputStream");
+        WisdomApp wisdomApp = WisdomCompiler.parse(query);
 
         TestUtil.TestCallback callback = TestUtil.addStreamCallback(LOGGER, wisdomApp, "OutputStream");
 

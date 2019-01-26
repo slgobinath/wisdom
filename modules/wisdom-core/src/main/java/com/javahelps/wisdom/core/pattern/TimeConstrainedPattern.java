@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
+ * Copyright (c) 2019, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
  *
  * Gobinath licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,23 +18,20 @@
  * under the License.
  */
 
-package com.javahelps.wisdom.core.util;
+package com.javahelps.wisdom.core.pattern;
 
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.time.Duration;
 
-public class FunctionalUtility {
+public abstract class TimeConstrainedPattern extends WrappingPattern {
 
-    private FunctionalUtility() {
+    protected Duration duration;
 
+    public TimeConstrainedPattern(String patternId, Pattern child, Pattern... children) {
+        super(patternId, child, children);
     }
 
-    public static <E> Consumer<E> silentConsumer() {
-        return e -> {
-        };
-    }
-
-    public static <E> Predicate<E> truePredicate() {
-        return e -> true;
+    public Pattern within(Duration duration) {
+        this.duration = duration;
+        return this;
     }
 }

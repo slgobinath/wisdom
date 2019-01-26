@@ -22,6 +22,7 @@ package com.javahelps.wisdom.query.tree;
 
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.event.RuntimeAttribute;
 import com.javahelps.wisdom.core.query.Query;
 
 import java.util.function.Predicate;
@@ -34,6 +35,7 @@ public class LogicalOperator implements OperatorElement {
     private final String operator;
     private Object left;
     private Object right;
+    private boolean readFromSupplier = false;
 
     public LogicalOperator(String operator) {
         this.operator = operator;
@@ -47,6 +49,9 @@ public class LogicalOperator implements OperatorElement {
         this.right = right;
     }
 
+    public void setReadFromSupplier(boolean readFromSupplier) {
+        this.readFromSupplier = readFromSupplier;
+    }
 
     public Predicate<Event> build(WisdomApp app, Query query) {
         if (this.operator == null) {
@@ -58,13 +63,23 @@ public class LogicalOperator implements OperatorElement {
         } else if ("or".equals(this.operator)) {
             return ((LogicalOperator) this.left).build(app, query).or(((LogicalOperator) this.right).build(app, query));
         } else {
-            if (left instanceof VariableReference) {
-                left = ((VariableReference) left).build(app);
-            }
-            if (right instanceof VariableReference) {
-                right = ((VariableReference) right).build(app);
-            }
+            left = convertIfReference(left, app, query);
+            right = convertIfReference(right, app, query);
             return com.javahelps.wisdom.core.operator.logical.LogicalOperator.create(this.operator, map("left", left, "right", right));
         }
+    }
+
+    private Object convertIfReference(Object operand, WisdomApp app, Query query) {
+        if (operand instanceof VariableReference) {
+            operand = ((VariableReference) operand).build(app);
+        } else if (operand instanceof RuntimeAttribute && this.readFromSupplier) {
+            String name = ((RuntimeAttribute) operand).getName();
+            int splitIndex = name.indexOf('.');
+            if (splitIndex >= 0) {
+                String supplierId = name.substring(0, splitIndex);
+                operand = query.getAttributeSupplier(supplierId).of(name);
+            }
+        }
+        return operand;
     }
 }

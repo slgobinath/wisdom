@@ -23,13 +23,15 @@ package com.javahelps.wisdom.core.pattern;
 import com.javahelps.wisdom.core.WisdomApp;
 import com.javahelps.wisdom.core.event.Attribute;
 import com.javahelps.wisdom.core.event.Event;
+import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
 import com.javahelps.wisdom.core.processor.Stateful;
 import com.javahelps.wisdom.core.processor.StreamProcessor;
-import com.javahelps.wisdom.core.util.FunctionalUtility;
+import com.javahelps.wisdom.core.stream.Stream;
 import com.javahelps.wisdom.core.time.TimestampGenerator;
+import com.javahelps.wisdom.core.util.Action;
+import com.javahelps.wisdom.core.util.FunctionalUtility;
 import com.javahelps.wisdom.core.util.WisdomConstants;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -39,19 +41,19 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
- * The most basic component of a Wisdom pattern. A pattern must have a name and optionally a filter.
+ * The most basic component of a Wisdom definePattern. A definePattern must have a name and optionally a filter.
  */
 public class Pattern extends StreamProcessor implements Stateful {
 
     /**
-     * User defined unique name to refer this pattern.
+     * User defined unique name to refer this definePattern.
      */
     protected String name;
-    protected Duration duration;
     protected List<String> streamIds = new ArrayList<>();
-    protected Predicate<Event> predicate = FunctionalUtility.truePredicator();
+    protected Predicate<Event> filter = FunctionalUtility.truePredicate();
     protected EventDistributor eventDistributor = new EventDistributor();
     protected Lock lock = new ReentrantLock();
+    protected AttributeCache attributeCache = new AttributeCache();
     private boolean consumed = false;
     private boolean accepting = true;
     private TimestampGenerator timestampGenerator;
@@ -71,27 +73,26 @@ public class Pattern extends StreamProcessor implements Stateful {
     };
     private CopyEventAttributes copyEventAttributes = (pattern, src, destination) -> {
         for (Map.Entry<String, Object> entry : src.getData().entrySet()) {
-            destination.set(this.name + "." + entry.getKey(), entry.getValue());
+            String key = this.name + "." + entry.getKey();
+            Object value = entry.getValue();
+            destination.set(key, value);
+            this.attributeCache.set(key, value);
         }
     };
+    protected Action globalResetAction = this::reset;
 
 
     public Pattern(String patternId) {
         super(patternId);
     }
 
-    public Pattern(String patternId, String name, String streamId) {
+    public Pattern(String patternId, String streamId, String alias) {
         this(patternId);
-        this.name = name;
+        this.name = alias;
         this.streamIds.add(streamId);
     }
 
-    public static Pattern pattern(String patternId, String name, String streamId) {
-        Pattern pattern = new Pattern(patternId, name, streamId);
-        return pattern;
-    }
-
-    public static Pattern followedBy(Pattern first, Pattern following) {
+    public static TimeConstrainedPattern followedBy(Pattern first, Pattern following) {
 
         return new FollowingPattern(first.id + WisdomConstants.PATTERN_FOLLOWED_BY_INFIX + following.id, first,
                 following);
@@ -117,7 +118,7 @@ public class Pattern extends StreamProcessor implements Stateful {
                 LogicalPattern.Type.OR, first, second);
     }
 
-    public static Pattern not(Pattern pattern) {
+    public static TimeConstrainedPattern not(Pattern pattern) {
 
         return new NotPattern(WisdomConstants.PATTERN_NOT_PREFIX + pattern.id, pattern);
     }
@@ -130,7 +131,13 @@ public class Pattern extends StreamProcessor implements Stateful {
     public void init(WisdomApp wisdomApp) {
 
         this.timestampGenerator = wisdomApp.getContext().getTimestampGenerator();
-        this.streamIds.forEach(streamId -> wisdomApp.getStream(streamId).addProcessor(this));
+        for (String streamId : this.streamIds) {
+            Stream stream = wisdomApp.getStream(streamId);
+            if (stream == null) {
+                throw new WisdomAppValidationException("Stream %s not found", streamId);
+            }
+            stream.addProcessor(this);
+        }
     }
 
     public void setPostProcess(Consumer<Event> postProcess) {
@@ -182,7 +189,7 @@ public class Pattern extends StreamProcessor implements Stateful {
     }
 
     public Pattern filter(Predicate<Event> predicate) {
-        this.predicate = predicate;
+        this.filter = predicate;
         return this;
     }
 
@@ -236,7 +243,15 @@ public class Pattern extends StreamProcessor implements Stateful {
     }
 
     public Attribute attribute(String attribute) {
-        return new Attribute(this::event, attribute);
+        return new Attribute(this.attributeCache, attribute);
+    }
+
+    public AttributeCache getAttributeCache() {
+        return attributeCache;
+    }
+
+    public void setAttributeCache(AttributeCache attributeCache) {
+        this.attributeCache = attributeCache;
     }
 
     public Event last() {
@@ -274,7 +289,7 @@ public class Pattern extends StreamProcessor implements Stateful {
             this.lock.lock();
 
             consumed = false;
-            if (this.processConditionMet.test(event) && this.predicate.test(event)) {
+            if (this.processConditionMet.test(event) && this.filter.test(event)) {
 
                 this.preProcess.accept(event);
 
@@ -308,11 +323,10 @@ public class Pattern extends StreamProcessor implements Stateful {
                     this.postProcess.accept(newEvent);
 
                     if (this.emitConditionMet.test(newEvent)) {
-
                         if (batchPattern) {
                             List<Event> eventsToEmit = new ArrayList<>();
                             eventsToEmit.addAll(this.events);
-                            this.reset();
+                            this.globalResetAction.execute();
                             this.getNextProcessor().process(eventsToEmit);
                         } else {
                             for (Event e : this.events) {
@@ -320,7 +334,7 @@ public class Pattern extends StreamProcessor implements Stateful {
                                     newEvent.getData().putAll(e.getData());
                                 }
                             }
-                            this.reset();
+                            this.globalResetAction.execute();
                             this.getNextProcessor().process(newEvent);
                         }
                     }
@@ -350,12 +364,6 @@ public class Pattern extends StreamProcessor implements Stateful {
 
     public void onNextPreProcess(Event event) {
 
-    }
-
-    public Pattern within(Duration duration) {
-
-        this.duration = duration;
-        return this;
     }
 
     @Override

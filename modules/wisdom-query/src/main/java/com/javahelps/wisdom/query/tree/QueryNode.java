@@ -29,12 +29,17 @@ import java.util.UUID;
 
 public class QueryNode {
 
-    private final String input;
+    private String input;
+    private PatternOperator pattern;
     private final List<Statement> statements = new ArrayList<>();
     private String name;
 
     public QueryNode(String input) {
         this.input = input;
+    }
+
+    public QueryNode(PatternOperator pattern) {
+        this.pattern = pattern;
     }
 
     public String getName() {
@@ -57,7 +62,11 @@ public class QueryNode {
     }
 
     public void build(WisdomApp app, Query query) {
-        query.from(this.input);
+        if (this.input != null) {
+            query.from(this.input);
+        } else {
+            query.from(this.pattern.build(app, query));
+        }
         for (Statement statement : this.statements) {
             statement.addTo(app, query);
         }

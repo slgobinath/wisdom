@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
+ * Copyright (c) 2019, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
  *
  * Gobinath licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -20,21 +20,8 @@
 
 package com.javahelps.wisdom.core.util;
 
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+@FunctionalInterface
+public interface Action {
 
-public class FunctionalUtility {
-
-    private FunctionalUtility() {
-
-    }
-
-    public static <E> Consumer<E> silentConsumer() {
-        return e -> {
-        };
-    }
-
-    public static <E> Predicate<E> truePredicate() {
-        return e -> true;
-    }
+    void execute();
 }

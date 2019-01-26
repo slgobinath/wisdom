@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
+ * Copyright (c) 2019, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
  *
  * Gobinath licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,14 +22,36 @@ package com.javahelps.wisdom.core.pattern;
 
 import com.javahelps.wisdom.core.event.Event;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * A definePattern that can optionally be empty.
- */
-public interface EmptiablePattern {
+public class AttributeCache extends Event {
 
-    Event EMPTY_EVENT = new Event(-1);
+    private Map<String, Object> map = new HashMap<>();
 
-    List<Event> getEvents(boolean isFirst);
+    public AttributeCache() {
+        super(-1);
+    }
+
+    public void reset() {
+        this.map.clear();
+    }
+
+    public Map<String, Object> getMap() {
+        return map;
+    }
+
+    public void setMap(Map<String, Object> map) {
+        this.map = map;
+    }
+
+    public AttributeCache set(String key, Object value) {
+        this.map.put(key, value);
+        return this;
+    }
+
+    @Override
+    public Object get(String attribute) {
+        return this.map.get(attribute);
+    }
 }

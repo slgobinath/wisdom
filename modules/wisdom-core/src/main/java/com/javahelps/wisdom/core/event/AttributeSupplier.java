@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
+ * Copyright (c) 2019, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
  *
  * Gobinath licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,25 +18,16 @@
  * under the License.
  */
 
-package com.javahelps.wisdom.core.pattern;
+package com.javahelps.wisdom.core.event;
 
-import com.javahelps.wisdom.core.event.Event;
-import com.javahelps.wisdom.core.exception.WisdomAppValidationException;
+import java.util.function.Supplier;
 
-import java.util.function.Predicate;
+@FunctionalInterface
+public interface AttributeSupplier {
 
-/**
- * CustomPattern.
- */
-class CustomPattern extends Pattern {
+    Object get(String attribute);
 
-    CustomPattern(String patternId) {
-        super(patternId);
-    }
-
-    @Override
-    public Pattern filter(Predicate<Event> predicate) {
-
-        throw new WisdomAppValidationException("%s cannot have filter", this.getClass().getSimpleName());
+    default Supplier<Object> of(String attribute) {
+        return () -> this.get(attribute);
     }
 }

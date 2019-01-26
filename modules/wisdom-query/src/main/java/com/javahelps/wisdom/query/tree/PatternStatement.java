@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
+ * Copyright (c) 2019, Gobinath Loganathan (http://github.com/slgobinath) All Rights Reserved.
  *
  * Gobinath licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,23 +18,17 @@
  * under the License.
  */
 
-package com.javahelps.wisdom.core.util;
+package com.javahelps.wisdom.query.tree;
 
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import com.javahelps.wisdom.core.WisdomApp;
+import com.javahelps.wisdom.core.query.Query;
 
-public class FunctionalUtility {
+public class PatternStatement implements Statement {
 
-    private FunctionalUtility() {
+    private PatternOperator operator;
 
-    }
+    @Override
+    public void addTo(WisdomApp app, Query query) {
 
-    public static <E> Consumer<E> silentConsumer() {
-        return e -> {
-        };
-    }
-
-    public static <E> Predicate<E> truePredicate() {
-        return e -> true;
     }
 }
