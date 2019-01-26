@@ -36,10 +36,11 @@ import java.util.function.Supplier;
 class CountPattern extends WrappingPattern implements EmptiablePattern {
 
     private Pattern pattern;
-    private int minCount;
-    private int maxCount;
+    private long minCount;
+    private long maxCount;
+    private boolean isFirst = true;
 
-    CountPattern(String patternId, Pattern pattern, int minCount, int maxCount) {
+    CountPattern(String patternId, Pattern pattern, long minCount, long maxCount) {
 
         super(patternId, pattern);
 
@@ -98,7 +99,7 @@ class CountPattern extends WrappingPattern implements EmptiablePattern {
     @Override
     public List<Event> getEvents() {
 
-        return this.getEvents(true);
+        return this.getEvents(isFirst);
     }
 
     @Override
@@ -146,6 +147,7 @@ class CountPattern extends WrappingPattern implements EmptiablePattern {
     @Override
     public void setPreviousEvents(Supplier<List<Event>> previousEvents) {
         super.setPreviousEvents(previousEvents);
+        this.isFirst = false;
         this.pattern.setPreviousEvents(previousEvents);
     }
 

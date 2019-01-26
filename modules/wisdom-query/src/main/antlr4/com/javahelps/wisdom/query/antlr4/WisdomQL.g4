@@ -115,7 +115,7 @@ query_statement
 
 select_statement
     : SELECT (STAR | (attribute_name (COMMA attribute_name)*)) END_OF_STATEMENT?
-    | SELECT (NUMBER (COMMA NUMBER)*) END_OF_STATEMENT?
+    | SELECT (real_int (COMMA real_int)*) END_OF_STATEMENT?
     ;
 
 filter_statement
@@ -123,11 +123,11 @@ filter_statement
     ;
 
 limit_statement
-    : LIMIT NUMBER (COMMA NUMBER)* END_OF_STATEMENT?
+    : LIMIT INTEGER (COMMA INTEGER)* END_OF_STATEMENT?
     ;
 
 ensure_statement
-    : ENSURE NUMBER (COMMA NUMBER)* END_OF_STATEMENT?
+    : ENSURE INTEGER (COMMA INTEGER)* END_OF_STATEMENT?
     ;
 
 partition_statement
@@ -190,8 +190,8 @@ wisdom_operand
     ;
 
 wisdom_pattern
-    : name=NAME ('[' logical_operator ']')? ('<' (INTEGER | (INTEGER ':' INTEGER)) '>')? (AS NAME)?
-    | NOT name=NAME ('[' logical_operator ']')? ('<' (INTEGER | (INTEGER ':' INTEGER)) '>')?
+    : name=NAME ('[' logical_operator ']')? ('<' (INTEGER | (min=INTEGER ':' max=INTEGER) | (min=INTEGER ':') | (':' max=INTEGER)) '>')? (AS NAME)?
+    | NOT name=NAME ('[' logical_operator ']')? ('<' (INTEGER | (min=INTEGER ':' max=INTEGER) | (min=INTEGER ':') | (':' max=INTEGER)) '>')?
     | EVERY '(' wisdom_pattern ')'
     | NOT '(' wisdom_pattern ')' (WITHIN time_duration)?
     | '(' wisdom_pattern ')'
@@ -213,7 +213,8 @@ event_funtion
 
 wisdom_primitive
     : STRING
-    | NUMBER
+    | real_int
+    | real_float
     | TRUE
     | FALSE
     | NULL
@@ -225,7 +226,7 @@ variable_reference
     ;
 
 time_duration
-    : TIME DOT (MICROSECOND|MILLISECOND|SECOND|MINUTE|HOUR|DAY|MONTH|YEAR) OPEN_PAREN NUMBER CLOSE_PAREN
+    : TIME DOT (MICROSECOND|MILLISECOND|SECOND|MINUTE|HOUR|DAY|MONTH|YEAR) OPEN_PAREN INTEGER CLOSE_PAREN
     ;
 
 array
@@ -234,6 +235,15 @@ array
 
 attribute_name
     : NAME ('.' NAME)*
+    | NAME '[' INTEGER ']' ('.' NAME)+
+    ;
+
+real_int
+    : MINUS? INTEGER
+    ;
+
+real_float
+    : MINUS? FLOAT_NUMBER
     ;
 /*
  * lexer rules
@@ -247,13 +257,6 @@ END_OF_STATEMENT
 STRING
  : STRING_LITERAL
  | BYTES_LITERAL
- ;
-
-NUMBER
- : MINUS NUMBER
- | INTEGER
- | FLOAT_NUMBER
- | IMAG_NUMBER
  ;
 
 INTEGER

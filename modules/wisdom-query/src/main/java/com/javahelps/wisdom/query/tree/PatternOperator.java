@@ -30,8 +30,8 @@ public class PatternOperator implements OperatorElement {
 
     private String streamName;
     private LogicalOperator logicalOperator;
-    private Integer minCount;
-    private Integer maxCount;
+    private Long minCount;
+    private Long maxCount;
     private String alias;
 
     protected PatternOperator() {
@@ -66,11 +66,11 @@ public class PatternOperator implements OperatorElement {
         return new FollowsPatternOperator(first, second, duration);
     }
 
-    public void setMaxCount(Integer maxCount) {
+    public void setMaxCount(Long maxCount) {
         this.maxCount = maxCount;
     }
 
-    public void setMinCount(Integer minCount) {
+    public void setMinCount(Long minCount) {
         this.minCount = minCount;
     }
 

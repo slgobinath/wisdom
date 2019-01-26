@@ -201,25 +201,25 @@ public class Pattern extends StreamProcessor implements Stateful {
         this.events = events;
     }
 
-    public Pattern times(int minCount, int maxCount) {
+    public Pattern times(long minCount, long maxCount) {
 
         CountPattern countPattern = new CountPattern(this.id, this, minCount, maxCount);
         return countPattern;
     }
 
-    public Pattern times(int count) {
+    public Pattern times(long count) {
 
         return this.times(count, count);
     }
 
-    public Pattern maxTimes(int maxCount) {
+    public Pattern maxTimes(long maxCount) {
 
         return this.times(0, maxCount);
     }
 
-    public Pattern minTimes(int minCount) {
+    public Pattern minTimes(long minCount) {
 
-        return this.times(minCount, Integer.MAX_VALUE);
+        return this.times(minCount, Long.MAX_VALUE);
     }
 
     public boolean isConsumed() {

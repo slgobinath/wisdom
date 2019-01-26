@@ -148,8 +148,8 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             for (WisdomQLParser.Attribute_nameContext attribute : ctx.attribute_name()) {
                 selectStatement.addAttribute(attribute.getText());
             }
-        } else if (ctx.NUMBER() != null && !ctx.NUMBER().isEmpty()) {
-            for (TerminalNode num : ctx.NUMBER()) {
+        } else if (ctx.real_int() != null && !ctx.real_int().isEmpty()) {
+            for (WisdomQLParser.Real_intContext num : ctx.real_int()) {
                 try {
                     int index = Integer.parseInt(num.getText());
                     selectStatement.addIndex(index);
@@ -168,20 +168,20 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
 
     @Override
     public Statement visitLimit_statement(WisdomQLParser.Limit_statementContext ctx) {
-        final int noOfBounds = ctx.NUMBER().size();
+        final int noOfBounds = ctx.INTEGER().size();
         int[] bounds = new int[noOfBounds];
         for (int i = 0; i < noOfBounds; i++) {
-            bounds[i] = Integer.parseInt(ctx.NUMBER(i).getText());
+            bounds[i] = Integer.parseInt(ctx.INTEGER(i).getText());
         }
         return new LimitStatement(bounds);
     }
 
     @Override
     public Statement visitEnsure_statement(WisdomQLParser.Ensure_statementContext ctx) {
-        final int noOfBounds = ctx.NUMBER().size();
+        final int noOfBounds = ctx.INTEGER().size();
         int[] bounds = new int[noOfBounds];
         for (int i = 0; i < noOfBounds; i++) {
-            bounds[i] = Integer.parseInt(ctx.NUMBER(i).getText());
+            bounds[i] = Integer.parseInt(ctx.INTEGER(i).getText());
         }
         return new EnsureStatement(bounds);
     }
@@ -232,15 +232,24 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
             PatternOperator operator = PatternOperator.create(streamName, logicalOperator, alias);
 
             if (ctx.INTEGER().size() == 2) {
-                Integer minCount = (Integer) Utility.parseNumber(ctx.INTEGER(0).getText());
-                Integer maxCount = (Integer) Utility.parseNumber(ctx.INTEGER(1).getText());
+                Long minCount = (Long) Utility.parseNumber(ctx.min.getText());
+                Long maxCount = (Long) Utility.parseNumber(ctx.max.getText());
                 operator.setMinCount(minCount);
                 operator.setMaxCount(maxCount);
 
             } else if (ctx.INTEGER().size() == 1) {
-                Integer minCount = (Integer) Utility.parseNumber(ctx.INTEGER(0).getText());
+                Long minCount = 0L;
+                Long maxCount = Long.MAX_VALUE;
+                if (ctx.min == null && ctx.max == null) {
+                    minCount = (Long) Utility.parseNumber(ctx.INTEGER(0).getText());
+                    maxCount = minCount;
+                } else if (ctx.max == null) {
+                    minCount = (Long) Utility.parseNumber(ctx.min.getText());
+                } else {
+                    maxCount = (Long) Utility.parseNumber(ctx.max.getText());
+                }
                 operator.setMinCount(minCount);
-                operator.setMaxCount(minCount);
+                operator.setMaxCount(maxCount);
             }
 
             if (ctx.NOT() != null) {
@@ -430,7 +439,7 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
     public Duration visitTime_duration(WisdomQLParser.Time_durationContext ctx) {
         long value;
         try {
-            value = Long.parseLong(ctx.NUMBER().getText());
+            value = Long.parseLong(ctx.INTEGER().getText());
         } catch (NumberFormatException ex) {
             throw new WisdomParserException(ctx, "time duration must be integer");
         }
@@ -491,8 +500,10 @@ public class WisdomQLBaseVisitorImpl extends WisdomQLBaseVisitor {
         Comparable value;
         if (ctx.STRING() != null) {
             value = Utility.toString(ctx.STRING().getText());
-        } else if (ctx.NUMBER() != null) {
-            value = Utility.parseNumber(ctx.NUMBER().getText());
+        } else if (ctx.real_int() != null) {
+            value = Utility.parseNumber(ctx.real_int().getText());
+        } else if (ctx.real_float() != null) {
+            value = Utility.parseNumber(ctx.real_float().getText());
         } else if (ctx.TRUE() != null) {
             value = true;
         } else if (ctx.FALSE() != null) {
