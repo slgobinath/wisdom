@@ -123,8 +123,74 @@ Pattern finalPattern = Pattern.followedBy(e1, e2);
 
 app.defineQuery("query1")
     .from(finalPattern)
-    .select("e1.symbol", "e2.symbol")
+    .select("e1[0].symbol", "e2.symbol")
     .insertInto("OutputStream");
 ```
 
-Still I have not implemented Wisdom Query for pattern. Therefore, patterns can be used only in Java.
+**Wisdom Query:**
+
+Wisdom pattern to detect `IBM` followed by `GOOGLE`.
+
+```java
+def stream StockStream;
+def stream OutputStream;
+
+from StockStream[symbol == 'IBM'] as e1 -> StockStream[symbol == GOOGLE] as e2
+select e1.symbol, e2.symbol
+insert into OutputStream;
+```
+
+Wisdom pattern to detect `IBM` followed by `GOOGLE` within five minutes.
+
+```java
+def stream StockStream;
+def stream OutputStream;
+
+from StockStream[symbol == 'IBM'] as e1 -> StockStream[symbol == GOOGLE] as e2 within time.minutes(5)
+select e1.symbol, e2.symbol
+insert into OutputStream;
+```
+
+Wisdom pattern to detect `IBM` or `GOOGLE` followed by `ORACLE`.
+
+```java
+def stream StockStream;
+def stream OutputStream;
+
+from (StockStream[symbol == 'IBM'] as e1 or StockStream[symbol == GOOGLE] as e2) -> StockStream[symbol == ORACLE] as e3
+select e1.symbol, e2.symbol, e3.symbol
+insert into OutputStream;
+```
+
+Wisdom pattern to detect `IBM` and `GOOGLE` followed by `ORACLE`.
+
+```java
+def stream StockStream;
+def stream OutputStream;
+
+from (StockStream[symbol == 'IBM'] as e1 and StockStream[symbol == GOOGLE] as e2) -> StockStream[symbol == ORACLE] as e3
+select e1.symbol, e2.symbol, e3.symbol
+insert into OutputStream;
+```
+
+Wisdom pattern to detect `IBM` but no `GOOGLE` before `IBM`.
+
+```java
+def stream StockStream;
+def stream OutputStream;
+
+from not StockStream[symbol == 'IBM'] -> StockStream[symbol == GOOGLE] as e2
+select e2.symbol
+insert into OutputStream;
+```
+
+Wisdom pattern to detect two to five number of `IBM` followed by `GOOGLE`.
+
+```java
+def stream StockStream;
+def stream OutputStream;
+
+from not StockStream[symbol == 'IBM']<2:5> as e1 -> StockStream[symbol == GOOGLE] as e2
+select e1[0].symbol, e2.symbol
+insert into OutputStream;
+```
