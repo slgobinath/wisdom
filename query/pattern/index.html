@@ -302,11 +302,64 @@ Pattern finalPattern = Pattern.followedBy(e1, e2);
 
 app.defineQuery(&quot;query1&quot;)
     .from(finalPattern)
-    .select(&quot;e1.symbol&quot;, &quot;e2.symbol&quot;)
+    .select(&quot;e1[0].symbol&quot;, &quot;e2.symbol&quot;)
     .insertInto(&quot;OutputStream&quot;);
 </code></pre>
 
-<p>Still I have not implemented Wisdom Query for pattern. Therefore, patterns can be used only in Java.</p>
+<p><strong>Wisdom Query:</strong></p>
+<p>Wisdom pattern to detect <code>IBM</code> followed by <code>GOOGLE</code>.</p>
+<pre><code class="java">def stream StockStream;
+def stream OutputStream;
+
+from StockStream[symbol == 'IBM'] as e1 -&gt; StockStream[symbol == GOOGLE] as e2
+select e1.symbol, e2.symbol
+insert into OutputStream;
+</code></pre>
+
+<p>Wisdom pattern to detect <code>IBM</code> followed by <code>GOOGLE</code> within five minutes.</p>
+<pre><code class="java">def stream StockStream;
+def stream OutputStream;
+
+from StockStream[symbol == 'IBM'] as e1 -&gt; StockStream[symbol == GOOGLE] as e2 within time.minutes(5)
+select e1.symbol, e2.symbol
+insert into OutputStream;
+</code></pre>
+
+<p>Wisdom pattern to detect <code>IBM</code> or <code>GOOGLE</code> followed by <code>ORACLE</code>.</p>
+<pre><code class="java">def stream StockStream;
+def stream OutputStream;
+
+from (StockStream[symbol == 'IBM'] as e1 or StockStream[symbol == GOOGLE] as e2) -&gt; StockStream[symbol == ORACLE] as e3
+select e1.symbol, e2.symbol, e3.symbol
+insert into OutputStream;
+</code></pre>
+
+<p>Wisdom pattern to detect <code>IBM</code> and <code>GOOGLE</code> followed by <code>ORACLE</code>.</p>
+<pre><code class="java">def stream StockStream;
+def stream OutputStream;
+
+from (StockStream[symbol == 'IBM'] as e1 and StockStream[symbol == GOOGLE] as e2) -&gt; StockStream[symbol == ORACLE] as e3
+select e1.symbol, e2.symbol, e3.symbol
+insert into OutputStream;
+</code></pre>
+
+<p>Wisdom pattern to detect <code>IBM</code> but no <code>GOOGLE</code> before <code>IBM</code>.</p>
+<pre><code class="java">def stream StockStream;
+def stream OutputStream;
+
+from not StockStream[symbol == 'IBM'] -&gt; StockStream[symbol == GOOGLE] as e2
+select e2.symbol
+insert into OutputStream;
+</code></pre>
+
+<p>Wisdom pattern to detect two to five number of <code>IBM</code> followed by <code>GOOGLE</code>.</p>
+<pre><code class="java">def stream StockStream;
+def stream OutputStream;
+
+from not StockStream[symbol == 'IBM']&lt;2:5&gt; as e1 -&gt; StockStream[symbol == GOOGLE] as e2
+select e1[0].symbol, e2.symbol
+insert into OutputStream;
+</code></pre>
               
             </div>
           </div>

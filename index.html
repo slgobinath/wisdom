@@ -59,8 +59,6 @@
         
             <li><a class="toctree-l3" href="#research-work">Research Work</a></li>
         
-            <li><a class="toctree-l3" href="#about-the-author">About the Author</a></li>
-        
         </ul>
     
 
@@ -235,134 +233,6 @@ fewer system resources than the monolithic deployment of CEP rules.&quot;
 }
 </code></pre>
 
-<h2 id="about-the-author">About the Author</h2>
-<p>Gobinath is a research assistant at the University of Western Ontario, Canada. He completed his bachelor's degree at the University of Moratuwa, Sri Lanka with a first class and joined <a href="https://wso2.com/">WSO2</a> a middleware company providing open source solutions for agile digital business. He spent 9 months in WSO2 Research and Development Analytics team where he had on hand experience on stream processing. Though he used stream processor for his undergraduate research project, at WSO2 he designed and developed Complex Event Processing (CEP) operators for <a href="https://wso2.github.io/siddhi/">Siddhi</a> CEP engine.</p>
-<p>Siddhi is an open source CEP engine with tons of features and being used by over 60 companies including <a href="http://wso2.com/library/conference/2017/2/wso2con-usa-2017-scalable-real-time-complex-event-processing-at-uber?utm_source=gitanalytics&amp;utm_campaign=gitanalytics_Jul17">UBER</a>. Following features were designed and developed by Gobinath:</p>
-<p><strong>Event Window</strong></p>
-<p>A global window that can be reused to avoid duplicating windows in more than one places.</p>
-<pre><code>define stream SensorStream (name string, value float, roomNo int, deviceID string);
-define stream KitchenSensorStream (name string, value float, deviceID string);
-define window SensorWindow (name string, value float, roomNo int, deviceID string) timeBatch(1 second);
-
-@info(name = 'query0')
-from SensorStream
-insert into SensorWindow;
-
-@info(name = 'query1')
-from  KitchenSensorStream
-select name, value, 10 as  roomNo, deviceID
-insert into SensorWindow;
-</code></pre>
-
-<p><strong>Absent Event Pattern</strong></p>
-<p>Logical pattern to detect events those have not arrived.</p>
-<pre><code>define stream CustomerStream (customerId string);
-
-@info(name = 'query1')
-from not CustomerStream for 1 sec
-select *
-insert into OutputStream;
-</code></pre>
-
-<p><strong>Siddhi Debugger</strong></p>
-<p>A complete debugger to track events in Siddhi and to debug them along with a terminal endpoint.</p>
-<pre><code class="java">SiddhiManager siddhiManager = new SiddhiManager();
-
-String cseEventStream = &quot;@config(async = 'true') define stream cseEventStream (symbol string, price float, &quot; +
-        &quot;volume int);&quot;;
-final String query = &quot;@info(name = 'query 1')&quot; +
-        &quot;from cseEventStream &quot; +
-        &quot;select symbol, price, volume &quot; +
-        &quot;insert into OutputStream; &quot;;
-
-ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
-InputHandler inputHandler = executionPlanRuntime.getInputHandler(&quot;cseEventStream&quot;);
-
-SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
-siddhiDebugger.acquireBreakPoint(&quot;query 1&quot;, SiddhiDebugger.QueryTerminal.IN);
-
-siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
-    @Override
-    public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
-                            SiddhiDebugger debugger) {
-        log.info(&quot;Query: &quot; + queryName + &quot;:&quot; + queryTerminal);
-        log.info(event);
-        debugger.next();
-    }
-});
-
-inputHandler.send(new Object[]{&quot;WSO2&quot;, 50f, 60});
-inputHandler.send(new Object[]{&quot;WSO2&quot;, 70f, 40});
-executionPlanRuntime.shutdown();
-</code></pre>
-
-<p><strong>Siddhi Event Playback</strong></p>
-<pre><code>@Plan:playback
-define stream cseEventStream (symbol string, price float, volume int);
-
-@info(name = 'query1')
-from cseEventStream#window.timeBatch(1 sec)
-select *
-insert all events into outputStream ;
-</code></pre>
-
-<p><strong>Siddhi Reverse Geocode Extension</strong></p>
-<pre><code>define stream LocationStream (deviceId string, timestamp long, latitude double, longitude double);
-@info(name = 'query1')
-from LocationStream#geo:reversegeocode(latitude, longitude)
-select streetNumber, neighborhood, route, administrativeAreaLevelTwo, administrativeAreaLevelOne, country, countryCode, postalCode, formattedAddress
-insert into OutputStream
-</code></pre>
-
-<p><strong>Proximity Marketting Usecase</strong></p>
-<p>The proximity marketting use cased developed by Gobinath using WSO2 Stream Processor is being used to demonstrate the product to clients.</p>
-<pre><code class="java">@Plan:name('RealtimeAnalytics-ExecutionPlan-ProductOfferGenerator')
-
-@Plan:description('Based on the proximity of the user, send offers to the user')
-
-
-@Import('org.wso2.realtime.analytics.stream.CustomerLocation:1.0.0')
-define stream CustomerLocationStream (meta_timestamp long, customerId string, floorNumber int, shelfNumber int);
-
-@Export('org.wso2.realtime.analytics.stream.SendOffer:1.0.0')
-define stream SendOfferStream (meta_userId string, meta_timestamp long, productName string, offerName string, offerDescription string, expirationDate long);
-
-@IndexBy('id')
-@From(eventtable='rdbms', datasource.name='WSO2_REALTIME_ANALYTICS_BEACON', table.name='ORG_WSO2_REALTIME_ANALYTICS_EVENT_TABLE_ITEM')
-define table ItemEventTable (id string, name string, category string, floorNumber int, shelfNumber int, offerId string);
-
-@IndexBy('id')
-@From(eventtable='rdbms', datasource.name='WSO2_REALTIME_ANALYTICS_BEACON', table.name='ORG_WSO2_REALTIME_ANALYTICS_EVENT_TABLE_OFFER')
-define table OfferEventTable (id string, name string, description string, expirationDate long);
-
-/* Find if the user is in the same location continuously more than 5 seconds */
-from every(loc1 = CustomerLocationStream) -&gt; loc2 = CustomerLocationStream[(meta_timestamp &gt; loc1.meta_timestamp) AND (floorNumber == loc1.floorNumber) AND (shelfNumber == loc1.shelfNumber)]&lt;0:&gt; -&gt; loc3 = CustomerLocationStream[(meta_timestamp &gt;= loc1.meta_timestamp + 30000) AND (floorNumber == loc1.floorNumber) AND (shelfNumber == loc1.shelfNumber)]
-within 5 sec
-select loc1.customerId as userId, loc3.meta_timestamp as timestamp, loc1.floorNumber as floorNumber, loc1.shelfNumber as shelfNumber
-insert into #ProximityStream;
-
-/* Find if the event is triggered for the same series of events. The same pattern identified within a day is ignored to avoid spaming. For testing purpose 5 minutes is used */
-from #ProximityStream as leftStream left outer join #ProximityStream#window.time(5 minutes) as rightStream on leftStream.userId == rightStream.userId AND leftStream.floorNumber == rightStream.floorNumber AND leftStream.shelfNumber == rightStream.shelfNumber
-select leftStream.userId as userId, leftStream.timestamp as timestamp, leftStream.floorNumber as floorNumber, leftStream.shelfNumber as shelfNumber, rightStream.userId IS NULL as isNewEvent
-insert into #ProximityPerDayStream;
-
-/* Allow only new event patterns to trigger offer */
-from #ProximityPerDayStream[isNewEvent]
-select userId, timestamp, floorNumber, shelfNumber
-insert into #FilteredProximityStream;
-
-/* Find whether the product has an offer */
-from #FilteredProximityStream as proximity join ItemEventTable as item on proximity.floorNumber == item.floorNumber AND proximity.shelfNumber == item.shelfNumber AND item.offerId != &quot;N/A&quot;
-select proximity.userId as userId, proximity.timestamp as timestamp, item.id as itemId, item.name as productName, item.offerId as offerId
-insert into #ItemStream;
-
-/* Validate offer expiary peiod and send the offer */
-from #ItemStream as item join OfferEventTable as offer on item.offerId == offer.id AND item.timestamp &lt;= offer.expirationDate
-select item.userId as meta_userId, item.timestamp as meta_timestamp, item.productName as productName, offer.name as offerName, offer.description as offerDescription, offer.expirationDate as expirationDate
-insert into SendOfferStream;
-</code></pre>
-
-<p>In addition, he also fixed several concurrency issues and HA deployment issues. Later, he moved to Canada for his higher studies and developed his own stream processor: <code>Wisdom</code> for his research requirement. Wisdom can optimize itself for better results and self-boost for resource utilization.</p>
 <p>If you like to invest in Wisdom, please contact me via <code>slgobinath@gmail.com</code>. If you are looking for an easy to use stream processor with fresh design and less complexity for your research, you are at the right place. Just drop me an email: <code>slgobinath@gmail.com</code>.</p>
               
             </div>
@@ -412,5 +282,5 @@ insert into SendOfferStream;
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-01-03 00:56:13
+Build Date UTC : 2019-01-26 22:26:31
 -->
